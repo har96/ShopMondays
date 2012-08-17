@@ -1,0 +1,30 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<form action="/message" method="post" enctype="multipart/form-data">
+Sender: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;Send to all users: <input type="checkbox" name="all"/>
+<br>
+<br>
+<br>
+<br>
+	<label>To
+		<input type="text" name="receiver" value="{{receiver}}"/>
+	</label>
+	<br>
+	<br>
+	Content
+	<br>
+	<textarea name="body" wrap="hard">{{body}}</textarea>
+	<br>
+	<label>Image (optional)</label>
+	<input type="file" name="img"/>
+	<br>
+	<button type="submit">Send</button>
+</form>	
+<br>
+Want to chat?  Go to our live chat page <a href="/webchat">here</a>
+<br>
+<div class="error">{{error}}</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+<script>
+	function show_bid()
+	{
+		var button = "<button type=\"submit\">Bid!</button>";
+		var input = "<label>Bid price </label><input name=\"price\"/>";
+		var msg = "<br>You must bid {{item.bid_margin}} over price";
+		document.getElementById("bid-box").innerHTML = input + "&nbsp;\n" + button + msg;
+	}
+</script>
+
+
+<h1>{{item.title}}</h1>
+<br>
+<pre>{{item.description}}</pre>
+<img src="img?img={{item.key.id}}" alt="No image for this item"></img>
+<br>
+Current price: {{item.current_price|dollars}}&nbsp;&nbsp;&nbsp;
+Bidding ends: {{expdate}}&nbsp;&nbsp;&nbsp;Ships by: {{shipdate}}
+<br>
+{% if not item.shipprice %}
+FREE shipping!
+{% endif %}
+{% if item.shipprice %}
+Shipping costs {{item.shipprice|dollars}}
+{% endif %}
+<br>
+{% ifequal item.local_pickup "on" %}
+You can also pickup this item - address will be provided after purchase
+{% endifequal %}
+<br>
+
+{% ifequal item.seller user.name %}
+This is your item. - <a href="/edit_item/{{item.key.id}}">EDIT</a>
+{% endifequal %}
+
+<form method="post">
+	<div id="bid-box">
+		<button onClick="show_bid()">Bid</button>
+	</div>
+</form>
+<div class="error">{{error}}</div>
+
+
+{% endblock %}

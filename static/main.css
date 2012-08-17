@@ -1,0 +1,117 @@
+body {
+	background-image: url('/static/images/Mondays_background.jpg');
+	background-size: 1500px 1350px;
+	background-repeat: no-repeat;
+}
+
+input[type=text] {
+	padding: 5px;
+	font-size: 15px;
+	background-color: gray;
+}
+input[type=password] {
+	padding: 5px;
+	font-size: 15px;
+	background-color: gray;
+}
+textarea {
+	height: 300px;
+	width: 400px;
+	background-color: gray;
+}
+a {
+	text-decoration: none;
+	font: comic-sans;
+}
+.logo {
+	color: green;
+	font-size: 80px;
+	font: comic-sans;
+	margin-left: 100px;
+}
+
+.header-link {
+	margin-right: 20px;
+	text-decoration: none;
+	color: #AAAABB;
+	font-family: good_times;
+	font-size: 20px;
+}
+
+
+.error {
+	color: red;
+	font-size: 20px;
+}
+
+.input-title {
+	font-size: 22px;
+}
+
+.welcome {
+	font-size: 30px;
+	color: gray;
+}
+
+.welcome-user {
+	font-size: 20px;
+	color: #AAAACC;
+	float: right;
+}
+li.user {
+	font-size: 25px;
+	font-family: good_times;
+	margin-right: 20px;
+}
+.slogan {
+	font-size: 20px;
+	color: green;
+	position: absolute;
+	left: 90px;
+}
+
+#body {
+	margin-left: 100px;
+	margin-top: 50px;
+	padding: 20px;
+	margin-left: 70px;
+}
+
+#clock {
+	color: #AAAA88;
+	font-size: 20px;
+	position: absolute;
+	right: 15px;
+	top: 15px;
+}
+
+#bid-box {
+	color: green;
+}
+
+ul.navigation
+{
+	list-style: none;
+	white-space: nowrap;
+	margin-top: 225px;
+}
+
+ul.navigation li
+{
+	display:inline;
+}
+
+ul.users
+{
+	list-style: none;
+}
+
+ul.users li
+{
+	display: inline;
+}
+
+@font-face {
+	font-family: good_times;
+	src: url("good_times_font.ttf")
+}

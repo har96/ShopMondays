@@ -1,0 +1,75 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+
+<form method="post">
+	<div class="error">{{u_exists_error}}</div>
+	<table>
+		<tr>
+			<td><div class="input-title">Username</div></td>
+			<td><input type="text" name="username" value="{{username}}"/></td>
+			<td><div class="error">{{u_error}}</div></td>
+		</tr>
+		<tr>
+			<td><div class="input-title">Password</div></td>
+			<td><input type="password" name="password"/></td>
+			<td><div class="error">{{p_error}}</div></td>
+		</tr>
+		<tr>
+			<td><div class="input-title">Verify Password</div></td>
+			<td><input type="password" name="verify"/></td>
+			<td><div class="error">{{v_error}}</div></td>
+		</tr>
+		<tr>
+			<td><br></td>
+		</tr>
+		<tr>
+			<td><hr></td>
+			<td>&nbsp;Personal Information</td>
+		</tr>
+		<tr>
+			<td>First name</td>
+			<td><input type="text" name="name1" value="{{name1}}"/></td>
+			<td><div class="error">{{fn_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Last name</td>
+			<td><input type="text" name="name2" value="{{name2}}"/></td>
+			<td><div class="error">{{ln_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Email address</td>
+			<td><input type="text" name="email" value="{{email}}"/></td>
+			<td><div class="error">{{e_error}}</div></td>
+		</tr>	
+		<tr>
+			<td>Address line 1</td>
+			<td><input type="text" name="address1" value="{{address1}}"/></td>
+		</tr>
+		<tr>
+			<td>Address line 2 (if applicable)</td>
+			<td><input type="text" name="address2" value="{{address2}}"/></td>
+		</tr>
+		<tr>
+			<td>City</td>
+			<td><input type="text" name="city" value="{{city}}"/></td>
+			<td><div class="error">{{c_error}}</div></td>
+		</tr>
+		<tr>
+			<td>State (abbreviation)</td>
+			<td><input type="text" name="state" value="{{state}}"/></td>
+			<td><div class="error">{{s_error}}</div></td>
+		</tr>
+
+		<tr>
+			<td>Zip Code</td>
+			<td><input type="text" name="zip" value="{{zip}}"/></td>
+			<td><div class="error">{{z_error}}</div></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Register</button></td>
+		</tr>
+
+	</table>
+</form>
+{% endblock %}

@@ -1,0 +1,21 @@
+from google.appengine.ext import webapp
+register = webapp.template.create_template_register()
+
+
+def getkey(value, arg):
+	""" returns value[arg] """
+	return str(value.get(arg, ""))
+
+def balance( history ):
+	""" returns credit-debit """
+	return str( int(history["money earned"]) - int(history["money spent"]) )
+
+def dollars( amount ):
+	""" converts a float to dollars """
+	if type(amount) == str:
+		return amount
+	return "%0.2f" % float(amount)
+
+register.simple_tag(balance)
+register.filter(getkey)
+register.filter(dollars)

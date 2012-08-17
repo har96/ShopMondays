@@ -1,0 +1,42 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<h2 align="center">{{pageuser.name}}</h2>
+
+<br>
+{{pageuser.first_name}} {{pageuser.last_name}}
+<br>
+
+{% ifequal user.name pageuser.name %}
+
+Email: {{user.email}}
+<br>
+Address: {{user.address}}
+<br>
+<a href="/edit_user/{{user.key.id}}">Edit</a>
+
+<h3 align="center">History</h3>
+<br>
+<br>
+Money Spent: {{history|getkey:"money spent"}}
+<br>
+Money Earned: {{history|getkey:"money earned"}}
+<br>
+Balance: {% balance history %}
+<br>
+Number of items sold: {{history|getkey:"number of items sold"}}
+<br>
+Number of items listed that didn't get sold: {{history|getkey:"number of items not sold"}}
+<br>
+Number of messages sent: {{history|getkey:"number of messages sent"}}
+<br>
+Number of messages received: {{history|getkey:"number of messages received"}}
+
+
+{% endifequal %}
+<br>
+<a href="/message?receiver={{pageuser.name}}">Send this user a message</a>
+
+{% endblock %}
+

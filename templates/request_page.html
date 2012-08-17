@@ -1,0 +1,13 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+	<label>Item Requested <input type="text" name="item"/></label>
+	<br>
+	<br>
+	<label>Image (optional) <input type="file" name="img"/></label>
+	<button type="submit">Send</button>
+</form>
+
+{% endblock %}

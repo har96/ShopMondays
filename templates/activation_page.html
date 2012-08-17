@@ -1,0 +1,49 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+<form method="post">
+	{% if not user.first_name %}
+	<label>First Name</label><input type="text" name="name1" value="{{first_name}}"/>
+	<div class="error">{{first_name_e}}</div>
+	<br>
+	{% endif %}
+
+	{% if not user.last_name %}
+	<label>Last Name</label><input type="text" name="name2" value="{{last_name}}"/>
+	<div class="error">{{last_name_e}}</div>
+	<br>
+	{% endif %}
+
+	<label>Email</label><input type="text" name="email" value="{{email}}"/>
+	<div class="error">{{email_e}}</div>
+	<br>
+
+	{% if not user.state %}
+	<label>State</label><input type="text" name="state" value="{{state}}"/>
+	<div class="error">{{state_e}}</div>
+	<br>
+	{% endif %}
+
+	{% if not user.city %}
+	<label>City</label><input type="text" name="city" value="{{city}}"/>
+	<div class="error">{{city_e}}</div>
+	<br>
+	{% endif %}
+
+	{% if not user.zip %}
+	<label>Zip</label><input type="text" name="zip" value="{{zip}}"/>
+	<div class="error">{{zip_e}}</div>
+	<br>
+	{% endif %}
+
+	{% if not user.address %}
+	<label>Address Line 1</label><input type="text" name="address1" value="{{address1}}"/>
+	<div class="error">{{address1_e}}</div>
+	<br>
+	<label>Address Line 2 (if applicable)</label><input type="text" name="address2" value="{{address2}}"/>
+	<br>
+	{% endif %}
+
+	<button type="submit">Submit</button>
+</form>
+{% endblock %}

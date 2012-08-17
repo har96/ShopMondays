@@ -1,0 +1,43 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+	<table>
+		<tr>
+			<td>Item Title</td><td><input type="text" name="title" value="{{title}}"/></td>
+		</tr>
+		<tr>
+			<td>Description</td><td><textarea name="description" wrap="hard">{{desc}}</textarea></td>
+		</tr>
+		<tr>
+			<td>Start Price</td>
+			<td><label>$<input type="text" name="startprice" value="{{price}}"/></label></td>
+		</tr>
+		<tr>
+			<td>Shipping Price (optional)</td>
+			<td><label>$</label><input type="text" name="shipprice" value="{{shipprice}}"/></td>
+		</tr>
+		<tr>
+			<td>Enable local pickup</td>
+			<td><input type="checkbox" name="local_pickup" value="{{local_pickup}}"/></td>
+		</tr>
+		<tr>
+			<td>Days Listed</td><td><input type="text" name="days_listed" value="{{days_listed}}"/></td>
+		</tr>
+		<tr>
+			<td>Estimated time to ship</td>
+			<td><input type="text" name="shipdays" value="{{shipdays}}"/></td>
+		</tr>
+		<tr>
+			<td>Item Image</td><td><input type="file" name="img"/></td>
+		</tr>
+		<tr>
+			<td><button type="submit">List</button></td>
+		</tr>
+	</table>
+	<div class="error">{{error}}</div>
+	<div class="error">{{value_error}}</div>
+</form>
+
+{% endblock %}

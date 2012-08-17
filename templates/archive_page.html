@@ -1,0 +1,19 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<table>
+	<th>Title&nbsp;&nbsp;</th><th>Current Price&nbsp;&nbsp;</th>
+	<th>Bids&nbsp;&nbsp;</th><th>Current Buyer&nbsp;&nbsp;</th><th>Seller</th>
+{% for i in items %}
+	<tr>
+		<td><a href="/item/{{i.key.id}}">{{i.title}}</a></td>
+		<td>${{i.current_price|dollars}}</td>
+		<td>{{i.num_bids}}</td>
+		<td>{{i.current_buyer}}</td>
+		<td>{{i.seller}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

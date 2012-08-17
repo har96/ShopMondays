@@ -1,0 +1,36 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<div class="error">{{error}}</div>
+
+<form method="post" enctype="multipart/form-data">
+	<table>
+		{% ifequal item.num_bids 0 %}
+		<tr>
+			<td>Title</td>
+			<td><input type="text" name="title" value="{{title}}"/></td>
+			<td><div class="error">{{t_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Description</td>
+			<td><textarea name="description" wrap="hard">{{description}}</textarea></td>
+			<td><div class="error">{{d_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Start Price</td>
+			<td>$<input type="text" name="price" value="{{price|dollars}}"/></td>
+			<td><div class="error">{{p_error}}</div></td>
+		</tr>
+		{% endifequal %}
+		<tr>
+			<td>Image</td>
+			<td><input type="file" name="image"/></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Update</button></td>
+		</tr>
+	</table>
+</form>
+
+{% endblock %}

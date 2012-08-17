@@ -1,0 +1,17 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<form method="post">
+	<label>Password</label>
+	<input type="password" name="password"/>
+	<div class="error">{{pw_error}}</div>
+	<br>
+	<label>Verify Password</label>
+	<input type="password" name="verify"/>
+	<div class="error">{{v_error}}</div>
+	<br>
+	<button type="submit">Reset</button>
+</form>
+
+{% endblock %}

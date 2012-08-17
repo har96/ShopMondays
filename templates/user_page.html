@@ -1,0 +1,42 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+Your Items:
+<table>
+	<th><pre>Title   </pre></th> <th><pre>Current Price   <pre></th> 
+	<th><pre>Bids   </pre></th> <th><pre>Current Buyer</pre> </th>
+	{% for item in useritems %}
+	<tr>
+		<td><a href="/item/{{item.key.id}}">{{item.title}}</a></td>
+		<td>${{item.current_price|dollars}}</td>
+		<td>{{item.num_bids}}</td><td>{{item.current_buyer}}</td>
+	</tr>
+	{% endfor %}
+</table>
+<br>
+<br>
+Message Inbox:
+<form method="post">
+	<table>
+		<th><pre>From   </pre></th> <th><pre>Message    </pre></th> <th><pre>Image    </pre></th>
+		<th><pre>Date Sent    </pre></th>
+		{% for message in usermessages %}
+			<tr>
+				<td>{{message.sender}}:</td>
+				<td><pre>{{message.content}}</pre></td>
+				<td><img src="/img_msg?id={{message.key.id}}" alt=""></img></td>
+				<td>{{message.sent_str}}</td>
+				<td><button type="submit" name="delete_mes" value="{{message.key.id}}">Delete
+					</button></td>
+			</tr>
+			<tr>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+			</tr>
+		{% endfor %}
+	</table>
+</form>
+{% endblock %}
