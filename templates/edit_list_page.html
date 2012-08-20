@@ -6,7 +6,7 @@
 
 <form method="post" enctype="multipart/form-data">
 	<table>
-		{% ifequal item.num_bids 0 %}
+		{% if not item.num_bids %}
 		<tr>
 			<td>Title</td>
 			<td><input type="text" name="title" value="{{title}}"/></td>
@@ -22,7 +22,16 @@
 			<td>$<input type="text" name="price" value="{{price|dollars}}"/></td>
 			<td><div class="error">{{p_error}}</div></td>
 		</tr>
-		{% endifequal %}
+		<tr>
+			<td>Shipping Price</td>
+			<td>$<input type="text" name="shipprice" value="{{shipprice}}"/></td>
+			<td><div class="error">{{s_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Local Pickup Option</td>
+			<td><input type="checkbox" name="localpickup" value="on" {{localpickup}}/></td>
+		</tr>
+		{% endif %}
 		<tr>
 			<td>Image</td>
 			<td><input type="file" name="image"/></td>

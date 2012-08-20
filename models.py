@@ -180,6 +180,8 @@ class Item( db.Model):
 		self.num_bids += 1
 		self.current_buyer = buyer
 		self.bid_margin = price - self.current_price
+		if not self.bid_margin:
+			self.bid_margin = 0.01
 		self.current_price = price
 		self.put()
 	

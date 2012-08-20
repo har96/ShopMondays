@@ -4,6 +4,19 @@
 		<link type="text/css" rel="stylesheet" href="/static/main.css"/>
 
 		<script type="text/javascript">
+			
+			function show_bid()
+			{
+				if ("{{item.seller}}" == "{{user.name}}") {
+					document.getElementById("bid-box").innerHTML = "You cannot bid on items you sell";
+					return;
+				}
+				var button = "<button type=\"submit\">Bid!</button>";
+				var input = "<label>Bid price </label><input name=\"price\"/>";
+				var msg = "<br>You must bid {{item.bid_margin}} over price";
+				document.getElementById("bid-box").innerHTML = input + "&nbsp;\n" + button + msg;
+			}
+		
 			function clock()
 			{
 				setInterval(function(){showTime()}, 1000);

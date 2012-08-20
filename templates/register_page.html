@@ -56,8 +56,14 @@
 			<td><div class="error">{{c_error}}</div></td>
 		</tr>
 		<tr>
-			<td>State (abbreviation)</td>
-			<td><input type="text" name="state" value="{{state}}"/></td>
+			<td>State</td>
+			<td>
+				<select name="state">
+					{% for state in state_list %}
+					<option value={{state}}>{{state}}</option>
+					{% endfor %}
+				</select>
+			</td>
 			<td><div class="error">{{s_error}}</div></td>
 		</tr>
 

@@ -1,16 +1,6 @@
 {% extends "base_homepage.html" %}
 
 {% block content %}
-<script>
-	function show_bid()
-	{
-		var button = "<button type=\"submit\">Bid!</button>";
-		var input = "<label>Bid price </label><input name=\"price\"/>";
-		var msg = "<br>You must bid {{item.bid_margin}} over price";
-		document.getElementById("bid-box").innerHTML = input + "&nbsp;\n" + button + msg;
-	}
-</script>
-
 
 <h1>{{item.title}}</h1>
 <br>
@@ -28,7 +18,7 @@ Shipping costs {{item.shipprice|dollars}}
 {% endif %}
 <br>
 {% ifequal item.local_pickup "on" %}
-You can also pickup this item - address will be provided after purchase
+You can also pickup this item - contact seller through Mondays messaging to get address
 {% endifequal %}
 <br>
 

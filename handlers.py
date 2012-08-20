@@ -109,7 +109,7 @@ class Register( Handler ):
 	def write(self, **format_args):
 		self.render("templates/register_page.html", **format_args)
 	def get(self):
-		self.write()
+		self.write(state_list=STATE_LIST)
 	def post(self):
 		username = self.request.get("username")
 		password = self.request.get("password")
@@ -129,12 +129,11 @@ class Register( Handler ):
 		v_error = "Passwords Don't Match" if password != verify else ""
 		fn_error = "First name required" if not first_name else ""
 		ln_error = "Last name required" if not last_name else ""
-		s_error = "State does not exist in USA" if not state in STATE_LIST else ""
 		c_error = "Must specify city" if not city else ""
 		z_error = "Invalid zip code" if not zip.isdigit() else ""
 		a_error = "Invalid Address (line 1)" if not address1 else ""
 		
-		if u_error or p_error or v_error or e_error or fn_error or ln_error or s_error or c_error or z_error or a_error:
+		if u_error or p_error or v_error or e_error or fn_error or ln_error or c_error or z_error or a_error:
 			username = cgi.escape(username)
 			email = cgi.escape(email)
 			first_name = cgi.escape(first_name)
@@ -144,15 +143,15 @@ class Register( Handler ):
 			zip = cgi.escape(zip)
 			address1 = cgi.escape(address1)
 			address2 = cgi.escape(address2)
-			self.write(e_error=e_error, fn_error=fn_error, ln_error=ln_error, s_error=s_error, c_error=c_error, \
+			self.write(e_error=e_error, fn_error=fn_error, ln_error=ln_error, c_error=c_error, \
 					z_error=z_error, u_error=u_error, p_error=p_error, v_error=v_error, a_error=a_error, \
 					username=username, name1=first_name, name2=last_name, email=email, state=state, \
-					zip=zip, city=city, address1=address1, address2=address2)
+					zip=zip, city=city, address1=address1, address2=address2, state_list=STATE_LIST)
 
 			return
 		elif User.get_by_name(username):
 			self.write(u_exists_error="Username already exists", username=username, name1=first_name, name2=last_name, email=email,\
-					state=state, zip=zip, city=city, address1=address1, address2=address2)
+					state=state, zip=zip, city=city, address1=address1, address2=address2, state_list=STATE_LIST)
 			return
 		else:
 			# Create and store user
@@ -160,9 +159,6 @@ class Register( Handler ):
 			u.put()
 			# Set the user cookie
 			self.response.headers.add_header("Set-Cookie", 'user_id=%s|%s; Path=/' % (u.key().id(), u.password))
-			# Send a email asking them to verify their email address and
-			# Activate their acount
-			# CODE HERE
 
 			# Send a message welcoming the user
 			Message.send_mond_msg(username, "Welcome to Mondays <b>%s</b>!" % u.first_name)
@@ -282,7 +278,7 @@ class AddItem( Handler ):
 		days_listed = self.request.get("days_listed")
 		shipdays = self.request.get("shipdays")
 		shipprice = self.request.get("shipprice")
-		local_pickup = self.request.get("local_pickup")
+		local_pickup = self.request.get("localpickup")
 		logging.info("local_pickup fresh out of request: %s" % local_pickup)
 
 		if not days_listed: days_listed = "7"
@@ -343,7 +339,7 @@ class ItemView( Handler ):
 
 		price = self.request.get("price")
 
-		if buyer == i.seller:
+		if buyer.name == i.seller:
 			self.write(user=buyer, item=i, shipdate=shipdate, expdate=expdate,
 					error="You cannot bid on items you sell")
 			return
@@ -377,11 +373,12 @@ class EditItem( Handler ):
 		if item.seller != user.name:
 			self.write(error="This is not your item.  You do not have permission to edit this item.")
 			return
-		if item.num_bids:
-			self.write(error="Someone has bidded on this item.  You only have permission to edit the image")
-			return
 
-		self.write(user=user, title=item.title, description=item.description, price=item.current_price)
+		if item.num_bids:
+			self.write(error = "There are bids on this item, you may only edit the image.", user=user, item=item)
+			return
+		self.write( user=user, title=item.title, description=item.description, price=item.current_price, shipprice=item.shipprice,\
+				localpickup='checked="checked"' if item.local_pickup=="on" else "", item=item)
 
 	def post(self, id):
 		user = self.get_user()
@@ -398,24 +395,33 @@ class EditItem( Handler ):
 		title = self.request.get("title")
 		description = self.request.get("description")
 		price = self.request.get("price")
+		shipprice = self.request.get("shipprice")
+		localpickup = self.request.get("localpickup")
 		image = self.request.get("image")
 
-		t_error = p_error = ""
+		t_error = p_error = s_error = ""
 		try:
 			price = float(price)
 		except ValueError:
 			p_error = "Price must be a valid amount"
+		try:
+			shipprice = float(shipprice)
+		except ValueError:
+			s_error = "Shipping price must be a valid amount"
 
 		if not title: t_error = "Must have a title"
 		if not price: p_error = "Must have price"
 
-		if t_error or p_error:
-			self.write(title=cgi.escape(title), description=cgi.escape(description), price=cgi.escape(str(price)), t_error=t_error, p_error=p_error) 
+		if t_error or p_error or s_error:
+			self.write(title=cgi.escape(title), description=cgi.escape(description), price=cgi.escape(str(price)), t_error=t_error, p_error=p_error, \
+					s_error=s_error, shipprice=shipprice, localpickup='checked="checked"' if localpickup=="on" else "", item=item) 
 			return
 		if not item.num_bids:
 			item.title = title
 			item.description = description
 			item.price = price
+			item.shipprice = shipprice
+			item.local_pickup = localpickup
 		if image: item.image = image
 
 		item.put()

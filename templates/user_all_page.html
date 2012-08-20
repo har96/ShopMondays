@@ -5,7 +5,7 @@
 <ul class="users">
 {% for u in users %}
 <li class="user"><a href="/user/{{u.key.id}}">{{u.name}}</a></li>
-{% if forloop.counter|divisibleby:5 %}<br>{% endif %}
+{% if forloop.counter|divisibleby:4 %}<br>{% endif %}
 {% endfor %}
 </ul>
 
