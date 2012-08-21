@@ -1,6 +1,7 @@
 body {
-	background-image: url('/static/images/Mondays_background.jpg');
-	background-size: 1500px 1350px;
+	background-image: url('/static/images/background_gradient.jpg');
+	background-height: 100%;
+	background-width: 100%;
 	background-repeat: no-repeat;
 }
 
@@ -114,4 +115,23 @@ ul.users li
 @font-face {
 	font-family: good_times;
 	src: url("good_times_font.ttf")
+}
+
+img#left-bar {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	z-index: -2;
+}
+img#right-bar {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	z-index: -2;
+}
+img#banner {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	z-index: -1;
 }
