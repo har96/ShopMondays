@@ -136,6 +136,10 @@ class Message( db.Model ):
 	
 	@classmethod
 	def send_mond_msg(cls, receiver, content, image=None):
+		if not receiver:
+			raise ValueError("There must be a valid receiver")
+		if not content:
+			raise ValueError("Message must have valid content")
 		td = gen_date2()
 		m = cls(sender="Mondays", receiver=receiver, content=content, sent=td)
 		if image: m.image = create_image(image, 200, 200)

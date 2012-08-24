@@ -61,6 +61,17 @@
 				 document.body.appendChild(form);
 			     	 form.submit();
 			}
+			function delete_item(bids, id) {
+				var msg = "Are you sure you want to delete this item? ";
+				if (bids > 0) {
+					msg = msg + "There are bids on the item.";
+				}
+				var del = confirm(msg);
+				if (!del) {
+					return;
+				}
+				post_to_url("/edit/"+string(id), {"delete":"delete"}, "post");
+			}
 
 		</script>
 

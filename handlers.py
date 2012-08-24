@@ -287,6 +287,7 @@ class AddItem( Handler ):
 			start_price = float(start_price)
 		except ValueError:
 			v_error_msg = "Invalid input for start price"
+	        if not shipprice: shipprice = 0.0
 		try:
 			shipprice = float(shipprice)
 		except ValueError:
@@ -392,6 +393,17 @@ class EditItem( Handler ):
 			self.write(error="This is not your item.  You do not have permission to edit this item.")
 			return
 
+		# if the user clicked the delete button
+		should_delete = self.request.get("delete")
+		logging.info(should_delete)
+		if should_delete:
+			logging.info('enters')
+			Item.delete(item)
+			if item.current_buyer:
+				Message.send_mond_msg(item.current_buyer, "Sorry, %s just deleted %s." % (item.seller, item.title))  
+			self.redirect("/home")
+			return
+		# otherwise he/she clicked the update button
 		title = self.request.get("title")
 		description = self.request.get("description")
 		price = self.request.get("price")
