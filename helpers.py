@@ -29,15 +29,17 @@ def make_salt():
 def hash_str(s):
 	""" sha256 hash of s """
 	return hashlib.sha256(s).hexdigest()
-def encrypt_str(s, salt=None):
+def encrypt_str(s, salt):
 	""" if not salt, returns a tuple containing
 	(hash, salt) else returns hash(s) """
-	if not salt:
-		salt = bcrypt.gensalt()
 	hash = hash_str( bcrypt.hashpw( hash_str( hash_str(s) ), salt) )
-	return (hash, salt)
-def hash_user_info(name, password, salt=None):
-	return encrypt_str(name+password, salt)
+	return hash
+def hash_user_info(name, password, pepper=None, salt=None):
+	if not pepper:
+		pepper = bcrypt.gensalt()
+	if not salt:
+		salt = make_salt()
+	return encrypt_str(name+password+salt, pepper), salt, pepper
 def users_match(user, hashed_password):
 	return user and user.password == hashed_password
 def find_month_lim(month, year):

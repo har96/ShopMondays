@@ -9,6 +9,7 @@ class User( db.Model ):
 	name = db.StringProperty(required=True)
 	password = db.StringProperty(required=True)
 	salt = db.StringProperty(required=True)
+	pepper = db.StringProperty()
 
 	# A Dictionary containing the user's important events
 	# "registered", "number of items sold", "number of items not sold"
@@ -76,8 +77,8 @@ class User( db.Model ):
 	
 	@classmethod
 	def register(cls, username, password, email, first_name, last_name, state, city, zip, address1):
-		p, salt = hash_user_info(username, password)
-		u = cls(name=username, password=p, salt=salt)
+		p, salt, pepper = hash_user_info(username, password)
+		u = cls(name=username, password=p, salt=salt, pepper=pepper)
 		u._init_history()
 		u.active = False
 		u.email = email

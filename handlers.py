@@ -93,7 +93,7 @@ class LoginPage( Handler ):
 			self.write(error="Must have a username and a password", username=cgi.escape(username))
 
 		u = User.get_by_name(username)
-		if u and users_match(u, hash_user_info(username, password, u.salt)[0]):
+		if users_match(u, hash_user_info(username, password, u.pepper, u.salt)[0]):
 			self.response.headers.add_header("Set-Cookie", "user_id=%s|%s; Path=/" % (u.key().id(), u.password))
 			self.redirect("/home")
 		else:
@@ -545,11 +545,11 @@ class Activate(Handler):
 		logging.info(" did_enter_email>> " + str(did_enter_email))
 
 		if did_enter_email:
-			content = """ Please visit this page to activate your user: 1-2-alpha2.mimondays.appspot.com/activate/%d
+			content = """ Please visit this page to activate your user: www.shopmondays.com/activate/%d
 				Copy and paste this code into the "Activate code" box: %s"""
 			content = content % (user.key().id(), hash_str(user.name + "1j2h3@$#klasd"))
-			
 			logging.info(content)
+			
 #			send_email_to_user(user, "Mondays user activation", content)
 			mail.send_mail(sender="harrison@hunterhayven.com",
 				to=input_dict["email"],
@@ -619,7 +619,7 @@ class ResetPassword(Handler):
 		if pw_error or v_error:
 			self.write(user=user, pw_error=pw_error, v_error=v_error)
 			return
-		user.password = hash_user_info( user.name, user.password, user.salt)[0]
+		user.password = hash_user_info( user.name, user.password, user.salt, user.salt2)[0]
 		user.put()
 
 		self.response.headers.add_header("Set-Cookie", "user_id=%d|%s; Path=/;" % (user.key().id(), user.password))
