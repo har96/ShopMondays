@@ -14,6 +14,7 @@ import re
 import py_bcrypt.bcrypt as bcrypt
 
 from google.appengine.api import images
+from google.appengine.ext import db
 
 USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
 PASSWORD_RE = re.compile("^.{4,20}$")
