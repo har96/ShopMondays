@@ -1,3 +1,4 @@
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.api import mail
@@ -93,6 +94,10 @@ class LoginPage( Handler ):
 			self.write(error="Must have a username and a password", username=cgi.escape(username))
 
 		u = User.get_by_name(username)
+		if u is None:
+			self.write(error="Invalid username and password combination", username=cgi.escape(username))
+			return
+
 		if users_match(u, hash_user_info(username, password, u.pepper, u.salt)[0]):
 			self.response.headers.add_header("Set-Cookie", "user_id=%s|%s; Path=/" % (u.key().id(), u.password))
 			self.redirect("/home")
@@ -168,12 +173,6 @@ class UserHome( Handler ):
 	def write(self, **format_args):
 		self.render("templates/user_page.html", **format_args)
 	def get(self):
-#		cookie = self.get_user_cookie()
-#		if not User.valid_user_cookie(cookie):
-#			self.cookie_error()
-#			return
-#		id = int(cookie.split("|")[0])
-#		user = User.get_by_id(id)
 		user = self.get_user()
 		if not user:
 			self.response.out.write("You are not logged in")
@@ -182,15 +181,26 @@ class UserHome( Handler ):
 			self.response.out.write("""<div style="color: blue">You account is not currently active,
 				please activate your account <a href="/activate">here</a></div>""")
 		else:
-			id = int(self.get_user_cookie().split("|")[0])
-			msgs = Message.get_from_receiver(User.get_by_id(id).name)
-			useritems = Item.get_by_seller(User.get_by_id(id).name)
+			msgs = memcache.get("%smsg" % user.key().id())
+			if msgs is None or memcache.get("%supdate" % user.key().id()):
+				logging.info("DB query")
+				msgs = Message.get_from_receiver(user.name)
+				memcache.set("%smsg" % user.key().id(), list(msgs))
+				memcache.set("%supdate" % user.key().id(), False)
+			useritems = Item.get_by_seller(user.name)
 	
-			self.write(user=User.get_by_id(id), usermessages=msgs, useritems=useritems)
+			self.write(user=user, usermessages=msgs, useritems=useritems)
 	def post(self):
+		user = self.get_user()
+		if not user:
+			self.response.out.write("You are not logged in")
+			return
+
 		del_id = self.request.get("delete_mes")
 		m = Message.get_by_id(int(del_id))
-		if m: m.delete()
+		if m: 
+			m.delete()
+			memcache.set("%supdate" % user.key().id(), True)
 		self.redirect("/home")
 
 
@@ -227,7 +237,7 @@ class CreateMessage( Handler ):
 			if receiver == u.name:
 				found = True
 				break
-		if not found:
+		if not found and not all == "on":
 			self.write(user=user, error="User does not exist", body=cgi.escape(content),
 					receiver=cgi.escape(receiver))
 			return
@@ -239,9 +249,11 @@ class CreateMessage( Handler ):
 				sender = User.get_by_id(id).name
 				if sender == "Mondays":
 					for u in User.all():
+						memcache.set("%supdate" % u.key().id(), True)
 						Message.send_mond_msg(u.name, content, image or None)
 				else:
 					for u in User.all():
+						memcache.set("%supdate" % u.key().id(), True)
 						Message.send_msg(sender, u.name, content, image or None)
 			except Exception, e:
 				
@@ -251,8 +263,11 @@ class CreateMessage( Handler ):
 		else:
 			sender = User.get_by_id(id).name
 			if sender == "Mondays":
+				memcache.set("%supdate" % User.get_by_name(receiver).key().id(), True)
 				Message.send_mond_msg(receiver, content, image or None)
-			else: Message.send_msg(sender, receiver, content, image or None)
+			else: 
+				memcache.set("%supdate" % User.get_by_name(receiver).key().id(), True)
+				Message.send_msg(sender, receiver, content, image or None)
 
 		self.redirect("/home")
 
@@ -434,7 +449,7 @@ class EditItem( Handler ):
 			item.price = price
 			item.shipprice = shipprice
 			item.local_pickup = localpickup
-		if image: item.image = image
+		if image: item.image = create_image(image, 400, 400)
 
 		item.put()
 		self.redirect("/item/%d" % id)
@@ -513,6 +528,9 @@ class Activate(Handler):
 		user = User.get_by_id(int(cookie.split("|")[0]))
 		input_dict = {}
 		input_dict["email"] = self.request.get("email")
+		if hasattr(user, "email") and user.email and user.email != input_dict["email"]:
+			self.write(user=user, email=input_dict["email"], email_e="Email does not match your registration email")
+			return
 		did_enter_email = True
 		if not user.first_name:
 			input_dict["first_name"] = self.request.get("name1")
@@ -548,7 +566,6 @@ class Activate(Handler):
 			content = """ Please visit this page to activate your user: www.shopmondays.com/activate/%d
 				Copy and paste this code into the "Activate code" box: %s"""
 			content = content % (user.key().id(), hash_str(user.name + "1j2h3@$#klasd"))
-			logging.info(content)
 			
 #			send_email_to_user(user, "Mondays user activation", content)
 			mail.send_mail(sender="harrison@hunterhayven.com",
@@ -580,6 +597,9 @@ class ActivateUser(Handler):
 		self.write(user=user)
 	def post(self, id):
 		user = User.get_by_id(int(id))
+		if not user:
+			self.response.out.write("<b>Sorry,</b> this user does not exist.  You cannot activate.")
+			return
 		pw = self.request.get('password')
 		if pw == hash_str(user.name + "1j2h3@$#klasd"):
 			activation_email = self.request.cookies.get("activation_info")

@@ -62,7 +62,7 @@ class User( db.Model ):
 
 	def get_history(self):
 		hist = json.loads(self.history)
-		hist["registered"] = pickle.loads( str(hist["registered"]) )
+		hist["registered"] = pickle.loads( str(hist["registered"] ) )
 		return hist
 
 	def put_history(self, history_dict):
