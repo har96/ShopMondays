@@ -259,6 +259,7 @@ class CreateMessage( Handler ):
 				
 				self.write(user=sender, error="Sorry, message did not send, an error occured: %s" % e,
 					body=cgi.escape(content), receiver=cgi.escape(receiver))
+				logging.error("Message error:" + e)
 				return
 		else:
 			sender = User.get_by_id(id).name
@@ -325,7 +326,7 @@ class AddItem( Handler ):
 		shipdays = int(shipdays)
 		item = Item.get_new(seller.name, title, days_listed, shipdays, current_price=start_price,
 				description=description, shipprice=shipprice, local_pickup=local_pickup)
-		if self.request.get("img"): item.image = create_image(self.request.get("img"), 400, 400)
+		if self.request.get("img") != None: item.image = create_image(self.request.get("img"), 400, 400)
 		item.put()
 		self.redirect("/home")
 
@@ -491,15 +492,15 @@ class RequestMsg( Handler ):
 					image=image)
 		self.redirect("/home")
 
-class Image( Handler ):
-	def get(self):
-		item = Item.get_by_id( int(self.request.get("img")) )
+class ItemImage( Handler ):
+	def get(self, id):
+		item = Item.get_by_id( int(id) )
 		if item.image:
 			self.response.headers['Content-Type'] = "image/jpg"
 			self.response.out.write(item.image)
 		else:
 			self.error(404)
-class ImageMsg(Handler):
+class MsgImage(Handler):
 	def get(self):
 		msg = Message.get_by_id(int(self.request.get("id")))
 		if msg.image:
