@@ -47,10 +47,11 @@ class HomePage( Handler ):
 					# item was bought
 					# deal with seller
 					msg = "You sold your %s to %s for %0.2f! Make sure you ship before %s!" \
-							"\nSend to this address:\n%s" \
+							"\nSend to this address:\n%s\nDon't forget, you charged %s extra for shipping" \
 							% (i.title, i.current_buyer, 
 									i.current_price,
-									i.shipdate.strftime("%b %d"), User.get_by_name( i.current_buyer ).address)
+									i.shipdate.strftime("%b %d"), User.get_by_name( i.current_buyer ).address,
+									i.shipprice)
 					Message.send_mond_msg(i.seller, msg)
 					seller = User.get_by_name(i.seller)
 					history = seller.get_history()
@@ -167,6 +168,7 @@ class Register( Handler ):
 
 			# Send a message welcoming the user
 			Message.send_mond_msg(username, "Welcome to Mondays <b>%s</b>!" % u.first_name)
+			logging.info("user: %s just registered" % u.name)
 			self.redirect("/home")
 
 class UserHome( Handler ):
@@ -232,8 +234,9 @@ class CreateMessage( Handler ):
 			return
 
 		# ensure that the user entered a valid receiver
+		all_users = User.all()
 		found = False
-		for u in User.all():
+		for u in all_users:
 			if receiver == u.name:
 				found = True
 				break
@@ -248,18 +251,18 @@ class CreateMessage( Handler ):
 			try:
 				sender = User.get_by_id(id).name
 				if sender == "Mondays":
-					for u in User.all():
+					for u in all_users:
 						memcache.set("%supdate" % u.key().id(), True)
 						Message.send_mond_msg(u.name, content, image or None)
 				else:
-					for u in User.all():
+					for u in all_users:
 						memcache.set("%supdate" % u.key().id(), True)
 						Message.send_msg(sender, u.name, content, image or None)
 			except Exception, e:
 				
 				self.write(user=sender, error="Sorry, message did not send, an error occured: %s" % e,
 					body=cgi.escape(content), receiver=cgi.escape(receiver))
-				logging.error("Message error:" + e)
+				logging.error("Message error:" + str(e))
 				return
 		else:
 			sender = User.get_by_id(id).name
@@ -295,7 +298,6 @@ class AddItem( Handler ):
 		shipdays = self.request.get("shipdays")
 		shipprice = self.request.get("shipprice")
 		local_pickup = self.request.get("localpickup")
-		logging.info("local_pickup fresh out of request: %s" % local_pickup)
 
 		if not days_listed: days_listed = "7"
 		v_error_msg = ""
@@ -326,7 +328,7 @@ class AddItem( Handler ):
 		shipdays = int(shipdays)
 		item = Item.get_new(seller.name, title, days_listed, shipdays, current_price=start_price,
 				description=description, shipprice=shipprice, local_pickup=local_pickup)
-		if self.request.get("img") != None: item.image = create_image(self.request.get("img"), 400, 400)
+		if self.request.get("img"): item.image = create_image(self.request.get("img"), 400, 400)
 		item.put()
 		self.redirect("/home")
 
@@ -411,9 +413,7 @@ class EditItem( Handler ):
 
 		# if the user clicked the delete button
 		should_delete = self.request.get("delete")
-		logging.info(should_delete)
 		if should_delete:
-			logging.info('enters')
 			Item.delete(item)
 			if item.current_buyer:
 				Message.send_mond_msg(item.current_buyer, "Sorry, %s just deleted %s." % (item.seller, item.title))  
@@ -557,11 +557,9 @@ class Activate(Handler):
 			elif not input_dict[attribute]:
 				error_dict[attribute + "_e"] = "Invalid input for %s" % attribute
 		if len(error_dict):
-			logging.info("more than 0 errors")
 			self.write(user=user, **error_dict)
 			return
 
-		logging.info(" did_enter_email>> " + str(did_enter_email))
 
 		if did_enter_email:
 			content = """ Please visit this page to activate your user: www.shopmondays.com/activate/%d
@@ -587,6 +585,7 @@ class Activate(Handler):
 			return
 		user.activate( **input_dict )
 		user.put()
+		logging.info("user: %s just activated their account" % user.name)
 		self.redirect("/home")
 
 class ActivateUser(Handler):
@@ -737,6 +736,8 @@ class EditUserProfile(Handler):
 			u.zip = int(zip)
 			u.address = "%s\n%s %s %s" % (address1, city, state, zip)
 			u.put()
+
+			logging.info("user: %s just edited their profile" % u.name)
 
 			self.redirect("/user/%s" % id)
 

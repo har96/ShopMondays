@@ -1,4 +1,5 @@
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from helpers import *
 import simplejson as json
 import pickle
@@ -28,6 +29,7 @@ class User( db.Model ):
 	address = db.TextProperty()
 
 
+	@log_on_fail
 	def activate(self, **attributes):
 		""" Activates a user, insures that
 		    the user has all of the required properties
@@ -39,7 +41,7 @@ class User( db.Model ):
 			try:
 				setattr(self, attr, attributes[attr])
 			except AttributeError:
-				logging.info("Error, in activation method, invalid attribute")
+				logging.error("Error, in activation method, invalid attribute")
 
 		if hasattr(self, 'active') and self.active:
 			return True
@@ -60,16 +62,21 @@ class User( db.Model ):
 		history["money spent"] = 0.0
 		self.history = json.dumps(history)
 
+	@log_on_fail
 	def get_history(self):
+		if not self.history:
+			return False
 		hist = json.loads(self.history)
 		hist["registered"] = pickle.loads( str(hist["registered"] ) )
 		return hist
 
+	@log_on_fail
 	def put_history(self, history_dict):
 		history_dict["registered"] = pickle.dumps( history_dict["registered"] )
 		hist = json.dumps( history_dict )
 		self.history = hist
 		self.put()
+
 
 	@classmethod
 	def get_by_name(cls, name):
@@ -95,6 +102,26 @@ class User( db.Model ):
 		id, password = cookie.split("|")
 		id = int(id)
 		return users_match(cls.get_by_id(id), password)
+
+	@classmethod
+	def all(cls):
+		result = memcache.get("allusers")
+		if not result or memcache.get("updateusers"):
+			result = super(User, cls).all()
+			logging.info("DB query for Users")
+			memcache.set("allusers", result)
+			memcache.set("updateusers", False)
+		return result
+
+	def put(self):
+		memcache.set("updateusers", True)
+		super(User, self).put()
+	
+	@classmethod
+	def delete(cls, usr):
+		memcache.set("updateusers", True)
+		super(User, cls).delete(user)
+
 
 class Message( db.Model ):
 	sender = db.StringProperty(required=True)
@@ -126,20 +153,24 @@ class Message( db.Model ):
 		# add msg to sender history
 		user = User.get_by_name(sender)
 		hist = user.get_history()
-		hist["number of messages sent"] += 1
-		user.put_history(hist)
+		if hist:
+			hist["number of messages sent"] += 1
+			user.put_history(hist)
 
 		# add msg to receivers history
 		user = User.get_by_name(receiver)
 		hist = user.get_history()
-		hist["number of messages received"] += 1
-		user.put_history(hist)
+		if hist:
+			hist["number of messages received"] += 1
+			user.put_history(hist)
 	
 	@classmethod
 	def send_mond_msg(cls, receiver, content, image=None):
 		if not receiver:
+			logging.error("invalid receiver in send_mond_msg. receiver:%s" % receiver)
 			raise ValueError("There must be a valid receiver")
 		if not content:
+			logging.error("no content in send_mond_msg")
 			raise ValueError("Message must have valid content")
 		td = gen_date2()
 		m = cls(sender="Mondays", receiver=receiver, content=content, sent=td)
@@ -150,8 +181,9 @@ class Message( db.Model ):
 		# add msg to receivers history
 		user = User.get_by_name(receiver)
 		hist = user.get_history()
-		hist["number of messages received"] += 1
-		user.put_history(hist)
+		if hist:
+			hist["number of messages received"] += 1
+			user.put_history(hist)
 
 		# add msg to sender history
 		user = User.get_by_name("Mondays")
@@ -160,6 +192,24 @@ class Message( db.Model ):
 		hist = user.get_history()
 		hist["number of messages sent"] += 1
 		user.put_history(hist)
+
+	@classmethod
+	def all(cls):
+		result = memcache.get("allmessages")
+		if not result or memcache.get("updatemessages"):
+			result = super(Message, cls).all()
+			memcache.set("allmessages", result)
+			memcache.set("updatemessages", False)
+		return result
+
+	@classmethod
+	def delete(cls, message):
+		memcache.set("updatemessages", True)
+		super(Message, cls).delete(message)
+
+	def put(self):
+		memcache.set("updatemessages", True)
+		super(Message, self).put()
 
 
 class Item( db.Model):
@@ -177,6 +227,7 @@ class Item( db.Model):
 	local_pickup = db.StringProperty()
 	bid_margin = db.FloatProperty()
 
+	@log_on_fail
 	def bid(self, buyer, price):
 		""" places a bid on an item,
 		assumes that buyer is a valid user
@@ -214,4 +265,30 @@ class Item( db.Model):
 	def get_by_title(cls, title):
 		i = cls.all().filter('title =', title)
 		return i[0]
+
+	@classmethod
+	@log_on_fail
+	def all(cls):
+		result = memcache.get("allitems")
+		if not result or not memcache.get("updateitems"):
+			result = super(Item, cls).all()
+			memcache.set("allitems", result)
+			memcache.set("updateitems", True)
+			logging.info("DB Query for items")
+			return result
+		return result
+
+	@classmethod
+	@log_on_fail
+	def delete(cls, item):
+		memcache.set("updateitems", False)
+		super(Item, cls).delete(item)
+
+	@log_on_fail
+	def put(self):
+		memcache.set("updateitems", False)
+		super(Item, self).put()
+			
+
+		
 

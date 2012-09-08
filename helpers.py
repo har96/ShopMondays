@@ -12,9 +12,10 @@ import random
 import string
 import re
 import py_bcrypt.bcrypt as bcrypt
+from functools import update_wrapper
+import logging
 
 from google.appengine.api import images
-from google.appengine.ext import db
 
 USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
 PASSWORD_RE = re.compile("^.{4,20}$")
@@ -80,4 +81,20 @@ def send_email_to_user(user, subject, content):
 			to=user.email,
 			subject=subject,
 			body=content)
+def decorator(f):
+	""" return f as a decorator with update_wrapper.
 
+	    thanks to Darius Bacon for the code: 
+		    https://github.com/darius/sketchbook/blob/master/misc/decorator.py"""
+	return lambda fn: update_wrapper(f(fn), fn)
+decorator = decorator(decorator)(decorator)
+
+@decorator
+def log_on_fail(f):
+	def _f(*args, **kw_args):
+		try:
+			return f(*args, **kw_args)
+		except Exception, e:
+			logging.error("error in func: %s, error: %s" % (str(f), e))
+			raise e
+	return _f

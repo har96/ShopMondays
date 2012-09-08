@@ -16,6 +16,10 @@ def dollars( amount ):
 		return amount
 	return "%0.2f" % float(amount)
 
+def br_newlines( string ):
+	""" replaces newlines with <br> """
+	return string
+
 register.simple_tag(balance)
 register.filter(getkey)
 register.filter(dollars)

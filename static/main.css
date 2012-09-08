@@ -12,9 +12,6 @@ input[type=password] {
 	padding: 5px;
 	font-size: 15px;
 }
-textarea {
-	
-}
 a {
 	text-decoration: none;
 	font: comic-sans;
@@ -54,7 +51,7 @@ a {
 	color: #AAAACC;
 	float: right;
 }
-li.user {
+span.user {
 	font-size: 25px;
 	font-family: good_times;
 	margin-right: 20px;
