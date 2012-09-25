@@ -14,6 +14,10 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 
+- url: /test.*
+  login: admin
+  script: gaeunit.py
+
 - url: /.*
   script: mondays3_2.py
 

@@ -16,6 +16,7 @@ from functools import update_wrapper
 import logging
 
 from google.appengine.api import images
+from google.appengine.api import memcache
 
 USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
 PASSWORD_RE = re.compile("^.{4,20}$")
@@ -95,6 +96,26 @@ def log_on_fail(f):
 		try:
 			return f(*args, **kw_args)
 		except Exception, e:
-			logging.error("error in func: %s, error: %s" % (str(f), e))
+			logging.error("error in func: %s, error: %s" % (str(repr(f)), e))
 			raise e
 	return _f
+
+@log_on_fail
+def cache_all_query(cls, sort=None):
+	classnme = cls.__name__.lower()
+	result = memcache.get("all%s" % classnme)
+	if not result or memcache.get("update%s" % classnme):
+		result = list(super(type(cls), cls).all())
+		result.sort(key=lambda x: getattr(x, sort or str(x)))
+		memcache.set("all%s" % classnme, result)
+	return result
+
+@decorator
+@log_on_fail
+def update_cache(f):
+	def _f(self_or_cls, *args, **kw_args):
+		logging.info("cache update")
+		memcache.set("update%ss" % self_or_cls.__name__.lower(), True)
+		return f(self_or_cls, *args, **kw_args)
+	return _f
+

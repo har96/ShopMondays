@@ -95,7 +95,7 @@ class LoginPage( Handler ):
 			self.write(error="Must have a username and a password", username=cgi.escape(username))
 
 		u = User.get_by_name(username)
-		if u is None:
+		if u is None or u is False:
 			self.write(error="Invalid username and password combination", username=cgi.escape(username))
 			return
 
@@ -183,12 +183,7 @@ class UserHome( Handler ):
 			self.response.out.write("""<div style="color: blue">You account is not currently active,
 				please activate your account <a href="/activate">here</a></div>""")
 		else:
-			msgs = memcache.get("%smsg" % user.key().id())
-			if msgs is None or memcache.get("%supdate" % user.key().id()):
-				logging.info("DB query")
-				msgs = Message.get_from_receiver(user.name)
-				memcache.set("%smsg" % user.key().id(), list(msgs))
-				memcache.set("%supdate" % user.key().id(), False)
+			msgs = Message.get_from_receiver(user.name)
 			useritems = Item.get_by_seller(user.name)
 	
 			self.write(user=user, usermessages=msgs, useritems=useritems)
@@ -462,7 +457,7 @@ class Archive( Handler ):
 		cookie = self.get_user_cookie()
 		if User.valid_user_cookie(cookie):
 			user = User.get_by_id(int(cookie.split("|")[0]))
-			self.write(user=user, items=Item.all().order("-listed"))
+			self.write(user=user, items=Item.all(order="listed"))
 		else: self.cookie_error()
 
 class RequestMsg( Handler ):
@@ -567,7 +562,7 @@ class Activate(Handler):
 			content = content % (user.key().id(), hash_str(user.name + "1j2h3@$#klasd"))
 			
 #			send_email_to_user(user, "Mondays user activation", content)
-			mail.send_mail(sender="harrison@hunterhayven.com",
+			mail.send_mail(sender="harrison@shopmondays.com",
 				to=input_dict["email"],
 				subject="Mondays user activation",
 				body=content)
@@ -745,7 +740,7 @@ class AllUsers( Handler ):
 	def write(self, **format_args):
 		self.render("templates/user_all_page.html", **format_args)
 	def get(self):
-		self.write(users=User.all().order("name"))
+		self.write(users=User.all(order="name"))
 
 		
 class Logout( Handler ):

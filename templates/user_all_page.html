@@ -6,7 +6,7 @@
 <tr>
 {% for u in users %}
 <td><span class="user"><a href="/user/{{u.key.id}}">{{u.name}}</a></span></td>
-{% if forloop.counter|divisibleby:4 %}</tr><tr>{% endif %}
+{% if forloop.counter|divisibleby:3 %}</tr><tr>{% endif %}
 {% endfor %}
 </table>
 

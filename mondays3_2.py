@@ -21,7 +21,6 @@ app = webapp.WSGIApplication([("/", HomePage),
 				("/logout", Logout),
 				("/activate", Activate),
 				("/activate/([0-9]+)", ActivateUser),
-				("/mumbojumbo", ResetPassword),
 				("/user/([0-9]+)", UserProfile),
 				("/edit_user/([0-9]+)", EditUserProfile),
 				("/users", AllUsers)], debug=True)

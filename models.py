@@ -5,6 +5,8 @@ import simplejson as json
 import pickle
 import cgi
 
+memo = lambda f: cache_all_query
+
 
 class User( db.Model ):
 	name = db.StringProperty(required=True)
@@ -80,7 +82,10 @@ class User( db.Model ):
 
 	@classmethod
 	def get_by_name(cls, name):
-		return cls.all().filter('name =', name).get()
+		try:
+			return [usr for usr in cls.all() if usr.name == name][0]
+		except IndexError:
+			return False
 	
 	@classmethod
 	def register(cls, username, password, email, first_name, last_name, state, city, zip, address1):
@@ -104,10 +109,11 @@ class User( db.Model ):
 		return users_match(cls.get_by_id(id), password)
 
 	@classmethod
-	def all(cls):
+	def all(cls, order="name"):
 		result = memcache.get("allusers")
 		if not result or memcache.get("updateusers"):
-			result = super(User, cls).all()
+			result = list(super(User, cls).all())
+			result.sort(key=lambda x: getattr(x, order))
 			logging.info("DB query for Users")
 			memcache.set("allusers", result)
 			memcache.set("updateusers", False)
@@ -137,9 +143,7 @@ class Message( db.Model ):
 
 	@classmethod
 	def get_from_receiver(cls, receiver):
-		q = cls.all()
-		q.filter("receiver =", receiver)
-		q.order("-sent")
+		q = [msg for msg in cls.all() if msg.receiver == receiver]
 		return q
 
 	@classmethod
@@ -194,12 +198,14 @@ class Message( db.Model ):
 		user.put_history(hist)
 
 	@classmethod
-	def all(cls):
+	def all(cls, order="sent"):
 		result = memcache.get("allmessages")
 		if not result or memcache.get("updatemessages"):
-			result = super(Message, cls).all()
+			result = list(super(Message, cls).all())
+			result.sort(key=lambda x: getattr(x, order), reverse=True)
 			memcache.set("allmessages", result)
 			memcache.set("updatemessages", False)
+			logging.info("DB Query for messages")
 		return result
 
 	@classmethod
@@ -257,25 +263,25 @@ class Item( db.Model):
 
 	@classmethod
 	def get_by_seller(cls, seller):
-		i = cls.all().filter('seller =', seller)
-		i.order("-listed")
+		i = [item for item in cls.all(order="listed") if item.seller == seller]
 		return i
 
 	@classmethod
 	def get_by_title(cls, title):
-		i = cls.all().filter('title =', title)
+		i = [item for item in cls.all() if item.title == title]
 		return i[0]
 
 	@classmethod
 	@log_on_fail
-	def all(cls):
+	def all(cls, order="current_price"):
 		result = memcache.get("allitems")
 		if not result or not memcache.get("updateitems"):
-			result = super(Item, cls).all()
+			result = list(super(Item, cls).all())
+			result.sort(key=lambda x: getattr(x, order))
 			memcache.set("allitems", result)
 			memcache.set("updateitems", True)
+			logging.info(result)
 			logging.info("DB Query for items")
-			return result
 		return result
 
 	@classmethod
