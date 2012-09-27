@@ -5,21 +5,32 @@
 <h1>{{item.title}}</h1>
 <br>
 <pre>{{item.description}}</pre>
+<br>
+Condition: {{item.condition}}
 <img src="/img/{{item.key.id}}" alt="No image for this item"></img>
 <br>
 Current price: {{item.current_price|dollars}}&nbsp;&nbsp;&nbsp;
-Bidding ends: {{expdate}}&nbsp;&nbsp;&nbsp;Ships by: {{shipdate}}
+Bidding ends: {{expdate}}
 <br>
-{% if not item.shipprice %}
-FREE shipping!
-{% endif %}
-{% if item.shipprice %}
-Shipping costs {{item.shipprice|dollars}}
-{% endif %}
+{% ifnotequal item.local_pickup "pickup" %}
+	Ships by: {{shipdate}}
+	<br>
+	{% if not item.shipprice %}
+	FREE shipping!
+	{% endif %}
+	{% if item.shipprice %}
+	Shipping costs {{item.shipprice|dollars}}
+	{% endif %}
+{% endifnotequal %}
 <br>
+<b>
 {% ifequal item.local_pickup "on" %}
 You can also pickup this item - contact seller through Mondays messaging to get address
 {% endifequal %}
+{% ifequal item.local_pickup "pickup" %}
+The seller requires the purchaser to pick this item up
+{% endifequal %}
+</b>
 <br>
 
 {% ifequal item.seller user.name %}

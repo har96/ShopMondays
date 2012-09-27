@@ -29,7 +29,24 @@
 		</tr>
 		<tr>
 			<td>Local Pickup Option</td>
-			<td><input type="checkbox" name="localpickup" value="on" {{localpickup}}/></td>
+			<td>
+				<select name="localpickup">
+					<option value="off" {% ifequal ship 0 %}selected="selected"{% endifequal %}>Only allow shipping</option>
+					<option value="on" {% ifequal ship 1 %}selected="selected"{% endifequal %}>Allow local pickup as well as shipping</option>
+					<option value="pickup" {% ifequal ship 2 %}selected="selected"{% endifequal %}>Only allow local pickup</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Condition</td>
+			<td>
+				<select name="condition" value="{{condition}}">
+					<option {% ifequal cond 0 %}selected="selected"{% endifequal %}>New; Unopen unused</option>
+					<option {% ifequal cond 1 %}selected="selected"{% endifequal %}>Used; still in perfect condition</option>
+					<option {% ifequal cond 2 %}selected="selected"{% endifequal %}>Used; has some wear</option>
+					<option {% ifequal cond 3 %}selected="selected"{% endifequal %}>Old; still good as new</option>
+				</select>
+			</td>
 		</tr>
 		{% endif %}
 		<tr>

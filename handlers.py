@@ -77,7 +77,7 @@ class HomePage( Handler ):
 					seller.put_history(history)
 
 
-				i.delete()
+				Item.delete(i)
 
 		self.write()
 
@@ -129,6 +129,11 @@ class Register( Handler ):
 		address1 = self.request.get("address1")
 		address2 = self.request.get("address2")
 
+		if not state:
+			logging.warning("hacker alert, state was not filled in on register")
+			self.write(error="Please do not post to this url with a bot.  If you are not using a bot, reload the page.")
+			return
+
 		u_error = "Invalid Username" if not valid_username(username) else ""
 		p_error = "Invalid Password" if not valid_password(password) else ""
 		e_error = "Invalid Email" if not valid_email(email) else ""
@@ -161,7 +166,7 @@ class Register( Handler ):
 			return
 		else:
 			# Create and store user
-			u = User.register(username, password, email, first_name, last_name, state, city, zip, address1)
+			u = User.register(username, password, email, first_name, last_name, state, city, zip, address1, address2)
 			u.put()
 			# Set the user cookie
 			self.response.headers.add_header("Set-Cookie", 'user_id=%s|%s; Path=/' % (u.key().id(), u.password))
@@ -196,7 +201,7 @@ class UserHome( Handler ):
 		del_id = self.request.get("delete_mes")
 		m = Message.get_by_id(int(del_id))
 		if m: 
-			m.delete()
+			Message.delete(m)
 			memcache.set("%supdate" % user.key().id(), True)
 		self.redirect("/home")
 
@@ -211,7 +216,7 @@ class CreateMessage( Handler ):
 			return
 
 		receiver = self.request.get("receiver")
-		self.write(user=user, users=User.all(), receiver=cgi.escape(receiver))
+		self.write(user=user, receiver=cgi.escape(receiver))
 	def post(self):
 		content = self.request.get("body")
 		receiver = self.request.get("receiver")
@@ -293,6 +298,7 @@ class AddItem( Handler ):
 		shipdays = self.request.get("shipdays")
 		shipprice = self.request.get("shipprice")
 		local_pickup = self.request.get("localpickup")
+		condition = self.request.get("condition")
 
 		if not days_listed: days_listed = "7"
 		v_error_msg = ""
@@ -306,7 +312,7 @@ class AddItem( Handler ):
 		except ValueError:
 			v_error_msg = "Invalid input for shipping price"
 		if not days_listed.isdigit(): v_error_msg = "Invalid input for days listed" 
-		if not shipdays or not shipdays.isdigit(): v_error_msg = "Invalid input for shipping time" 
+		if local_pickup != "pickup"  and not shipdays or not shipdays.isdigit(): v_error_msg = "Invalid input for shipping time" 
 		error_msg = "" if title and start_price else "Must have a title and start price"
 #		if has_whitespace(title): error_msg = "Title cannot have spaces,  can use underscores '_'"
 		if not v_error_msg and int(days_listed) > 10: "An item can't be listed for more that 10 days"
@@ -320,8 +326,8 @@ class AddItem( Handler ):
 					shipprice=cgi.escape(shipprice))
 			return
 		days_listed = int(days_listed)
-		shipdays = int(shipdays)
-		item = Item.get_new(seller.name, title, days_listed, shipdays, current_price=start_price,
+		shipdays = int(shipdays) if shipdays else ""
+		item = Item.get_new(seller.name, title, days_listed, shipdays, condition, current_price=start_price,
 				description=description, shipprice=shipprice, local_pickup=local_pickup)
 		if self.request.get("img"): item.image = create_image(self.request.get("img"), 400, 400)
 		item.put()
@@ -391,8 +397,10 @@ class EditItem( Handler ):
 		if item.num_bids:
 			self.write(error = "There are bids on this item, you may only edit the image.", user=user, item=item)
 			return
+		conditions = ["New; Unopen unused", "Used; still in perfect condition", "Used; has some wear", "Old; still good as new"]
+		shipping_opts = ["on", "off", "pickup"]
 		self.write( user=user, title=item.title, description=item.description, price=item.current_price, shipprice=item.shipprice,\
-				localpickup='checked="checked"' if item.local_pickup=="on" else "", item=item)
+				cond=conditions.index(item.condition), ship=shipping_opts.index(item.local_pickup), item=item)
 
 	def post(self, id):
 		user = self.get_user()
@@ -421,6 +429,7 @@ class EditItem( Handler ):
 		shipprice = self.request.get("shipprice")
 		localpickup = self.request.get("localpickup")
 		image = self.request.get("image")
+		condition = self.request.get("condition")
 
 		t_error = p_error = s_error = ""
 		try:
@@ -445,6 +454,7 @@ class EditItem( Handler ):
 			item.price = price
 			item.shipprice = shipprice
 			item.local_pickup = localpickup
+			item.condition = condition
 		if image: item.image = create_image(image, 400, 400)
 
 		item.put()
@@ -673,9 +683,8 @@ class EditUserProfile(Handler):
 			self.response.out.write("No such user, go back and try again")
 			return
 		val_dict = {}
-		addr = user.address.split("\n")
-		val_dict["address1"] = addr[0]
-		val_dict["address2"] = addr[1] if len(addr) > 2 else ""
+		val_dict["address1"] = user.address1
+		val_dict["address2"] = user.address2
 		val_dict["first_name"] = user.first_name
 		val_dict["last_name"] = user.last_name
 		val_dict["state"] = user.state
@@ -729,7 +738,9 @@ class EditUserProfile(Handler):
 			u.state = state
 			u.city = city
 			u.zip = int(zip)
-			u.address = "%s\n%s %s %s" % (address1, city, state, zip)
+			u.address = "%s<br>%s<br>%s %s %s" % (address1, address2, city, state, zip)
+			u.address1 = address1
+			u.address2 = address2
 			u.put()
 
 			logging.info("user: %s just edited their profile" % u.name)

@@ -29,6 +29,8 @@ class User( db.Model ):
 	city = db.StringProperty()
 	zip = db.IntegerProperty()
 	address = db.TextProperty()
+	address1 = db.StringProperty()
+	address2 = db.StringProperty()
 
 
 	@log_on_fail
@@ -88,7 +90,7 @@ class User( db.Model ):
 			return False
 	
 	@classmethod
-	def register(cls, username, password, email, first_name, last_name, state, city, zip, address1):
+	def register(cls, username, password, email, first_name, last_name, state, city, zip, address1, address2):
 		p, salt, pepper = hash_user_info(username, password)
 		u = cls(name=username, password=p, salt=salt, pepper=pepper)
 		u._init_history()
@@ -99,7 +101,9 @@ class User( db.Model ):
 		u.state = state
 		u.city = city
 		u.zip = int(zip)
-		u.address = "%s\n%s %s %s" % (address1, city, state, zip)
+		u.address = "%s<br>%s<br>%s %s %s" % (address1, address2, city, state, zip)
+		u.address1 = address1
+		u.address2 = address2
 		return u
 
 	@classmethod
@@ -232,6 +236,7 @@ class Item( db.Model):
 	shipprice = db.FloatProperty()
 	local_pickup = db.StringProperty()
 	bid_margin = db.FloatProperty()
+	condition = db.StringProperty()
 
 	@log_on_fail
 	def bid(self, buyer, price):
@@ -251,11 +256,11 @@ class Item( db.Model):
 		""" Returns True if the item has expired. """
 		return gen_date2() >= self.expires
 	@classmethod
-	def get_new(cls, seller, title, days_listed, shipdays, image=None, current_price=0.01, description="", local_pickup="off", shipprice=0.00):
+	def get_new(cls, seller, title, days_listed, shipdays, condition, image=None, current_price=0.01, description="", local_pickup="off", shipprice=0.00):
 		expires = gen_date2(days_listed)
 		shipdate = gen_date2(days_listed + shipdays)
 		listed = gen_date2()
-		i = cls(seller=seller, title=title, description=description,
+		i = cls(condition=condition, seller=seller, title=title, description=description,
 					num_bids=0, current_buyer="", current_price=current_price,
 					expires = expires, shipdate=shipdate, listed=listed,
 					image=image, bid_margin=0.0, local_pickup=local_pickup, shipprice=shipprice)
@@ -280,7 +285,6 @@ class Item( db.Model):
 			result.sort(key=lambda x: getattr(x, order))
 			memcache.set("allitems", result)
 			memcache.set("updateitems", True)
-			logging.info(result)
 			logging.info("DB Query for items")
 		return result
 

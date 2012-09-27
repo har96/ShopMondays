@@ -10,6 +10,7 @@ from models import *
 
 import random
 import string
+import logging
 
 def getRandomS(length):
 	return "".join( [string.ascii_letters[random.randrange(52)] for i in range(length)] )
@@ -48,6 +49,8 @@ class AppCase( unittest.TestCase ):
 	        class MyFailureException(AssertionError):
 	                def __init__(self_, *args, **kwargs):
 				# put failure code here
+				logging.info(self.params)
+				logging.info("FAILURE")
        	                        return super(MyFailureException, self_).__init__(*args, **kwargs)
 	        MyFailureException.__name__ = AssertionError.__name__
 	        return MyFailureException	
@@ -70,8 +73,24 @@ class TestApp( AppCase ):
 				self.response.mustcontain("Welcome")
 
 	def testRegistration(self):
-		self.response = self.testapp.get("/")
-		self.assertTrue(False)
+		params = {}
+		params["address1"] = params["city"] = params["username"] = params["name1"] = params["name2"] = "tester"
+		params["password"] = params["verify"] = "password"
+		params["zip"] = "12345"
+		params["email"] = "foo@bar.com"
+		params["state"] = "MS"
+		for i in xrange(1000):
+			key = random.choice(params.keys())
+			oldval = params[key]
+			params[key] = ""
+			self.params = params
+			self.response = self.testapp.post("/register", params)
+			self.assertEqual(self.response.status, "200 OK")
+			params[key] = oldval
+		self.response = self.testapp.post("/register", params)
+		self.assertEqual(self.response.status, "302 Moved Temporarily")
+
+
 
 if __name__ == '__main__':
 	unittest.main()

@@ -19,9 +19,25 @@
 			<td><label>$</label><input type="text" name="shipprice" value="{{shipprice}}"/></td>
 		</tr>
 		<tr>
-			<td>Enable local pickup</td>
-			<td><input type="checkbox" name="localpickup" value="on"/></td>
+			<td>Shipping Options</td>
+			<td>
+				<select name="localpickup">
+					<option value="off">Only allow shipping</option>
+					<option value="on">Allow local pickup as well as shipping</option>
+					<option value="pickup">Only allow local pickup</option>
+				</select>
+			</td>
 		</tr>
+		<tr>
+			<td>Condition</td>
+			<td>
+				<select name="condition">
+					<option value="New; Unopen unused">New; Unopen unused</option>
+					<option value="Used; still in perfect condition">Used; still in perfect condition</option>
+					<option value="Used; has some wear">Used; has some wear</option>
+					<option value="Old; still good as new">Old; still good as new</option>
+				</select>
+			</td>
 		<tr>
 			<td>Days Listed</td><td><input type="text" name="days_listed" value="{{days_listed}}"/></td>
 		</tr>
