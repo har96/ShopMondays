@@ -18,6 +18,8 @@ import logging
 from google.appengine.api import images
 from google.appengine.api import memcache
 
+MEMCACHE_LEN = 15
+
 USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
 PASSWORD_RE = re.compile("^.{4,20}$")
 EMAIL_RE = re.compile(r"\S+@\S+\.\S+")
@@ -119,3 +121,84 @@ def update_cache(f):
 		return f(self_or_cls, *args, **kw_args)
 	return _f
 
+def get_all2(type):
+	logging.info("get all")
+	all = []
+	length = memcache.get(type + "length")
+	if not length:
+		memcache.set(type+"length", 1)
+		memcache.set(type+"0", [])
+	for i in xrange( memcache.get(type+"length") ):
+		assert not memcache.get(type+str(i)) is None, "part is None. Vars: i>%d; length>%d" % (i, length)
+		all = all + memcache.get(type+str(i))
+	assert len(all) >= length
+	return all or []
+
+@log_on_fail
+def add_to_all2(type, object):
+	length = memcache.get(type+"length")
+	part = memcache.get(type + str( length - 1 ))
+	if not length:
+		memcache.set(type+"length", "1")
+		part = [object]
+	else:
+		part.append(object)
+	if len(part) >= MEMCACHE_LEN:
+		memcache.set(type+"length", length+1)
+		memcache.set(type + str(length), [])
+	memcache.set(type + str(length-1), part)
+		
+@log_on_fail
+def set_all2(type, objects):
+	assert type in ["users", "messages", "items"], "set_all was not passed a valid type"
+	assert not objects is None, "set_all was passed None as the list of objects"
+	logging.info("in set all")
+	length = len(objects)/MEMCACHE_LEN
+	if len(objects)%MEMCACHE_LEN > 0:
+		length += 1
+	length += 1
+	memcache.set(type+"length", length)
+	for i in xrange(len(objects)):
+		part_num = i/MEMCACHE_LEN
+		part = memcache.get(type+str(part_num))
+		if not part: part = []
+		part.append(objects[i])
+		memcache.set(type+str(part_num), part)
+		logging.info("i>%d; part_num>>%d" % (i, part_num))
+		assert len(part) == i%MEMCACHE_LEN, "length of part is not equal to i%LEN"
+
+@log_on_fail
+def get_all(type, model_class):
+	all = []
+	ids = memcache.get(type+"allid")
+	if ids:
+		for id in ids:
+			all.append(model_class.get_by_id(id))
+		return all
+	return None
+
+def add_to_all(type, object):
+	memcache.set(str(object.key().id()), object)
+	all = memcache.get(type+"allid")
+	if not all: all = []
+	if not object.key().id() in all:
+		all.append(object.key().id())
+	memcache.set(type+"allid", all)
+
+@log_on_fail
+def set_all(type, objects):
+	assert type in ["users", "messages", "items"], "set_all was not passed a valid type"
+	assert not objects is None, "set_all was passed None as the list of objects"
+	all = []
+	for ob in objects:
+		memcache.set(str(ob.key().id()), ob)
+		all.append(ob.key().id())
+	memcache.set(type+"allid", all)
+
+@log_on_fail
+def del_from(type, object):
+	all = memcache.get(type+"allid")
+	assert object.key().id() in all, "item not found in cache"
+	del all[ all.index(object.key().id()) ]
+	memcache.set(type+"allid", all)
+	memcache.delete(str(object.key().id()))

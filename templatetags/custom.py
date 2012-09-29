@@ -8,7 +8,7 @@ def getkey(value, arg):
 
 def balance( history ):
 	""" returns credit-debit """
-	return str( int(history["money earned"]) - int(history["money spent"]) )
+	return str( float(history["money earned"]) - float(history["money spent"]) )
 
 def dollars( amount ):
 	""" converts a float to dollars """

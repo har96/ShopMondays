@@ -114,22 +114,22 @@ class User( db.Model ):
 
 	@classmethod
 	def all(cls, order="name"):
-		result = memcache.get("allusers")
+		result = get_all("users", User)
 		if not result or memcache.get("updateusers"):
 			result = list(super(User, cls).all())
-			result.sort(key=lambda x: getattr(x, order))
-			logging.info("DB query for Users")
-			memcache.set("allusers", result)
+			set_all("users", result)
 			memcache.set("updateusers", False)
+			logging.info("DB query for Users")
+		result.sort(key=lambda x: getattr(x, order))
 		return result
 
 	def put(self):
-		memcache.set("updateusers", True)
 		super(User, self).put()
+		add_to_all("users", self)
 	
 	@classmethod
 	def delete(cls, usr):
-		memcache.set("updateusers", True)
+		del_from("users", usr)
 		super(User, cls).delete(user)
 
 
@@ -203,23 +203,24 @@ class Message( db.Model ):
 
 	@classmethod
 	def all(cls, order="sent"):
-		result = memcache.get("allmessages")
+		result = get_all("messages", Message)
 		if not result or memcache.get("updatemessages"):
 			result = list(super(Message, cls).all())
-			result.sort(key=lambda x: getattr(x, order), reverse=True)
-			memcache.set("allmessages", result)
+			set_all("messages", result)
 			memcache.set("updatemessages", False)
 			logging.info("DB Query for messages")
+
+		result.sort(key=lambda x: getattr(x, order), reverse=True)
 		return result
 
 	@classmethod
 	def delete(cls, message):
-		memcache.set("updatemessages", True)
+		del_from("messages", message)
 		super(Message, cls).delete(message)
 
 	def put(self):
-		memcache.set("updatemessages", True)
 		super(Message, self).put()
+		add_to_all("messages", self)
 
 
 class Item( db.Model):
@@ -279,25 +280,26 @@ class Item( db.Model):
 	@classmethod
 	@log_on_fail
 	def all(cls, order="current_price"):
-		result = memcache.get("allitems")
-		if not result or not memcache.get("updateitems"):
+		result = get_all("items", Item)
+		if not result or memcache.get("updateitems"):
 			result = list(super(Item, cls).all())
-			result.sort(key=lambda x: getattr(x, order))
+			set_all("items", result)
 			memcache.set("allitems", result)
-			memcache.set("updateitems", True)
+			memcache.set("updateitems", False)
 			logging.info("DB Query for items")
+		result.sort(key=lambda x: getattr(x, order))
 		return result
 
 	@classmethod
 	@log_on_fail
 	def delete(cls, item):
-		memcache.set("updateitems", False)
+		del_from("items", item)
 		super(Item, cls).delete(item)
 
 	@log_on_fail
 	def put(self):
-		memcache.set("updateitems", False)
 		super(Item, self).put()
+		add_to_all("items", self)
 			
 
 		
