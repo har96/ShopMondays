@@ -112,9 +112,13 @@ class User( db.Model ):
 		id = int(id)
 		return users_match(cls.get_by_id(id), password)
 
+#	@classmethod
+#	def all(cls, order=""):
+#		return super(User, cls).all()
+
 	@classmethod
 	def all(cls, order="name"):
-		result = get_all("users", User)
+		result = get_all("users")
 		if not result or memcache.get("updateusers"):
 			result = list(super(User, cls).all())
 			set_all("users", result)
@@ -201,9 +205,17 @@ class Message( db.Model ):
 		hist["number of messages sent"] += 1
 		user.put_history(hist)
 
+#	@classmethod
+#	def all(cls, order="sent"):
+#		# a stub method
+#		all = list(super(Message, cls).all())
+#		all.sort(key=lambda x: getattr(x, order), reverse=True)
+#		return all
+
+
 	@classmethod
 	def all(cls, order="sent"):
-		result = get_all("messages", Message)
+		result = get_all("messages")
 		if not result or memcache.get("updatemessages"):
 			result = list(super(Message, cls).all())
 			set_all("messages", result)
@@ -277,10 +289,14 @@ class Item( db.Model):
 		i = [item for item in cls.all() if item.title == title]
 		return i[0]
 
+#	@classmethod
+#	def all(cls, order=""):
+#		return super(Item, cls).all()
+
 	@classmethod
 	@log_on_fail
 	def all(cls, order="current_price"):
-		result = get_all("items", Item)
+		result = get_all("items")
 		if not result or memcache.get("updateitems"):
 			result = list(super(Item, cls).all())
 			set_all("items", result)
@@ -300,7 +316,4 @@ class Item( db.Model):
 	def put(self):
 		super(Item, self).put()
 		add_to_all("items", self)
-			
-
-		
 

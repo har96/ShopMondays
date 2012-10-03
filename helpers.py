@@ -17,6 +17,7 @@ import logging
 
 from google.appengine.api import images
 from google.appengine.api import memcache
+from google.appengine.ext import db
 
 MEMCACHE_LEN = 15
 
@@ -168,12 +169,13 @@ def set_all2(type, objects):
 		assert len(part) == i%MEMCACHE_LEN, "length of part is not equal to i%LEN"
 
 @log_on_fail
-def get_all(type, model_class):
+def get_all(type):
 	all = []
 	ids = memcache.get(type+"allid")
 	if ids:
 		for id in ids:
-			all.append(model_class.get_by_id(id))
+			ob = memcache.get(id)
+			if not ob is None: all.append(ob)
 		return all
 	return None
 
@@ -181,8 +183,8 @@ def add_to_all(type, object):
 	memcache.set(str(object.key().id()), object)
 	all = memcache.get(type+"allid")
 	if not all: all = []
-	if not object.key().id() in all:
-		all.append(object.key().id())
+	if not str(object.key().id()) in all:
+		all.append(str(object.key().id()))
 	memcache.set(type+"allid", all)
 
 @log_on_fail
@@ -191,14 +193,16 @@ def set_all(type, objects):
 	assert not objects is None, "set_all was passed None as the list of objects"
 	all = []
 	for ob in objects:
-		memcache.set(str(ob.key().id()), ob)
-		all.append(ob.key().id())
+		error = not memcache.set(str(ob.key().id()), ob)
+		if error:
+			logging.warning("keys not setting properly. Object must not be pickleable")
+		all.append(str(ob.key().id()))
 	memcache.set(type+"allid", all)
 
 @log_on_fail
 def del_from(type, object):
 	all = memcache.get(type+"allid")
-	assert object.key().id() in all, "item not found in cache"
-	del all[ all.index(object.key().id()) ]
+	assert str(object.key().id()) in all, "item not found in cache"
+	del all[ all.index(str(object.key().id())) ]
 	memcache.set(type+"allid", all)
 	memcache.delete(str(object.key().id()))

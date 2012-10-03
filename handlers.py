@@ -187,6 +187,7 @@ class UserHome( Handler ):
 		if not user.active:
 			self.response.out.write("""<div style="color: blue">You account is not currently active,
 				please activate your account <a href="/activate">here</a></div>""")
+			return
 		else:
 			msgs = Message.get_from_receiver(user.name)
 			useritems = Item.get_by_seller(user.name)
@@ -202,7 +203,6 @@ class UserHome( Handler ):
 		m = Message.get_by_id(int(del_id))
 		if m: 
 			Message.delete(m)
-			memcache.set("%supdate" % user.key().id(), True)
 		self.redirect("/home")
 
 
@@ -323,7 +323,7 @@ class AddItem( Handler ):
 			self.write(user=seller, error=error_msg, value_error=v_error_msg, title=cgi.escape(title), \
 					price=cgi.escape(str(start_price)), desc=cgi.escape(description), \
 					days_listed=cgi.escape(days_listed), shipdays=cgi.escape(str(shipdays)), local_pickup=cgi.escape(local_pickup),\
-					shipprice=cgi.escape(shipprice))
+					shipprice=cgi.escape(str(shipprice)))
 			return
 		days_listed = int(days_listed)
 		shipdays = int(shipdays) if shipdays else ""
