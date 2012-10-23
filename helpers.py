@@ -19,6 +19,8 @@ from google.appengine.api import images
 from google.appengine.api import memcache
 from google.appengine.ext import db
 
+PAYPAL = "https://svcs.sandbox.paypal.com/AdaptivePayments/API_operation"
+
 MEMCACHE_LEN = 15
 
 USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
@@ -169,13 +171,18 @@ def set_all2(type, objects):
 		assert len(part) == i%MEMCACHE_LEN, "length of part is not equal to i%LEN"
 
 @log_on_fail
-def get_all(type):
+def get_all(type, Class):
 	all = []
 	ids = memcache.get(type+"allid")
 	if ids:
 		for id in ids:
 			ob = memcache.get(id)
 			if not ob is None: all.append(ob)
+			else:
+				ob = Class.get_by_id(int(id))
+				all.append(ob)
+				memcache.set(id, ob)
+				logging.info("ob query for "+type+"s")
 		return all
 	return None
 
@@ -206,3 +213,8 @@ def del_from(type, object):
 	del all[ all.index(str(object.key().id())) ]
 	memcache.set(type+"allid", all)
 	memcache.delete(str(object.key().id()))
+
+
+@log_on_fail
+def paypal():
+	pass

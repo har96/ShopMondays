@@ -1,5 +1,5 @@
 application: mimondays
-version: 1-2
+version: 1-2-1
 runtime: python
 api_version: 1
 
@@ -14,7 +14,7 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 
-- url: /apple-touch-icon.png
+- url: /apple-touch-icon\.png
   static_files: apple-touch-icon.png
   upload: apple-touch-icon.png
 

@@ -2,6 +2,7 @@ body {
 	background-image: url('/static/images/background_gradient.jpg');
 	background-size: 100%;
 	background-repeat: no-repeat;
+	margin-top: 40px;
 }
 
 input[type=text] {

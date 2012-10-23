@@ -315,15 +315,17 @@ class AddItem( Handler ):
 		if local_pickup != "pickup"  and not shipdays or not shipdays.isdigit(): v_error_msg = "Invalid input for shipping time" 
 		error_msg = "" if title and start_price else "Must have a title and start price"
 #		if has_whitespace(title): error_msg = "Title cannot have spaces,  can use underscores '_'"
-		if not v_error_msg and int(days_listed) > 10: "An item can't be listed for more that 10 days"
-		if not v_error_msg and int(shipdays) > 14: "You must ship sooner than 15 days"
+		if not v_error_msg and int(days_listed) > 10: v_error_msg = "An item can't be listed for more that 10 days"
+		if not v_error_msg and int(shipdays) > 14: v_error_msg = "You must ship sooner than 15 days"
 		
 
 		if v_error_msg or error_msg:
+
+			conditions = ["New; Unopen unused", "Used; still in perfect condition", "Used; has some wear", "Old; still good as new"]
 			self.write(user=seller, error=error_msg, value_error=v_error_msg, title=cgi.escape(title), \
 					price=cgi.escape(str(start_price)), desc=cgi.escape(description), \
 					days_listed=cgi.escape(days_listed), shipdays=cgi.escape(str(shipdays)), local_pickup=cgi.escape(local_pickup),\
-					shipprice=cgi.escape(str(shipprice)))
+					shipprice=cgi.escape(str(shipprice)), condition=conditions.index(condition))
 			return
 		days_listed = int(days_listed)
 		shipdays = int(shipdays) if shipdays else ""
@@ -590,7 +592,7 @@ class Activate(Handler):
 			return
 		user.activate( **input_dict )
 		user.put()
-		logging.info("user: %s just activated their account" % user.name)
+		logging.info("user: %s just activated his or her account" % user.name)
 		self.redirect("/home")
 
 class ActivateUser(Handler):
@@ -743,7 +745,7 @@ class EditUserProfile(Handler):
 			u.address2 = address2
 			u.put()
 
-			logging.info("user: %s just edited their profile" % u.name)
+			logging.info("user: %s just edited his or her profile" % u.name)
 
 			self.redirect("/user/%s" % id)
 

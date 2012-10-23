@@ -22,9 +22,9 @@
 			<td>Shipping Options</td>
 			<td>
 				<select name="localpickup">
-					<option value="off">Only allow shipping</option>
-					<option value="on">Allow local pickup as well as shipping</option>
-					<option value="pickup">Only allow local pickup</option>
+					<option {% ifequal local_pickup "off" %} selected="selected" {% endifequal %} value="off">Only allow shipping</option>
+					<option {% ifequal local_pickup "on" %} selected="selected" {% endifequal %} value="on">Allow local pickup as well as shipping</option>
+					<option {% ifequal local_pickup "pickup" %} selected="selected" {% endifequal %} value="pickup">Only allow local pickup</option>
 				</select>
 			</td>
 		</tr>
@@ -32,21 +32,27 @@
 			<td>Condition</td>
 			<td>
 				<select name="condition">
-					<option value="New; Unopen unused">New; Unopen unused</option>
-					<option value="Used; still in perfect condition">Used; still in perfect condition</option>
-					<option value="Used; has some wear">Used; has some wear</option>
-					<option value="Old; still good as new">Old; still good as new</option>
+					<option {% ifequal condition 0 %} selected="selected" {% endifequal %}>New; Unopen unused</option>
+					<option {% ifequal condition 1 %} selected="selected" {% endifequal %}>Used; still in perfect condition</option>
+					<option {% ifequal condition 2 %} selected="selected" {% endifequal %}>Used; has some wear</option>
+					<option {% ifequal condition 3 %} selected="selected" {% endifequal %}>Old; still good as new</option>
 				</select>
 			</td>
+		</tr>
 		<tr>
 			<td>Days Listed</td><td><input type="text" name="days_listed" value="{{days_listed}}"/></td>
 		</tr>
 		<tr>
-			<td>Estimated time to ship</td>
+			<td>
+				Estimated time to ship or <br>
+				if you selected "only allow local pickup"<br>
+				the amount of time you will keep<br>
+			       	the item on hold till the buyer picks it up.
+			</td>
 			<td><input type="text" name="shipdays" value="{{shipdays}}"/></td>
 		</tr>
 		<tr>
-			<td>Item Image</td><td><input type="file" name="img"/></td>
+			<td><br>Item Image</td><td><br><input type="file" name="img"/></td>
 		</tr>
 		<tr>
 			<td><button type="submit">List</button></td>

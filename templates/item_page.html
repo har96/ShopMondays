@@ -22,6 +22,7 @@ Bidding ends: {{expdate}}
 	Shipping costs {{item.shipprice|dollars}}
 	{% endif %}
 {% endifnotequal %}
+
 <br>
 <b>
 {% ifequal item.local_pickup "on" %}
@@ -32,7 +33,10 @@ The seller requires the purchaser to pick this item up
 {% endifequal %}
 </b>
 <br>
-
+{% ifequal item.local_pickup "pickup" %}
+        You must pick up the item before {{shipdate}}
+	<br>
+{% endifequal %}
 {% ifequal item.seller user.name %}
 This is your item. - <a href="/edit_item/{{item.key.id}}">EDIT</a>
 {% endifequal %}

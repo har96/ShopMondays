@@ -118,7 +118,7 @@ class User( db.Model ):
 
 	@classmethod
 	def all(cls, order="name"):
-		result = get_all("users")
+		result = get_all("users", User)
 		if not result or memcache.get("updateusers"):
 			result = list(super(User, cls).all())
 			set_all("users", result)
@@ -215,7 +215,7 @@ class Message( db.Model ):
 
 	@classmethod
 	def all(cls, order="sent"):
-		result = get_all("messages")
+		result = get_all("messages", Message)
 		if not result or memcache.get("updatemessages"):
 			result = list(super(Message, cls).all())
 			set_all("messages", result)
@@ -296,8 +296,8 @@ class Item( db.Model):
 	@classmethod
 	@log_on_fail
 	def all(cls, order="current_price"):
-		result = get_all("items")
-		if not result or memcache.get("updateitems"):
+		result = get_all("items", Item)
+		if result is None or memcache.get("updateitems"):
 			result = list(super(Item, cls).all())
 			set_all("items", result)
 			memcache.set("allitems", result)
