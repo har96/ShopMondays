@@ -110,6 +110,11 @@ ul.users li
 	src: url("good_times_font.ttf")
 }
 
+@font-face {
+	font-family: good_times:
+	src: url("good_times_font.eot")
+}
+
 img#left-bar {
 	position: fixed;
 	left: 0px;
