@@ -72,6 +72,13 @@
 				}
 				post_to_url("/edit/"+string(id), {"delete":"delete"}, "post");
 			}
+			function delete_allmsgs() {
+				var del = confirm("Are you sure you want to delete all of your messages? (this may take some time)");
+				if (!del) {
+					return;
+				}
+				post_to_url("/home", {"delete_mes":"all"}, "post");
+			}
 
 		</script>
 

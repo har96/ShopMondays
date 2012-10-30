@@ -91,6 +91,11 @@ class TestApp( AppCase ):
 		self.assertEqual(self.response.status, "302 Moved Temporarily")
 
 
+	def testSendMsg(self):
+		params = {"sender":"Mondays", "receiver":"testuser", "content":"recognizable content."}
+		self.login("Mondays")
+		self.register("testuser")
+		self.response = self.testapp.post("/message", params)
 
 if __name__ == '__main__':
 	unittest.main()

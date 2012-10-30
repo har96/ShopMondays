@@ -200,6 +200,11 @@ class UserHome( Handler ):
 			return
 
 		del_id = self.request.get("delete_mes")
+		if del_id == "all":
+			msgs = Message.get_from_receiver(user.name)
+			for m in msgs: Message.delete(m)
+			self.redirect("/home")
+			return
 		m = Message.get_by_id(int(del_id))
 		if m: 
 			Message.delete(m)
