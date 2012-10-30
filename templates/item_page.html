@@ -8,9 +8,9 @@
 <br>
 <img src="/img/{{item.key.id}}" alt="No image for this item"></img>
 <br>
-Condition: {{item.condition}}
-Current price: {{item.current_price|dollars}}&nbsp;&nbsp;&nbsp;
-Bidding ends: {{expdate}}
+Condition: {{item.condition}}<br>
+Current price: {{item.current_price|dollars}}&nbsp;&nbsp;&nbsp;<br>
+Bidding ends: {{expdate}}<br>
 <br>
 {% ifnotequal item.local_pickup "pickup" %}
 	Ships by: {{shipdate}}

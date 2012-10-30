@@ -151,7 +151,11 @@ class Message( db.Model ):
 
 	@classmethod
 	def get_from_receiver(cls, receiver):
-		q = [msg for msg in cls.all() if msg.receiver == receiver]
+		q = memcache.get("msgs%s" % receiver)
+		if q is None or memcache.get("msgs%supdate" % receiver):
+			q = [msg for msg in cls.all() if msg.receiver == receiver]
+			memcache.set("msgs%s" % receiver, q)
+			memcache.set("msgs%supdate" % receiver, False)
 		return q
 
 	@classmethod
@@ -229,9 +233,11 @@ class Message( db.Model ):
 	def delete(cls, message):
 		del_from("messages", message)
 		super(Message, cls).delete(message)
+		memcache.set("msgs%supdate" % message.receiver, True)
 
 	def put(self):
 		super(Message, self).put()
+#		memcache.set("msgs%supdate" % self.receiver, True)
 		add_to_all("messages", self)
 
 

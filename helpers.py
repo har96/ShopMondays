@@ -189,15 +189,25 @@ def get_all(type, Class):
 def add_to_all(type, object):
 	memcache.set(str(object.key().id()), object)
 	all = memcache.get(type+"allid")
-	if not all: all = []
+	if all is None: all = object.__class__.all()
+	assert all is not None, "query returned None.  Send this error code to Mondays: 23-193A"
 	if not str(object.key().id()) in all:
 		all.append(str(object.key().id()))
 	memcache.set(type+"allid", all)
+	if type == "messages":
+		r = object.receiver
+		msgs = memcache.get("msgs%s" % r)
+		if msgs is None:
+			msgs = []
+			logging.warning("user may have lost cached messages: %s" % object.receiver)
+		msgs.append(object)
+		msgs.sort(reverse=True, key=lambda m: m.sent)
+		memcache.set("msgs%s" % r, msgs)
 
 @log_on_fail
 def set_all(type, objects):
-	assert type in ["users", "messages", "items"], "set_all was not passed a valid type"
-	assert not objects is None, "set_all was passed None as the list of objects"
+	assert type in ["users", "messages", "items"], "set_all was not passed a valid type.  Send this error code to Mondays: 33-205"
+	assert not objects is None, "set_all was passed None as the list of objects.  Send this error code to Mondays: 33-206"
 	all = []
 	for ob in objects:
 		error = not memcache.set(str(ob.key().id()), ob)
@@ -209,12 +219,51 @@ def set_all(type, objects):
 @log_on_fail
 def del_from(type, object):
 	all = memcache.get(type+"allid")
-	assert str(object.key().id()) in all, "item not found in cache"
+	if not all: all = object.__class__.all()
+	assert all, "Could not find any messages.  Send this error code to Mondays: 13-219"
+	assert str(object.key().id()) in all, "item not found in cache.  Send this error code to Mondays: 33-220"
 	del all[ all.index(str(object.key().id())) ]
 	memcache.set(type+"allid", all)
 	memcache.delete(str(object.key().id()))
 
 
-@log_on_fail
-def paypal():
-	pass
+class PaypalAdaptivePayment:
+
+	def __init__(self, paypal_sandbox_enabled):
+		self.paypal_sandbox_enabled = paypal_sandbox_enabled
+		self.response_data_format = "JSON"
+		self.request_data_format = "JSON"
+		if paypal_sandox_enabled:
+			self.paypal_secure_user_id = "harris_1351215974_biz_api1.hunterhayven.com"
+			self.paypal_secure_password = "1351215996"
+			self.paypal_secure_signature = "An5ns1Kso7MWUdW4ErQKJJJ4qi4-A99zn7jYO8xZRhbeljNMwIkd1mMD"
+			self.receiver_email = "harris_1351215974_biz@hunterhayven.com"
+			self.request_url = "https://svcs.sandbox.paypal.com/AdaptivePayments/Pay"
+		else:
+			self.paypal_secure_user_id = "pass"
+			self.paypal_secure_password = "pass"
+			self.paypal_secure_signature = "pass"
+			self.receiver_email = "receiver"
+			self.request_url = "pass"
+
+	def initialize_payment(self, amount, cancel_url, return_url):
+		try:
+			headers = {}
+			headers["X-PAYPAL-SECURITY-USERID"] = self.paypal_secure_user_id
+			headers["X-PAYPAL-SECURITY-PASSWORD"] = self.paypal_secure_password
+			headers["X-PAYPAL-SECURITY-SIGNATURE"] = self.paypal_secure_signature
+			headers["X-PAYPAL-REQUEST-DATA-FORMAT"] = self.request_data_format
+			headers["X-PAYPAL-RESPONSE-DATA-FORMAT"] = self.response_data_format
+			if self.paypal_sandbox_enabled:
+				headers["X-PAYPAL-APPLICATION-ID"] = "APP-80W284485P519543T"
+			else:
+				headers["X-PAYPAL-APPLICATION-ID"] = "PASS"
+#			params = {'actionType':'PAY', 'receiverList':{'receiver':[{'email':self.receiver_email,'amount':amount}]}, 'cancelUrl':cancel_url,\
+#					'requestEnvelope':\ 'errorLanguage':'en_US'}, 'currencyCode':'USD', 'returnUrl':return_url}
+			request_data = json.dumps(params)
+#			response = send request with headers and request_data
+			response_data =  json.loads(response.read())
+			assert response_data, "No response data"
+		except Exception, e:
+			logging.error("unable to initialize payment flow.  ERROR:\n%s" % e)
+
