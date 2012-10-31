@@ -174,22 +174,23 @@ def set_all2(type, objects):
 def get_all(type, Class):
 	all = []
 	ids = memcache.get(type+"allid")
+	query_amount = 0
 	if ids:
 		for id in ids:
-			ob = memcache.get(id)
-			if not ob is None: all.append(ob)
-			else:
+			ob = memcache.get(str(id))
+			if ob is None:
 				ob = Class.get_by_id(int(id))
-				all.append(ob)
-				memcache.set(id, ob)
-				logging.info("ob query for "+type+"s")
+				memcache.set(str(id), ob)
+				query_amount += 1
+			all.append(ob)
+		logging.info(str(query_amount) + " ob queries")
 		return all
 	return None
 
 def add_to_all(type, object):
 	memcache.set(str(object.key().id()), object)
 	all = memcache.get(type+"allid")
-	if all is None: all = object.__class__.all()
+	if all is None: all = [str(ob.key().id()) for ob in object.__class__.all()]
 	assert all is not None, "query returned None.  Send this error code to Mondays: 23-193A"
 	if not str(object.key().id()) in all:
 		all.append(str(object.key().id()))

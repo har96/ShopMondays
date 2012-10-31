@@ -205,6 +205,7 @@ class UserHome( Handler ):
 			for m in msgs: Message.delete(m)
 			self.redirect("/home")
 			return
+		else: assert del_id.isdigit(), "Got bad param for del_id.  Send this error code to Mondays: 32-208"
 		m = Message.get_by_id(int(del_id))
 		if m: 
 			Message.delete(m)
