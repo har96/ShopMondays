@@ -200,15 +200,14 @@ class UserHome( Handler ):
 			return
 
 		del_id = self.request.get("delete_mes")
-		if del_id == "all":
+		try:
+			del_id = int(del_id)
+		except ValueError:
 			msgs = Message.get_from_receiver(user.name)
 			for m in msgs: Message.delete(m)
 			self.redirect("/home")
 			return
-		try:
-			del_id = int(del_id)
-		except ValueError:
-			raise AssertionError("Invalid value del_mes: %s.  Send this error code to Mondays: 32-211" % del_id)
+
 		m = Message.get_by_id(int(del_id))
 		if m: 
 			Message.delete(m)
