@@ -205,7 +205,10 @@ class UserHome( Handler ):
 			for m in msgs: Message.delete(m)
 			self.redirect("/home")
 			return
-		else: assert del_id.isdigit(), "Got bad param for del_id.  Send this error code to Mondays: 32-208"
+		try:
+			del_id = int(del_id)
+		except ValueError:
+			raise AssertionError("Invalid value del_mes: %s.  Send this error code to Mondays: 32-211" % del_id)
 		m = Message.get_by_id(int(del_id))
 		if m: 
 			Message.delete(m)

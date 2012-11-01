@@ -107,7 +107,7 @@ ul.users li
 
 @font-face {
 	font-family: good_times;
-	src: url("good_times_font.ttf") format("truetype")
+	src: url("good_times_font.ttf")
 }
 
 img#left-bar {

@@ -183,14 +183,16 @@ def get_all(type, Class):
 				memcache.set(str(id), ob)
 				query_amount += 1
 			all.append(ob)
-		logging.info(str(query_amount) + " ob queries")
+		if query_amount: logging.info(str(query_amount) + " ob queries")
 		return all
 	return None
 
 def add_to_all(type, object):
 	memcache.set(str(object.key().id()), object)
 	all = memcache.get(type+"allid")
-	if all is None: all = [str(ob.key().id()) for ob in object.__class__.all()]
+	if not all: 
+		all = [str(ob.key().id()) for ob in object.__class__.all()]
+		logging.info("DB query for %s" % type)
 	assert all is not None, "query returned None.  Send this error code to Mondays: 23-193A"
 	if not str(object.key().id()) in all:
 		all.append(str(object.key().id()))
@@ -220,7 +222,9 @@ def set_all(type, objects):
 @log_on_fail
 def del_from(type, object):
 	all = memcache.get(type+"allid")
-	if not all: all = object.__class__.all()
+	if not all: 
+		all = object.__class__.all()
+		logging.info("DB query %s" % type)
 	assert all, "Could not find any messages.  Send this error code to Mondays: 13-219"
 	assert str(object.key().id()) in all, "item not found in cache.  Send this error code to Mondays: 33-220"
 	del all[ all.index(str(object.key().id())) ]
