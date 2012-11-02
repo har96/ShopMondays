@@ -216,7 +216,7 @@ def set_all(type, objects):
 def del_from(type, object):
 	all = memcache.get(type+"allid")
 	if not all: 
-		all = object.__class__.all()
+		all = [str(ob.key().id()) for ob in object.__class__.all()]
 		logging.info("DB query %s" % type)
 	assert all, "Could not find any objects.  Send this error code to Mondays: 13-219"
 	assert str(object.key().id()) in all, "item not found in cache.  Send this error code to Mondays: 33-220"
