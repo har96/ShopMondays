@@ -136,6 +136,16 @@ class User( db.Model ):
 		del_from("users", usr)
 		super(User, cls).delete(user)
 
+	@classmethod
+	@log_on_fail
+	def get_by_id(cls, id):
+		ret = memcache.get(str(id))
+		if not ret:
+			ret = super(Item, cls).get_by_id(id)
+			if ret:
+				memcache.set(str(id), ret)
+			logging.info("ob query for User")
+		return ret
 
 class Message( db.Model ):
 	sender = db.StringProperty(required=True)
@@ -230,6 +240,18 @@ class Message( db.Model ):
 		del_from("messages", message)
 		super(Message, cls).delete(message)
 
+	@classmethod
+	@log_on_fail
+	def get_by_id(cls, id):
+		ret = memcache.get(str(id))
+		if not ret:
+			ret = super(Item, cls).get_by_id(id)
+			if ret:
+				memcache.set(str(id), ret)
+			logging.info("ob query for message")
+		return ret
+
+
 	def put(self):
 		super(Message, self).put()
 #		memcache.set("msgs%supdate" % self.receiver, True)
@@ -312,6 +334,17 @@ class Item( db.Model):
 	def delete(cls, item):
 		del_from("items", item)
 		super(Item, cls).delete(item)
+
+	@classmethod
+	@log_on_fail
+	def get_by_id(cls, id):
+		ret = memcache.get(str(id))
+		if not ret:
+			ret = super(Item, cls).get_by_id(id)
+			if ret:
+				memcache.set(str(id), ret)
+			logging.info("ob query for Item")
+		return ret
 
 	@log_on_fail
 	def put(self):
