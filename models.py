@@ -1,4 +1,4 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from helpers import *
 import simplejson as json
@@ -8,29 +8,29 @@ import cgi
 memo = lambda f: cache_all_query
 
 
-class User( db.Model ):
-	name = db.StringProperty(required=True)
-	password = db.StringProperty(required=True)
-	salt = db.StringProperty(required=True)
-	pepper = db.StringProperty()
+class User( ndb.Model ):
+	name = ndb.StringProperty(required=True)
+	password = ndb.StringProperty(required=True)
+	salt = ndb.StringProperty(required=True)
+	pepper = ndb.StringProperty()
 
 	# A Dictionary containing the user's important events
 	# "registered", "number of items sold", "number of items not sold"
 	# "number of messages sent", "number of messages received", "ratings"
 	# "money earned", "money spent"
-	history = db.StringProperty()
+	history = ndb.StringProperty()
 
-	email = db.EmailProperty()
-	active = db.BooleanProperty()
+	email = ndb.StringProperty()
+	active = ndb.BooleanProperty()
 
-	last_name = db.StringProperty()
-	first_name = db.StringProperty()
-	state = db.StringProperty()
-	city = db.StringProperty()
-	zip = db.IntegerProperty()
-	address = db.TextProperty()
-	address1 = db.StringProperty()
-	address2 = db.StringProperty()
+	last_name = ndb.StringProperty()
+	first_name = ndb.StringProperty()
+	state = ndb.StringProperty()
+	city = ndb.StringProperty()
+	zip = ndb.IntegerProperty()
+	address = ndb.TextProperty()
+	address1 = ndb.StringProperty()
+	address2 = ndb.StringProperty()
 
 
 	@log_on_fail
@@ -85,7 +85,7 @@ class User( db.Model ):
 	@classmethod
 	def get_by_name(cls, name):
 		try:
-			return [usr for usr in cls.all() if usr.name == name][0]
+			return [usr for usr in cls.query() if usr.name == name][0]
 		except IndexError:
 			return False
 	
@@ -127,41 +127,26 @@ class User( db.Model ):
 		result.sort(key=lambda x: getattr(x, order))
 		return result
 
-	def put(self):
-		super(User, self).put()
-		add_to_all("users", self)
-	
 	@classmethod
 	def delete(cls, usr):
 		del_from("users", usr)
 		super(User, cls).delete(user)
 
-	@classmethod
-	@log_on_fail
-	def get_by_id(cls, id):
-		ret = memcache.get(str(id))
-		if not ret:
-			ret = super(User, cls).get_by_id(id)
-			if ret:
-				memcache.set(str(id), ret)
-			logging.info("ob query for User")
-		return ret
-
-class Message( db.Model ):
-	sender = db.StringProperty(required=True)
-	content = db.TextProperty(required=True)
-	receiver = db.StringProperty(required=True)
-	sent = db.DateTimeProperty(required=True)
-	sent_str = db.StringProperty()
-	image = db.BlobProperty()
+class Message( ndb.Model ):
+	sender = ndb.StringProperty(required=True)
+	content = ndb.TextProperty(required=True)
+	receiver = ndb.StringProperty(required=True)
+	sent = ndb.DateTimeProperty(required=True)
+	sent_str = ndb.StringProperty()
+	image = ndb.BlobProperty()
 
 	@classmethod
 	def get_from_sender(cls, sender):
-		return [m for m in cls.all() if m.sender == sender]
+		return cls.query(cls.sender == sender)
 
 	@classmethod
 	def get_from_receiver(cls, receiver):
-		q = [msg for msg in cls.all() if msg.receiver == receiver]
+		q = cls.query(cls.receiver == receiver).order(-cls.sent)
 		return q
 
 	@classmethod
@@ -240,39 +225,22 @@ class Message( db.Model ):
 		del_from("messages", message)
 		super(Message, cls).delete(message)
 
-	@classmethod
-	@log_on_fail
-	def get_by_id(cls, id):
-		ret = memcache.get(str(id))
-		if not ret:
-			ret = super(Message, cls).get_by_id(id)
-			if ret:
-				memcache.set(str(id), ret)
-			logging.info("ob query for message")
-		return ret
 
-
-	def put(self):
-		super(Message, self).put()
-#		memcache.set("msgs%supdate" % self.receiver, True)
-		add_to_all("messages", self)
-
-
-class Item( db.Model):
-	seller = db.StringProperty(required=True)
-	title = db.StringProperty(required=True)
-	description = db.TextProperty()
-	num_bids = db.IntegerProperty()
-	current_buyer = db.StringProperty()
-	current_price = db.FloatProperty()
-	image = db.BlobProperty()
-	listed = db.DateTimeProperty(required=True)
-	expires = db.DateTimeProperty(required=True)
-	shipdate = db.DateTimeProperty(required=True)
-	shipprice = db.FloatProperty()
-	local_pickup = db.StringProperty()
-	bid_margin = db.FloatProperty()
-	condition = db.StringProperty()
+class Item( ndb.Model):
+	seller = ndb.StringProperty(required=True)
+	title = ndb.StringProperty(required=True)
+	description = ndb.TextProperty()
+	num_bids = ndb.IntegerProperty()
+	current_buyer = ndb.StringProperty()
+	current_price = ndb.FloatProperty()
+	image = ndb.BlobProperty()
+	listed = ndb.DateTimeProperty(required=True)
+	expires = ndb.DateTimeProperty(required=True)
+	shipdate = ndb.DateTimeProperty(required=True)
+	shipprice = ndb.FloatProperty()
+	local_pickup = ndb.StringProperty()
+	bid_margin = ndb.FloatProperty()
+	condition = ndb.StringProperty()
 
 	@log_on_fail
 	def bid(self, buyer, price):
@@ -304,12 +272,12 @@ class Item( db.Model):
 
 	@classmethod
 	def get_by_seller(cls, seller):
-		i = [item for item in cls.all(order="listed") if item.seller == seller]
+		i = [item for item in cls.query() if item.seller == seller]
 		return i
 
 	@classmethod
 	def get_by_title(cls, title):
-		i = [item for item in cls.all() if item.title == title]
+		i = [item for item in cls.query() if item.title == title]
 		return i[0]
 
 #	@classmethod
@@ -334,20 +302,4 @@ class Item( db.Model):
 	def delete(cls, item):
 		del_from("items", item)
 		super(Item, cls).delete(item)
-
-	@classmethod
-	@log_on_fail
-	def get_by_id(cls, id):
-		ret = memcache.get(str(id))
-		if not ret:
-			ret = super(Item, cls).get_by_id(id)
-			if ret:
-				memcache.set(str(id), ret)
-			logging.info("ob query for Item")
-		return ret
-
-	@log_on_fail
-	def put(self):
-		super(Item, self).put()
-		add_to_all("items", self)
 

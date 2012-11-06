@@ -40,7 +40,7 @@ class HomePage( Handler ):
 	def get(self):
 
 		# Handle item expiration
-		items = Item.all()
+		items = Item.query()
 		for i in items:
 			if i.did_expire():
 				if i.num_bids:
@@ -77,7 +77,7 @@ class HomePage( Handler ):
 					seller.put_history(history)
 
 
-				Item.delete(i)
+				i.key.delete()
 
 		self.write()
 
@@ -100,7 +100,7 @@ class LoginPage( Handler ):
 			return
 
 		if users_match(u, hash_user_info(username, password, u.pepper, u.salt)[0]):
-			self.response.headers.add_header("Set-Cookie", "user_id=%s|%s; Path=/" % (u.key().id(), u.password))
+			self.response.headers.add_header("Set-Cookie", "user_id=%s|%s; Path=/" % (u.key.integer_id(), u.password))
 			self.redirect("/home")
 		else:
 			self.write(error="Invalid username and password combination", username=cgi.escape(username))
@@ -169,7 +169,7 @@ class Register( Handler ):
 			u = User.register(username, password, email, first_name, last_name, state, city, zip, address1, address2)
 			u.put()
 			# Set the user cookie
-			self.response.headers.add_header("Set-Cookie", 'user_id=%s|%s; Path=/' % (u.key().id(), u.password))
+			self.response.headers.add_header("Set-Cookie", 'user_id=%s|%s; Path=/' % (u.key.integer_id(), u.password))
 
 			# Send a message welcoming the user
 			Message.send_mond_msg(username, "Welcome to Mondays <b>%s</b>!" % u.first_name)
@@ -204,13 +204,13 @@ class UserHome( Handler ):
 			del_id = int(del_id)
 		except ValueError:
 			msgs = Message.get_from_receiver(user.name)
-			for m in msgs: Message.delete(m)
+			for m in msgs: m.key.delete()
 			self.redirect("/home")
 			return
 
 		m = Message.get_by_id(int(del_id))
 		if m: 
-			Message.delete(m)
+			m.key.delete()
 		self.redirect("/home")
 
 
@@ -242,7 +242,7 @@ class CreateMessage( Handler ):
 			return
 
 		# ensure that the user entered a valid receiver
-		all_users = User.all()
+		all_users = User.query()
 		found = False
 		for u in all_users:
 			if receiver == u.name:
@@ -254,17 +254,17 @@ class CreateMessage( Handler ):
 			return
 
 		# send message
-		id = user.key().id()
+		id = user.key.integer_id()
 		if all == "on":
 			try:
 				sender = User.get_by_id(id).name
 				if sender == "Mondays":
 					for u in all_users:
-						memcache.set("%supdate" % u.key().id(), True)
+						memcache.set("%supdate" % u.key.integer_id(), True)
 						Message.send_mond_msg(u.name, content, image or None)
 				else:
 					for u in all_users:
-						memcache.set("%supdate" % u.key().id(), True)
+						memcache.set("%supdate" % u.key.integer_id(), True)
 						Message.send_msg(sender, u.name, content, image or None)
 			except Exception, e:
 				
@@ -275,10 +275,10 @@ class CreateMessage( Handler ):
 		else:
 			sender = User.get_by_id(id).name
 			if sender == "Mondays":
-				memcache.set("%supdate" % User.get_by_name(receiver).key().id(), True)
+				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
 				Message.send_mond_msg(receiver, content, image or None)
 			else: 
-				memcache.set("%supdate" % User.get_by_name(receiver).key().id(), True)
+				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
 				Message.send_msg(sender, receiver, content, image or None)
 
 		self.redirect("/home")
@@ -427,7 +427,7 @@ class EditItem( Handler ):
 		# if the user clicked the delete button
 		should_delete = self.request.get("delete")
 		if should_delete:
-			Item.delete(item)
+			item.key.delete()
 			if item.current_buyer:
 				Message.send_mond_msg(item.current_buyer, "Sorry, %s just deleted %s." % (item.seller, item.title))  
 			self.redirect("/home")
@@ -477,7 +477,7 @@ class Archive( Handler ):
 		cookie = self.get_user_cookie()
 		if User.valid_user_cookie(cookie):
 			user = User.get_by_id(int(cookie.split("|")[0]))
-			self.write(user=user, items=Item.all(order="listed"))
+			self.write(user=user, items=Item.query())
 		else: self.cookie_error()
 
 class RequestMsg( Handler ):
@@ -500,7 +500,7 @@ class RequestMsg( Handler ):
 		if not item:
 			self.write(user=sender, error="Must specify an item")
 			return
-		for u in User.all():
+		for u in User.query():
 			if u.name == sender.name:
 				continue
 			Message.send_mond_msg(u.name, "%s is requesting users to sell %s" % (sender.name, item),
@@ -579,7 +579,7 @@ class Activate(Handler):
 		if did_enter_email:
 			content = """ Please visit this page to activate your user: www.shopmondays.com/activate/%d
 				Copy and paste this code into the "Activate code" box: %s"""
-			content = content % (user.key().id(), hash_str(user.name + "1j2h3@$#klasd"))
+			content = content % (user.key.integer_id(), hash_str(user.name + "1j2h3@$#klasd"))
 			
 #			send_email_to_user(user, "Mondays user activation", content)
 			mail.send_mail(sender="harrison@shopmondays.com",
@@ -657,7 +657,7 @@ class ResetPassword(Handler):
 		user.password = hash_user_info( user.name, user.password, user.salt, user.salt2)[0]
 		user.put()
 
-		self.response.headers.add_header("Set-Cookie", "user_id=%d|%s; Path=/;" % (user.key().id(), user.password))
+		self.response.headers.add_header("Set-Cookie", "user_id=%d|%s; Path=/;" % (user.key.integer_id(), user.password))
 		self.redirect("/home")
 
 
@@ -761,7 +761,7 @@ class AllUsers( Handler ):
 	def write(self, **format_args):
 		self.render("templates/user_all_page.html", **format_args)
 	def get(self):
-		self.write(users=User.all(order="name"))
+		self.write(users=User.query())
 
 		
 class Logout( Handler ):

@@ -173,6 +173,7 @@ def set_all2(type, objects):
 @log_on_fail
 def get_all(type, Class):
 	all = []
+	logging.info("called")
 	ids = memcache.get(type+"allid")
 	query_amount = 0
 	if ids:
@@ -190,39 +191,42 @@ def get_all(type, Class):
 	return None
 
 def add_to_all(type, object):
-	memcache.set(str(object.key().id()), object)
+	memcache.set(str(object.key.integer_id()), object)
 	all = memcache.get(type+"allid")
 	if not all: 
-		all = [str(ob.key().id()) for ob in object.__class__.all()]
+		all = [str(ob.key.integer_id()) for ob in object.__class__.all()]
 		logging.info("DB query for %s" % type)
 	assert all is not None, "query returned None.  Send this error code to Mondays: 23-193A"
-	if not str(object.key().id()) in all:
-		all.append(str(object.key().id()))
+	if not str(object.key.integer_id()) in all:
+		all.append(str(object.key.integer_id()))
 	memcache.set(type+"allid", all)
+	logging.info("called")
 
 @log_on_fail
 def set_all(type, objects):
 	assert type in ["users", "messages", "items"], "set_all was not passed a valid type.  Send this error code to Mondays: 33-205"
 	assert not objects is None, "set_all was passed None as the list of objects.  Send this error code to Mondays: 33-206"
 	all = []
+	logging.info("called")
 	for ob in objects:
-		error = not memcache.set(str(ob.key().id()), ob)
+		error = not memcache.set(str(ob.key.integer_id()), ob)
 		if error:
 			logging.warning("keys not setting properly. Object must not be pickleable")
-		all.append(str(ob.key().id()))
+		all.append(str(ob.key.integer_id()))
 	memcache.set(type+"allid", all)
 
 @log_on_fail
 def del_from(type, object):
 	all = memcache.get(type+"allid")
 	if not all: 
-		all = [str(ob.key().id()) for ob in object.__class__.all()]
+		all = [str(ob.key.integer_id()) for ob in object.__class__.all()]
 		logging.info("DB query %s" % type)
 	assert all, "Could not find any objects.  Send this error code to Mondays: 13-219"
-	assert str(object.key().id()) in all, "item not found in cache.  Send this error code to Mondays: 33-220"
-	del all[ all.index(str(object.key().id())) ]
+	assert str(object.key.integer_id()) in all, "item not found in cache.  Send this error code to Mondays: 33-220"
+	del all[ all.index(str(object.key.integer_id())) ]
 	memcache.set(type+"allid", all)
-	memcache.delete(str(object.key().id()))
+	memcache.delete(str(object.key.integer_id()))
+	logging.info("called")
 
 
 class PaypalAdaptivePayment:
