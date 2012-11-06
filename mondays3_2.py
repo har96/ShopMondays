@@ -23,7 +23,7 @@ app = webapp.WSGIApplication([("/", HomePage),
 				("/activate/([0-9]+)", ActivateUser),
 				("/user/([0-9]+)", UserProfile),
 				("/edit_user/([0-9]+)", EditUserProfile),
-				("/users", AllUsers)], debug=False)
+				("/users", AllUsers)], debug=True)
 
 def main():
 	run_wsgi_app(app)

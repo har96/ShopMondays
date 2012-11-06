@@ -141,7 +141,7 @@ class User( db.Model ):
 	def get_by_id(cls, id):
 		ret = memcache.get(str(id))
 		if not ret:
-			ret = super(Item, cls).get_by_id(id)
+			ret = super(User, cls).get_by_id(id)
 			if ret:
 				memcache.set(str(id), ret)
 			logging.info("ob query for User")
@@ -245,7 +245,7 @@ class Message( db.Model ):
 	def get_by_id(cls, id):
 		ret = memcache.get(str(id))
 		if not ret:
-			ret = super(Item, cls).get_by_id(id)
+			ret = super(Message, cls).get_by_id(id)
 			if ret:
 				memcache.set(str(id), ret)
 			logging.info("ob query for message")
