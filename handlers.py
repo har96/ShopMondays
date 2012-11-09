@@ -458,10 +458,10 @@ class EditItem( Handler ):
 			self.write(title=cgi.escape(title), description=cgi.escape(description), price=cgi.escape(str(price)), t_error=t_error, p_error=p_error, \
 					s_error=s_error, shipprice=shipprice, localpickup='checked="checked"' if localpickup=="on" else "", item=item) 
 			return
-		if not item.num_bids:
+		if item.num_bids == 0:
 			item.title = title
 			item.description = description
-			item.price = price
+			item.current_price = price
 			item.shipprice = shipprice
 			item.local_pickup = localpickup
 			item.condition = condition
