@@ -109,7 +109,7 @@ class AboutPage( Handler ):
 	def write(self):
 		self.render("templates/about_page.html")
 	def get(self):
-		self.write()
+		self.write(sponsers=get_sponsers())
 
 class Register( Handler ):
 	def write(self, **format_args):

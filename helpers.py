@@ -14,6 +14,8 @@ import re
 import py_bcrypt.bcrypt as bcrypt
 from functools import update_wrapper
 import logging
+import urllib
+import simplejson as json
 
 from google.appengine.api import images
 from google.appengine.api import memcache
@@ -268,4 +270,12 @@ class PaypalAdaptivePayment:
 			assert response_data, "No response data"
 		except Exception, e:
 			logging.error("unable to initialize payment flow.  ERROR:\n%s" % e)
+
+def get_sponsers():
+	request = urllib.urlopen("mondaysinfo.appspot.com/sponsers").read()
+	if request:
+		request = json.loads(request)["list"]
+	else:
+		request = ["Sorry, this info is currently unavailable"]
+	return request
 

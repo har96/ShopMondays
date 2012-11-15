@@ -8,5 +8,13 @@ I created this site using what I learned from a <a href="http://www.udacity.com"
 I've really enjoyed creating this site so I hope you enjoy using it.
 </p>
 
+<b>Sponser list:</b>
+Many thanks to the below people who contributed to getting Mondays off the ground!
+<br>
+<ul>
+	{% for name in sponsers %}
+		<li>{{name}}<li><br>
+	{% endfor %}
+</ul>
 
 {% endblock %}

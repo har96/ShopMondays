@@ -8,6 +8,22 @@
 <b>{{pageuser.first_name}} {{pageuser.last_name}}</b>
 <br>
 
+<br>
+Items sold:
+<ul>
+{% for item in pageuser.sold %}
+	<li><a href="item/{{item.key.integer_id}}">{{item.title}}</a></li>
+	{% if forloop.counter|divisibleby:5 %}<br>{% endif %}
+{% endfor %}
+</ul>
+<br>
+Items purchased:
+<ul>
+{% for item in pageuser.purchased %}
+	<li><a href="item/{{item.key.integer_id}}">{{item.title}}</a></li>
+	{% if forloop.counter|divisibleby:5 %}<br>{% endif %}
+{% endfor %}
+</ul>
 {% ifequal user.name pageuser.name %}
 
 <b>Email:</b> {{user.email}}
