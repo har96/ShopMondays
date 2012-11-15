@@ -32,6 +32,10 @@ class User( ndb.Model ):
 	address1 = ndb.StringProperty()
 	address2 = ndb.StringProperty()
 
+	items_listed = ndb.IntegerProperty(repeated=True) # ids of all the items the user has listed
+	items_purchased = ndb.IntegerProperty(repeated=True) # ids of all the items the user has purchased
+	watch_list = ndb.IntegerProperty(repeated=True) # ids of all the items the user is currently watching
+
 
 	@log_on_fail
 	def activate(self, **attributes):
@@ -242,6 +246,10 @@ class Item( ndb.Model):
 	bid_margin = ndb.FloatProperty()
 	condition = ndb.StringProperty()
 
+	watch_list = ndb.StringProperty(repeated=True) # List of names of users watching
+	bid_hist = ndb.JsonProperty() # json of format: {"hist":[ [bidder, price], [bidder2, price],...] 
+	payed = ndb.BooleanProperty() # True if the item has been payed for
+
 	@log_on_fail
 	def bid(self, buyer, price):
 		""" places a bid on an item,
@@ -303,3 +311,14 @@ class Item( ndb.Model):
 		del_from("items", item)
 		super(Item, cls).delete(item)
 
+class Notification(ndb.Model):
+	""" This Model represents notifications Mondays
+	   sends out to certain users or all users """
+
+	receiver = ndb.StringProperty(required=True)
+	sent = ndb.DateTimeProperty(required=True)
+	content = ndb.TextProperty(required=True)
+
+	@classmethod
+	def get_by_receiver(cls, receiver):
+		return cls.query(Notification.receiver == receiver)
