@@ -9,18 +9,18 @@
 <br>
 
 <br>
-Items sold:
+Items listed:
 <ul>
-{% for item in pageuser.sold %}
-	<li><a href="item/{{item.key.integer_id}}">{{item.title}}</a></li>
+{% for item in listed %}
+<li><a href="/item/{{item.key.integer_id}}" style="text-decoration: none; color: green;">{{item.title}}</a></li>
 	{% if forloop.counter|divisibleby:5 %}<br>{% endif %}
 {% endfor %}
 </ul>
 <br>
 Items purchased:
 <ul>
-{% for item in pageuser.purchased %}
-	<li><a href="item/{{item.key.integer_id}}">{{item.title}}</a></li>
+{% for item in bought %}
+	<li><a href="/item/{{item.key.integer_id}}">{{item.title}}</a></li>
 	{% if forloop.counter|divisibleby:5 %}<br>{% endif %}
 {% endfor %}
 </ul>

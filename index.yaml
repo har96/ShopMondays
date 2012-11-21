@@ -26,3 +26,9 @@ indexes:
   - name: receiver
   - name: sent
     direction: desc
+
+- kind: Notification
+  properties:
+  - name: receiver
+  - name: sent
+    direction: desc

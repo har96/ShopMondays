@@ -32,7 +32,6 @@ class User( ndb.Model ):
 	address1 = ndb.StringProperty()
 	address2 = ndb.StringProperty()
 
-	items_listed = ndb.IntegerProperty(repeated=True) # ids of all the items the user has listed
 	items_purchased = ndb.IntegerProperty(repeated=True) # ids of all the items the user has purchased
 	watch_list = ndb.IntegerProperty(repeated=True) # ids of all the items the user is currently watching
 
@@ -248,7 +247,9 @@ class Item( ndb.Model):
 
 	watch_list = ndb.StringProperty(repeated=True) # List of names of users watching
 	bid_hist = ndb.JsonProperty() # json of format: {"hist":[ [bidder, price], [bidder2, price],...] 
-	payed = ndb.BooleanProperty() # True if the item has been payed for
+	payed = ndb.BooleanProperty(default=False) # True if the item has been payed for
+	expired = ndb.BooleanProperty(default=False)
+	paypal_email = ndb.StringProperty()
 
 	@log_on_fail
 	def bid(self, buyer, price):
@@ -280,13 +281,17 @@ class Item( ndb.Model):
 
 	@classmethod
 	def get_by_seller(cls, seller):
-		i = [item for item in cls.query() if item.seller == seller]
-		return i
+		return cls.query(cls.seller == seller)
 
 	@classmethod
 	def get_by_title(cls, title):
-		i = [item for item in cls.query() if item.title == title]
-		return i[0]
+#		i = [item for item in cls.query() if item.title == title]
+#		return i[0]
+		return cls.query(cls.title == title).get()
+
+	@classmethod
+	def get_active(cls):
+		return [item for item in cls.query().order(-cls.listed) if not item.payed and not item.expired]
 
 #	@classmethod
 #	def all(cls, order=""):
@@ -320,5 +325,23 @@ class Notification(ndb.Model):
 	content = ndb.TextProperty(required=True)
 
 	@classmethod
+	def new(cls, receiver, content):
+		return cls(receiver=receiver, content=content, sent=gen_date2())
+
+	@classmethod
 	def get_by_receiver(cls, receiver):
-		return cls.query(Notification.receiver == receiver)
+		return cls.query(Notification.receiver == receiver).order(-cls.sent)
+
+class Purchase(ndb.Model):
+	'''a completed transaction'''
+	item = ndb.IntegerProperty()
+	owner = ndb.StringProperty()
+	purchaser = ndb.StringProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	status = ndb.StringProperty( choices=( 'NEW', 'CREATED', 'ERROR', 'CANCELLED', 'RETURNED', 'COMPLETED' ) )
+	status_detail = ndb.StringProperty()
+	secret = ndb.StringProperty() # to verify return_url
+	debug_request = ndb.TextProperty()
+	debug_response = ndb.TextProperty()
+	paykey = ndb.StringProperty()
+	shipping = ndb.TextProperty()

@@ -1,6 +1,8 @@
 from google.appengine.ext import webapp
 register = webapp.template.create_template_register()
 
+months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+		'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 def getkey(value, arg):
 	""" returns value[arg] """
@@ -20,6 +22,16 @@ def br_newlines( string ):
 	""" replaces newlines with <br> """
 	return string
 
+def mdtime( date ):
+	""" Returns the datetime property date as 
+	string of the format: "mon dd hh:mm"  """
+	s = months[ date.month - 1 ]
+	s = s + " %d" % date.day
+	s = s + " %d:%02d" % (date.hour, date.minute)
+	return s
+	
+
 register.simple_tag(balance)
 register.filter(getkey)
 register.filter(dollars)
+register.filter(mdtime)

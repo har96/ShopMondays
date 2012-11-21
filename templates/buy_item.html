@@ -1,0 +1,21 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+Enter your paypal email to start your payment process!
+
+<form method="post">
+	<input type="text" name="email" value="{{email}}"/>
+	<div class="error">{{error}}</div><br>
+	{% ifequal item.local_pickup "on" %}
+	<select name="ship">
+		<option value="ship">Shipping - ${{item.shipprice|dollars}}</option>
+		<option value="pickup">Pickup</option>
+	</select>
+	{% endifequal %}
+	<button type="submit">Purchase</button>
+</form>
+
+<div style="color: red; font-size: large">{{message}}</div>
+
+{% endblock %}

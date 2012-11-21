@@ -83,12 +83,9 @@ class TestApp( AppCase ):
 			key = random.choice(params.keys())
 			oldval = params[key]
 			params[key] = ""
-			self.params = params
 			self.response = self.testapp.post("/register", params)
 			self.assertEqual(self.response.status, "200 OK")
 			params[key] = oldval
-		self.response = self.testapp.post("/register", params)
-		self.assertEqual(self.response.status, "302 Moved Temporarily")
 
 """
 	def testSendMsg(self):

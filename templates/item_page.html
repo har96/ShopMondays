@@ -37,15 +37,36 @@ The seller requires the purchaser to pick this item up
         You must pick up the item before {{shipdate}}
 	<br>
 {% endifequal %}
-{% ifequal item.seller user.name %}
-This is your item. - <a href="/edit_item/{{item.key.id}}">EDIT</a>
-{% endifequal %}
+{% if not item.did_expire %}
+	{% ifequal item.seller user.name %}
+	This is your item. - <a href="/edit_item/{{item.key.id}}">EDIT</a>
+	{% endifequal %}
+	{% if watchable %}
+	<form action="/watch/{{item.key.integer_id}}" method="post">
+		<button type="submit">Watch Item</button>
+	</form>
+	{% else %}
+	<form action="/unwatch/{{item.key.integer_id}}" method="post">
+		<button type="submit">Unwatch Item</button>
+	</form>
+	{% endif %}
+	
 
 <form method="post">
 	<div id="bid-box">
 		<button onClick="show_bid()">Bid</button>
 	</div>
 </form>
+{% else %}
+	{% if item.payed %}
+	<b>This item has been payed for</b>
+	{% endif %}
+	{% if buyer %}
+		{% if not item.payed %}
+		<b>You have not payed for this item, </b><a href="/buy/{{item.key.integer_id}}">pay here.</a>
+		{% endif %}
+	{% endif %}
+{% endif %}
 <div class="error">{{error}}</div>
 
 

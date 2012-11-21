@@ -13,9 +13,8 @@ Sender: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;Send to all users: <input type="che
 	</label>
 	<br>
 	<br>
-	Content
-	<br>
-	<textarea name="body" wrap="hard" cols=50 rows=25>{{body}}</textarea>
+	<label>Content<br>
+		<textarea name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
 	<br>
 	<label>Image (optional)</label>
 	<input type="file" name="img"/>
@@ -25,5 +24,31 @@ Sender: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;Send to all users: <input type="che
 <br>
 <br>
 <div class="error">{{error}}</div>
+<br>
+Message Inbox:
+<form method="post">
+	<table>
+		<th><pre>From   </pre></th> <th><pre>Message    </pre></th> <th><pre>Image    </pre></th>
+		<th><pre>Date Sent    </pre></th>
+		{% for message in usermessages %}
+			<tr>
+				<td>{{message.sender}}:</td>
+				<td><pre>{{message.content}}</pre></td>
+				<td><img src="/img_msg?id={{message.key.id}}" alt=""></img></td>
+				<td>{{message.sent_str}}</td>
+				<td><button type="submit" name="delete_mes" value="{{message.key.id}}">Delete
+					</button></td>
+			</tr>
+			<tr>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+			</tr>
+		{% endfor %}
+	</table>
+</form>
+<br><button onClick="delete_allmsgs()">Delete All</button>
 
 {% endblock %}

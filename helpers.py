@@ -16,10 +16,14 @@ from functools import update_wrapper
 import logging
 import urllib
 import simplejson as json
+import paypal_settings as paypal
 
 from google.appengine.api import images
+from google.appengine.api import urlfetch
 from google.appengine.api import memcache
 from google.appengine.ext import db
+
+import models
 
 PAYPAL = "https://svcs.sandbox.paypal.com/AdaptivePayments/API_operation"
 
@@ -230,52 +234,31 @@ def del_from(type, object):
 	memcache.delete(str(object.key.integer_id()))
 	logging.info("called")
 
-
-class PaypalAdaptivePayment:
-
-	def __init__(self, paypal_sandbox_enabled):
-		self.paypal_sandbox_enabled = paypal_sandbox_enabled
-		self.response_data_format = "JSON"
-		self.request_data_format = "JSON"
-		if paypal_sandox_enabled:
-			self.paypal_secure_user_id = "harris_1351215974_biz_api1.hunterhayven.com"
-			self.paypal_secure_password = "1351215996"
-			self.paypal_secure_signature = "An5ns1Kso7MWUdW4ErQKJJJ4qi4-A99zn7jYO8xZRhbeljNMwIkd1mMD"
-			self.receiver_email = "harris_1351215974_biz@hunterhayven.com"
-			self.request_url = "https://svcs.sandbox.paypal.com/AdaptivePayments/Pay"
-		else:
-			self.paypal_secure_user_id = "pass"
-			self.paypal_secure_password = "pass"
-			self.paypal_secure_signature = "pass"
-			self.receiver_email = "receiver"
-			self.request_url = "pass"
-
-	def initialize_payment(self, amount, cancel_url, return_url):
-		try:
-			headers = {}
-			headers["X-PAYPAL-SECURITY-USERID"] = self.paypal_secure_user_id
-			headers["X-PAYPAL-SECURITY-PASSWORD"] = self.paypal_secure_password
-			headers["X-PAYPAL-SECURITY-SIGNATURE"] = self.paypal_secure_signature
-			headers["X-PAYPAL-REQUEST-DATA-FORMAT"] = self.request_data_format
-			headers["X-PAYPAL-RESPONSE-DATA-FORMAT"] = self.response_data_format
-			if self.paypal_sandbox_enabled:
-				headers["X-PAYPAL-APPLICATION-ID"] = "APP-80W284485P519543T"
-			else:
-				headers["X-PAYPAL-APPLICATION-ID"] = "PASS"
-#			params = {'actionType':'PAY', 'receiverList':{'receiver':[{'email':self.receiver_email,'amount':amount}]}, 'cancelUrl':cancel_url,\
-#					'requestEnvelope':\ 'errorLanguage':'en_US'}, 'currencyCode':'USD', 'returnUrl':return_url}
-			request_data = json.dumps(params)
-#			response = send request with headers and request_data
-			response_data =  json.loads(response.read())
-			assert response_data, "No response data"
-		except Exception, e:
-			logging.error("unable to initialize payment flow.  ERROR:\n%s" % e)
-
 def get_sponsers():
-	request = urllib.urlopen("mondaysinfo.appspot.com/sponsers").read()
+	request = urllib.urlopen("http://mondaysstatic.appspot.com/sponsers.json").read()
 	if request:
 		request = json.loads(request)["list"]
 	else:
 		request = ["Sorry, this info is currently unavailable"]
 	return request
+def notify(receiver, content):
+	n = models.Notification.new(receiver, content)
+	n.put()
 
+class Struct(object):
+	def __init__(self, **kwargs):
+		self.__dict__.update(kwargs)
+
+def verify_paypal_email(email, user):
+	""" Asks paypal to verify the users email """
+	params = ""
+	params = params + "?METHOD=AddressVerify"
+	params = params + "&USER="+paypal.API_USERID
+	params = params + "&PWD=" + paypal.API_PWD
+	params = params + "&SIGNATURE="+paypal.API_SIGNATURE
+	params = params + "&EMAIL=" + email
+	params = params + "&STREET=" + user.address1[:3]
+	params = params + "&ZIP=" + str(user.zip)
+	response = urlfetch.fetch(paypal.NVP_ADDRESS+ params, method=urlfetch.POST)
+	
+	return valid_email(email) # None would mean an it's not an account

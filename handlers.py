@@ -9,6 +9,9 @@ from helpers import *
 import logging
 import cgi
 import os
+import paypal_settings as settings
+import paypal_adaptivepayment as paypal
+import time
 
 
 class Handler( webapp.RequestHandler ):
@@ -34,13 +37,16 @@ class Handler( webapp.RequestHandler ):
 		user = User.get_by_id(id)
 		return user
 
+	def flash(self, user, message):
+		self.render("templates/flash.html", user=user, message=message)
+
 class HomePage( Handler ):
 	def write(self, **format_args):
 		self.render("templates/home_page.html", **format_args)
 	def get(self):
 
 		# Handle item expiration
-		items = Item.query()
+		items = Item.get_active()
 		for i in items:
 			if i.did_expire():
 				if i.num_bids:
@@ -54,30 +60,21 @@ class HomePage( Handler ):
 									i.shipprice)
 					Message.send_mond_msg(i.seller, msg)
 					seller = User.get_by_name(i.seller)
-					history = seller.get_history()
-					history["money earned"] += i.current_price
-					history["number of items sold"] += 1
-					seller.put_history(history)
+					notify(seller.name, "You sold %s to %s for $%0.2f" % (i.title, i.current_buyer, i.current_price))
+
 
 					# deal with buyer
-					msg = "You bought %s from %s for %s!\nThe seller has been given your address" % (i.title, i.seller, \
-							i.current_price)
-					Message.send_mond_msg(i.current_buyer, msg)
-					buyer = User.get_by_name(i.current_buyer)
-					history = buyer.get_history()
-					history["money spent"] += i.current_price
-					buyer.put_history(history)
+					notify(i.current_buyer, 'You bought %s for $%0.2f!  Click <a href="/buy/%d">this link</a> to pay for it' % \
+							(i.title, i.current_price, i.key.integer_id()))
 				else:
 					# item did not sell
-					msg = "Sorry, %s didn't sell" % i.title
-					Message.send_mond_msg(i.seller, msg)
 					seller = User.get_by_name(i.seller)
 					history = seller.get_history()
 					history["number of items not sold"] += 1
 					seller.put_history(history)
-
-
-				i.key.delete()
+					notify(seller.name, "%s did not sell" % i.title)
+				i.expired = True
+				i.put()
 
 		self.write()
 
@@ -106,8 +103,8 @@ class LoginPage( Handler ):
 			self.write(error="Invalid username and password combination", username=cgi.escape(username))
 
 class AboutPage( Handler ):
-	def write(self):
-		self.render("templates/about_page.html")
+	def write(self, **format_args):
+		self.render("templates/about_page.html", **format_args)
 	def get(self):
 		self.write(sponsers=get_sponsers())
 
@@ -182,36 +179,24 @@ class UserHome( Handler ):
 	def get(self):
 		user = self.get_user()
 		if not user:
-			self.response.out.write("You are not logged in")
+			self.flash(Struct(name="Visitor"), "You are not logged in")
 			return
 		if not user.active:
 			self.response.out.write("""<div style="color: blue">You account is not currently active,
 				please activate your account <a href="/activate">here</a></div>""")
 			return
 		else:
-			msgs = Message.get_from_receiver(user.name)
-			useritems = Item.get_by_seller(user.name)
+			useritems = [item for item in Item.get_by_seller(user.name) if not item.payed and not item.did_expire()]
+			watched = [Item.get_by_id(id) for id in user.watch_list]
+			notifications = Notification.get_by_receiver(user.name).fetch(3)
 	
-			self.write(user=user, usermessages=msgs, useritems=useritems)
+			self.write(user=user, useritems=useritems, watch_list=watched, notifs=notifications)
 	def post(self):
 		user = self.get_user()
 		if not user:
 			self.response.out.write("You are not logged in")
 			return
 
-		del_id = self.request.get("delete_mes")
-		try:
-			del_id = int(del_id)
-		except ValueError:
-			msgs = Message.get_from_receiver(user.name)
-			for m in msgs: m.key.delete()
-			self.redirect("/home")
-			return
-
-		m = Message.get_by_id(int(del_id))
-		if m: 
-			m.key.delete()
-		self.redirect("/home")
 
 
 class CreateMessage( Handler ):
@@ -224,8 +209,26 @@ class CreateMessage( Handler ):
 			return
 
 		receiver = self.request.get("receiver")
-		self.write(user=user, receiver=cgi.escape(receiver))
+		self.write(user=user, receiver=cgi.escape(receiver), usermessages=Message.get_from_receiver(user.name))
 	def post(self):
+		del_id = self.request.get("delete_mes")
+		if del_id:
+			# delete message(s)
+			try:
+				del_id = int(del_id)
+			except ValueError:
+				msgs = Message.get_from_receiver(user.name)
+				for m in msgs: m.key.delete()
+				self.redirect("/message")
+				return
+
+			m = Message.get_by_id(int(del_id))
+			if m: 
+				m.key.delete()
+			self.redirect("/message")
+			return
+
+		# otherwise, send a message
 		content = self.request.get("body")
 		receiver = self.request.get("receiver")
 		image = self.request.get("img")
@@ -282,6 +285,7 @@ class CreateMessage( Handler ):
 				Message.send_msg(sender, receiver, content, image or None)
 
 		self.redirect("/home")
+	
 
 class AddItem( Handler ):
 	def write(self, **format_args):
@@ -307,6 +311,7 @@ class AddItem( Handler ):
 		shipprice = self.request.get("shipprice")
 		local_pickup = self.request.get("localpickup")
 		condition = self.request.get("condition")
+		paypal = self.request.get("paypal")
 
 		if not days_listed: days_listed = "7"
 		v_error_msg = ""
@@ -325,6 +330,7 @@ class AddItem( Handler ):
 #		if has_whitespace(title): error_msg = "Title cannot have spaces,  can use underscores '_'"
 		if not v_error_msg and int(days_listed) > 10: v_error_msg = "An item can't be listed for more that 10 days"
 		if not v_error_msg and int(shipdays) > 14: v_error_msg = "You must ship sooner than 15 days"
+		if paypal and not verify_paypal_email(paypal, seller): v_error_msg = "Could not find a paypal account with this email"
 		
 
 		if v_error_msg or error_msg:
@@ -340,6 +346,7 @@ class AddItem( Handler ):
 		item = Item.get_new(seller.name, title, days_listed, shipdays, condition, current_price=start_price,
 				description=description, shipprice=shipprice, local_pickup=local_pickup)
 		if self.request.get("img"): item.image = create_image(self.request.get("img"), 400, 400)
+		item.paypal_email = paypal
 		item.put()
 		self.redirect("/home")
 
@@ -354,7 +361,9 @@ class ItemView( Handler ):
 			item = Item.get_by_id(int(id))
 			shipdate = item.shipdate.strftime("%b  %d")
 			expdate = item.expires.strftime("%b  %d  %T")
-			self.write(user=user, shipdate=shipdate, expdate=expdate, item=item)
+			watchable =  not item.key.integer_id() in user.watch_list
+			self.write(user=user, shipdate=shipdate, expdate=expdate, item=item, buyer=(user.name == item.current_buyer),\
+					expire=item.did_expire(), watchable=watchable)
 		else:
 			self.cookie_error()
 	def post(self, id):
@@ -401,7 +410,7 @@ class EditItem( Handler ):
 		id = int(id)
 		item = Item.get_by_id(id)
 		if item.seller != user.name:
-			self.write(error="This is not your item.  You do not have permission to edit this item.")
+			self.write(user=user, error="This is not your item.  You do not have permission to edit this item.")
 			return
 
 		if item.num_bids:
@@ -421,7 +430,7 @@ class EditItem( Handler ):
 		id = int(id)
 		item = Item.get_by_id(id)
 		if item.seller != user.name:
-			self.write(error="This is not your item.  You do not have permission to edit this item.")
+			self.write(user=user, error="This is not your item.  You do not have permission to edit this item.")
 			return
 
 		# if the user clicked the delete button
@@ -455,7 +464,7 @@ class EditItem( Handler ):
 		if not price: p_error = "Must have price"
 
 		if t_error or p_error or s_error:
-			self.write(title=cgi.escape(title), description=cgi.escape(description), price=cgi.escape(str(price)), t_error=t_error, p_error=p_error, \
+			self.write(user=user, title=cgi.escape(title), description=cgi.escape(description), price=cgi.escape(str(price)), t_error=t_error, p_error=p_error, \
 					s_error=s_error, shipprice=shipprice, localpickup='checked="checked"' if localpickup=="on" else "", item=item) 
 			return
 		if item.num_bids == 0:
@@ -468,6 +477,7 @@ class EditItem( Handler ):
 		if image: item.image = create_image(image, 400, 400)
 
 		item.put()
+		notify(item.seller, "You successfully edited %s" % item.title)
 		self.redirect("/item/%d" % id)
 
 class Archive( Handler ):
@@ -477,8 +487,8 @@ class Archive( Handler ):
 		cookie = self.get_user_cookie()
 		if User.valid_user_cookie(cookie):
 			user = User.get_by_id(int(cookie.split("|")[0]))
-			self.write(user=user, items=Item.query())
-		else: self.cookie_error()
+			self.write(user=user, items=Item.get_active())
+		else: self.write(user=Struct(name="Visitor"), items=Item.get_active())
 
 class RequestMsg( Handler ):
 	def write(self, **format_args):
@@ -674,10 +684,13 @@ class UserProfile(Handler):
 		if not pageuser:
 			self.response.out.write("No such user, go back and try again")
 			return
+		listed = Item.get_by_seller(pageuser.name)
+		bought = map(Item.get_by_id, pageuser.items_purchased)
+
 		if user.name == pageuser.name:
-			self.write(user=user, pageuser=pageuser, history=user.get_history())
+			self.write(user=user, pageuser=pageuser, history=user.get_history(), bought=bought, listed=listed)
 		else:
-			self.write(user=user, pageuser=pageuser)
+			self.write(user=user, pageuser=pageuser, bought=bought, listed=listed)
 
 class EditUserProfile(Handler):
 	def write(self, **format_args):
@@ -735,7 +748,7 @@ class EditUserProfile(Handler):
 			address2 = cgi.escape(address2)
 			update_user = object()
 			
-			self.write(fn_error=fn_error, ln_error=ln_error, s_error=s_error, c_error=c_error, \
+			self.write(user=u, fn_error=fn_error, ln_error=ln_error, s_error=s_error, c_error=c_error, \
 					z_error=z_error, a_error=a_error, \
 					first_name=first_name, last_name=last_name, state=state, \
 					zip=zip, city=city, address1=address1, address2=address2)
@@ -761,10 +774,215 @@ class AllUsers( Handler ):
 	def write(self, **format_args):
 		self.render("templates/user_all_page.html", **format_args)
 	def get(self):
-		self.write(users=User.query())
+		user = self.get_user()
+		if not user:
+			self.write(user=Struct(name='Visitor'), users=User.query())
+		else:
+			self.write(user=user, users=User.query())
 
 		
 class Logout( Handler ):
 	def get(self):
 		self.response.headers.add_header("Set-Cookie", "user-id=; Path=/")
 		self.redirect("/")
+
+class Buy( Handler ):
+	""" Hands the user over to PayPal """
+	def write(self, **format_args):
+		self.render("templates/buy_item.html", **format_args)
+	def get(self, item_id):
+		user = self.get_user()
+		if not user:
+			self.response.out.write("You are not logged in")
+			return
+		id = int(item_id)
+		item = Item.get_by_id(id)
+		
+		if user.name != item.current_buyer:
+			self.flash(user, "You did not purchase this item please leave the page")
+			return
+		if not item.did_expire():
+			self.flash(user,"This item has not expired yet.")
+			return
+		if item.payed:
+			self.flash(user, "You have already payed for this item")
+			return
+
+		if not item.paypal_email:
+			self.flash(user, "The seller does not accept paypal.<br>You must send the money another way")
+
+		self.write(item=item, user=user)
+
+	def post(self, item_id):
+		user = self.get_user()
+		if not user:
+			self.response.out.write("You are not logged in")
+			return
+		paypal_email = self.request.get("email")
+		if not paypal_email:
+			self.write(user=user, error="You must enter the same email your paypal account uses")
+
+		id = int(item_id)
+		item = Item.get_by_id(id)
+		
+		if user.name != item.current_buyer:
+			self.response.out.write("You did not purchase this item please leave the page")
+			return
+		if not item.did_expire():
+			self.response.out.write("This item has not expired yet.")
+			return
+		if item.payed:
+			self.response.out.write("this item has been payed for")
+			return
+		
+		price = item.current_price
+		if item.local_pickup == "off":
+			price += item.shipprice
+		elif item.local_pickup == "on":
+			option = self.request.get("ship")
+			if option == "ship":
+				price += item.shipprice
+			elif option != "pickup":
+				self.error(501) # invalid value.  Must be a bot
+		
+		### send user to paypal
+		(ok, pay) = self.start_purchase(item, paypal_email, price)
+    		if ok:
+      			self.redirect( pay.next_url().encode('ascii') ) # go to paypal
+    		else:
+      			data = {
+        			'item': item,
+        			'message': 'An error occurred during the purchase process',
+				'user': user
+      			}
+      			util.add_user( self.request.uri, data )
+			self.write(**data)
+
+	def start_purchase(self, item, buyer_email, price):
+    		purchase = Purchase( item=item.key.integer_id(), owner=item.seller, purchaser=item.current_buyer, status='NEW', secret=hash_str(make_salt()) )
+  		purchase.put()
+    		if settings.USE_IPN:
+     			ipn_url = "%s/ipn/%s/%s/" % ( self.request.host_url, purchase.key(), purchase.secret )
+    		else:
+      			ipn_url = None
+   		pay = paypal.Pay( 
+     			 price, 
+			 "http://localhost:8080/paysuccess/%s?id=%d" % (purchase.secret, purchase.key.integer_id()), 
+			 "http://localhost:8080/item/%d" % (item.key.integer_id()),  ######## CHANGE THIS ADDRESS #########
+			 self.request.remote_addr,
+			 item.paypal_email,
+  			 ipn_url,
+			 shipping=settings.SHIPPING)
+
+		purchase.debug_request = pay.raw_request
+		purchase.debug_response = pay.raw_response
+		purchase.paykey = pay.paykey()
+    		purchase.put()
+    
+    		if pay.status() == 'CREATED':
+      			purchase.status = 'CREATED'
+	     		purchase.put()
+      			return (True, pay)
+    		else:
+      			purchase.status = 'ERROR'
+     		 	purchase.put()
+      			return (False, pay)
+
+
+
+class PaySuccess( Handler ):
+	""" The user comes to this page after succesfully paying for
+	    an item """
+	def write(self, **format_args):
+		self.render("templates/pay_success.html", **format_args)
+	def get(self, purchase_secret):
+		user = self.get_user()
+		if not user:
+			self.response.out.write("You are not logged in")
+			return
+		purchase = Purchase.get_by_id(int(self.request.get("id")))
+		id = int(purchase.item)
+		item = Item.get_by_id(id)
+		
+		
+		if user.name != item.current_buyer:
+			self.response.out.write("You did not purchase this item please leave the page")
+		if purchase.secret != purchase_secret:
+			self.error(501)
+			return
+		if purchase.status == "ERROR":
+			self.flash(user, "An error occured in the payment process")
+			return
+		if purchase.status == "COMPLETED":
+			self.flash(user, "This purchase has already been completed.")
+			return
+			
+		item.payed = True
+		item.put()
+
+		# Deal with buyer
+		buyer = User.get_by_name(item.current_buyer)
+		history = buyer.get_history()
+		history["money spent"] += item.current_price
+		buyer.put_history(history)
+		buyer.items_purchased.append(item.key.integer_id())
+		buyer.put()
+		notify(buyer.name, "You payed %s for %s." % (item.seller, item.title))
+
+		# deal with Seller
+		seller = User.get_by_name(item.seller)
+		history = seller.get_history()
+		history["money earned"] += item.current_price
+		history["number of items sold"] += 1
+		seller.put_history(history)
+
+		purchase.status = "COMPLETED"
+		purchase.put()
+
+		notify(item.seller, "%s has payed for %s" % (user.name, item.title))
+
+		self.write(item=item, user=user)
+
+class AllNotifications( Handler ):
+	""" Shows the user all his/her notifications """
+	def write(self, **format_args):
+		self.render("templates/notifications.html", **format_args)
+	def get(self):
+		user = self.get_user()
+		if not user:
+			self.response.out.write("you are not logged in you will be redirected to the login page")
+			time.sleep(5)
+			self.redirect("/login")
+			return
+		notifications = Notification.get_by_receiver(user.name)
+		self.write(user=user, notifications=notifications)
+
+class Watch( Handler ):
+	def post(self, item_id):
+		user = self.get_user()
+		if not user:
+			self.flash(Struct(name="Visitor"), "You are not logged in.")
+			return
+		item = Item.get_by_id(item_id)
+		if item.seller == user.name:
+			self.flash(user, "You cannot <em>watch</em> items you sell.")
+			return
+		user.watch_list.append(item.key.integer_id())
+		user.put()
+		self.redirect("/item/%s" % item_id)
+
+class Unwatch( Handler ):
+	def post(self, item_id):
+		user = self.get_user()
+		if not user:
+			self.flash(Struct(name="Visitor"), "You are not logged in.")
+			return
+		item = Item.get_by_id(int(item_id))
+		try:
+			user.watch_list.remove(int(item_id))
+		except:
+			self.flash(user, "You are not watching this item")
+			return
+		user.put()
+		self.redirect("/item/%s" % item_id)
+
