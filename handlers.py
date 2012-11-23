@@ -246,13 +246,13 @@ class CreateMessage( Handler ):
 
 		# ensure that the user entered a valid receiver
 		all_users = User.query()
-		found = False
+		found = 0
+		receivers = receiver.split()
 		for u in all_users:
-			if receiver == u.name:
-				found = True
-				break
-		if not found and not all == "on":
-			self.write(user=user, error="User does not exist", body=cgi.escape(content),
+			if u.name in receivers:
+				found += 1
+		if not found == len(receivers) and not all == "on":
+			self.write(user=user, error="One of the receivers does not exist", body=cgi.escape(content),
 					receiver=cgi.escape(receiver))
 			return
 
@@ -278,13 +278,15 @@ class CreateMessage( Handler ):
 		else:
 			sender = User.get_by_id(id).name
 			if sender == "Mondays":
-				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
-				Message.send_mond_msg(receiver, content, image or None)
+#				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
+				for receiver in receivers:
+					Message.send_mond_msg(receiver, content, image or None)
 			else: 
-				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
-				Message.send_msg(sender, receiver, content, image or None)
+#				memcache.set("%supdate" % User.get_by_name(receiver).key.integer_id(), True)
+				for receiver in receivers:
+					Message.send_msg(sender, receiver, content, image or None)
 
-		self.redirect("/home")
+		self.redirect("/message")
 	
 
 class AddItem( Handler ):
@@ -348,6 +350,7 @@ class AddItem( Handler ):
 		if self.request.get("img"): item.image = create_image(self.request.get("img"), 400, 400)
 		item.paypal_email = paypal
 		item.put()
+		notify(seller.name, "You listed %s" % item.title)
 		self.redirect("/home")
 
 class ItemView( Handler ):
@@ -810,6 +813,7 @@ class Buy( Handler ):
 
 		if not item.paypal_email:
 			self.flash(user, "The seller does not accept paypal.<br>You must send the money another way")
+			return
 
 		self.write(item=item, user=user)
 
