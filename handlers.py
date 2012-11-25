@@ -398,6 +398,8 @@ class ItemView( Handler ):
 					error="Bid must be at least $%0.2f over price" % i.bid_margin)
 			return
 		i.bid(buyer.name, price)
+		notify(buyer.name, "You just bid $%0.2f on %s" % (price, i.title))
+		buyer.watch(i)
 		self.redirect("/home")
 
 class EditItem( Handler ):
@@ -590,8 +592,8 @@ class Activate(Handler):
 
 
 		if did_enter_email:
-			content = """ Please visit this page to activate your user: www.shopmondays.com/activate/%d
-				Copy and paste this code into the "Activate code" box: %s"""
+			content = """ Please visit this page to activate your user: testmondays.appspot.com/activate/%d
+				Copy and paste this code into the "Activate code" box: %s""" # CHANGE THIS #
 			content = content % (user.key.integer_id(), hash_str(user.name + "1j2h3@$#klasd"))
 			
 #			send_email_to_user(user, "Mondays user activation", content)
@@ -967,12 +969,14 @@ class Watch( Handler ):
 		if not user:
 			self.flash(Struct(name="Visitor"), "You are not logged in.")
 			return
-		item = Item.get_by_id(item_id)
+		item = Item.get_by_id(int(item_id))
 		if item.seller == user.name:
 			self.flash(user, "You cannot <em>watch</em> items you sell.")
 			return
-		user.watch_list.append(item.key.integer_id())
-		user.put()
+		# watch
+		if not user.watch(item):
+			self.flash(user, "You are already watching this item")
+		notify(user.name, "You added %s to your watch list" % item.title)
 		self.redirect("/item/%s" % item_id)
 
 class Unwatch( Handler ):
@@ -988,5 +992,6 @@ class Unwatch( Handler ):
 			self.flash(user, "You are not watching this item")
 			return
 		user.put()
+		notify(user.name, "You just removed %s from your watch list" % item.title)
 		self.redirect("/item/%s" % item_id)
 

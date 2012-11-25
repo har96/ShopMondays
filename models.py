@@ -84,12 +84,21 @@ class User( ndb.Model ):
 		self.history = hist
 		self.put()
 
+	def watch(self, item):
+		""" Adds the item's id to the users watch_list.
+		returns False if item is already in watch_list else True.
+		"""
+		if item.key.integer_id() in self.watch_list:
+			return False
+		self.watch_list.append(item.key.integer_id())
+		self.put()
+		return True
 
 	@classmethod
 	def get_by_name(cls, name):
 		try:
-			return [usr for usr in cls.query() if usr.name == name][0]
-		except IndexError:
+			return cls.query(User.name == name).fetch(1)[0]
+		except:
 			return False
 	
 	@classmethod
