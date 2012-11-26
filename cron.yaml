@@ -1,4 +1,4 @@
 cron:
 - description: check for item expiration
-  url: /cron/A4GK/expire
+  url: /
   schedule: every 3 minutes
