@@ -1,5 +1,5 @@
 application: mimondays
-version: 1-3
+version: 1-3beta
 runtime: python
 api_version: 1
 
