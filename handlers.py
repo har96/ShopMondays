@@ -75,8 +75,8 @@ class HomePage( Handler ):
 					notify(seller.name, "%s did not sell" % i.title)
 				i.expired = True
 				i.put()
-
 		self.write()
+
 
 class LoginPage( Handler ):
 	def write(self, **format_args):
@@ -211,6 +211,11 @@ class CreateMessage( Handler ):
 		receiver = self.request.get("receiver")
 		self.write(user=user, receiver=cgi.escape(receiver), usermessages=Message.get_from_receiver(user.name))
 	def post(self):
+		user = self.get_user()
+		if not user:
+			self.flash(Struct(name="Visitor"), "You are not logged in")
+			return
+
 		del_id = self.request.get("delete_mes")
 		if del_id:
 			# delete message(s)
@@ -233,11 +238,7 @@ class CreateMessage( Handler ):
 		receiver = self.request.get("receiver")
 		image = self.request.get("img")
 		all = self.request.get("all")
-		user = self.get_user()
-		if not user:
-			self.response.out.write("You are not logged in")
-			return
-		
+				
 		# ensure that the user entered content
 		if not content:
 			self.write(user=user, error="Must have a content", body=cgi.escape(content), 
@@ -493,7 +494,7 @@ class Archive( Handler ):
 		if User.valid_user_cookie(cookie):
 			user = User.get_by_id(int(cookie.split("|")[0]))
 			self.write(user=user, items=Item.get_active())
-		else: self.write(user=Struct(name="Visitor"), items=Item.get_active())
+		else: self.write(user=Struct(name="Visitor"), items=Item.get_active().order(-Item.listed))
 
 class RequestMsg( Handler ):
 	def write(self, **format_args):

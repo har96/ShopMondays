@@ -45,7 +45,7 @@ This is your item. - <a href="/edit_item/{{item.key.id}}">EDIT</a>
 	<button type="submit">Watch Item</button>
 </form>
 {% else %}
-	{% if item.expired %}
+	{% if not item.expired %}
 	<form action="/unwatch/{{item.key.integer_id}}" method="post">
 		<button type="submit">Unwatch Item</button>
 	</form>

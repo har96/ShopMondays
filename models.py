@@ -163,11 +163,22 @@ class Message( ndb.Model ):
 
 	@classmethod
 	def send_msg(cls, sender, receiver, content, image=None):
+		""" When someone sends a message two copys of the message are created, one for the sender one for the
+		receiver"""
+		# Create copy for receiver
 		td = gen_date2()
 		m = cls(sender=sender, receiver=receiver, content=cgi.escape(content, quote=True), sent=td)
 		if image: m.image = create_image(image, 200, 200)
 		m.sent_str = m.sent.strftime("%b %d  %T")
 		m.put()
+
+		# create copy for sender
+#		msg = cls(sender=sender, receiver=receiver, content=cgi.escape(content, quote=True), sent=td)
+#		msg.image = m.image
+#		msg.type = "sender"
+#		msg.sent_str = m.sent_str
+#		msg.put()
+
 
 		# add msg to sender history
 		user = User.get_by_name(sender)
@@ -191,6 +202,7 @@ class Message( ndb.Model ):
 		if not content:
 			logging.error("no content in send_mond_msg")
 			raise ValueError("Message must have valid content")
+		# receiver copy
 		td = gen_date2()
 		m = cls(sender="Mondays", receiver=receiver, content=content, sent=td)
 		if image: m.image = create_image(image, 200, 200)
@@ -300,7 +312,7 @@ class Item( ndb.Model):
 
 	@classmethod
 	def get_active(cls):
-		return [item for item in cls.query().order(-cls.listed) if not item.payed and not item.expired]
+		return cls.query(Item.expired != True)
 
 #	@classmethod
 #	def all(cls, order=""):

@@ -18,12 +18,26 @@ indexes:
 
 - kind: Message
   properties:
+  - name: for_receiver
+  - name: receiver
+  - name: sent
+    direction: desc
+
+- kind: Message
+  properties:
   - name: receiver
   - name: sent
 
 - kind: Message
   properties:
   - name: receiver
+  - name: sent
+    direction: desc
+
+- kind: Message
+  properties:
+  - name: receiver
+  - name: type
   - name: sent
     direction: desc
 
