@@ -1,0 +1,48 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".like").live("click", function() {
+			var id = this.id;
+			$.ajax({type: "post",
+				url: "/likerequest/"+id,
+				data: {}});
+			var num = $("#l"+id).html();
+			var likes = parseInt(num);
+			likes = likes + 1;
+			$("#l"+id).html(likes.toString());
+			$(this).fadeOut("fast");
+		});
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<a href="/request"><button type="button">Request an Item</button></a>	
+<div id="requests">
+	<form method="get">
+		Filter By Category: 
+		<select name="filter" onchange="this.form.submit()"><option>All</option>
+			{% for c in categories %}
+			<option {% if filter_c == c %}selected="selected"{% endif %}>{{c}}</option>
+			{% endfor %}</select>
+		<span id="request-order">Order by: 
+			<select name="order" onchange="this.form.submit()">
+				<option>Recent</option>
+				<option {% if order == "Popularity" %}selected="selected"{% endif %}>Popularity</option>
+			</select>
+		</span>
+	</form>
+	<table id="request-table">
+		<th>Item Requested</th><th>Category</th><th>Likes</th><th>Creator</th>
+		{% for r in requests %}
+		<tr class="request"><td>{{r.title}}</td><td>{{r.category}}</td><td id="l{{r.key.id()}}">{{r.num_likes}}</td><td>{{user_link(r.creator)}}</td>
+			{% if user.name != r.creator and not user.name in r.likes %}<td><button type="button" class="like" id="{{r.key.id()}}">Like</button></td>{% endif %}
+		</tr>
+		{% endfor %}
+	</table>
+	<a href="/requests?filter={{filter_c}}&order={{order}}"><button type="button" id="refresh-request">Refresh</button></a>
+</div>
+
+{% endblock %}

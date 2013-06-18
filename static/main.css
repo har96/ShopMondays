@@ -1,0 +1,257 @@
+html {
+	background-image: url('/static/images/background_gradient.jpg');
+	background-height: 100%;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+}
+
+body {
+	margin-top: 40px;
+}
+
+div#body {
+	position: relative;
+}
+
+input[type=text] {
+	padding: 5px;
+	font-size: 15px;
+}
+input[type=password] {
+	padding: 5px;
+	font-size: 15px;
+}
+a {
+	text-decoration: none;
+	font: comic-sans;
+}
+.logo {
+	color: green;
+	font-size: 80px;
+	font: comic-sans;
+	margin-left: 100px;
+}
+
+.header-link {
+	margin-right: 20px;
+	text-decoration: none;
+	color: #AAAABB;
+	font-family: good_times;
+	font-size: 20px;
+}
+
+
+.error {
+	color: red;
+	font-size: 20px;
+}
+.warning {
+	color: red;
+}
+
+.input-title {
+	font-size: 22px;
+}
+
+.welcome {
+	font-size: 30px;
+	color: gray;
+}
+
+.welcome-user {
+	font-size: 20px;
+	color: #AAAACC;
+	float: right;
+}
+span.user {
+	font-size: 25px;
+	font-family: good_times;
+	margin-right: 20px;
+}
+.slogan {
+	font-size: 20px;
+	color: green;
+	position: absolute;
+	left: 90px;
+}
+
+#body {
+	margin-left: 100px;
+	margin-top: 50px;
+	padding: 20px;
+	margin-left: 70px;
+}
+
+#welcome {
+	color: #AAAA88;
+	font-size: 20px;
+	position: absolute;
+	right: 15px;
+	top: 15px;
+}
+
+#bid-box {
+	color: green;
+}
+
+ul.navigation
+{
+	list-style: none;
+	white-space: nowrap;
+	margin-top: 225px;
+}
+
+ul.navigation li
+{
+	display:inline;
+}
+
+ul.users
+{
+	list-style: none;
+}
+
+ul.users li
+{
+	display: inline;
+}
+
+@font-face {
+	font-family: good_times;
+	src: url("good_times_font.ttf")
+}
+
+img#left-bar {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	z-index: -2;
+}
+img#right-bar {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	z-index: -2;
+}
+img#banner {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	z-index: -1;
+}
+#watchers {
+	width: 100px;
+}
+#inbox {
+	position: relative; 
+	top: 0px;
+	border: 3px solid black;
+	overflow: scroll;
+
+	/* want to do gradient? goto:  http://coolhomepages.com/How-to-make-easy-gradient-shadow-CSS-DIV-boxes/blog-48.html */
+}
+
+#messages {
+	position: relative;
+}
+tr#message {
+	background-color: #B0D0EF;
+}
+.receivers {
+	display: none;
+}
+#markup-help {
+	background: #C0C5CF;
+	display: none;
+	width: 380px;
+	float: right;
+}
+#content-input {
+	float: left;
+}
+#content-markup-wrapper {
+	width: 730px;
+	height: 250px;
+}
+.centeredImage {
+	display: block;
+	text-align: center;
+	margin: 0 auto;
+}
+
+a.item-rowtitle {
+	text-decoration: none;
+	font-size: 1.33em;
+	color: blue;
+	padding-right: 10px;
+}
+td.buyer-row {
+	padding-right: 15px;
+}
+#item-header {
+	position: relative;
+	left: 575px;
+}
+#item-description {
+	position: relative;
+	left: 575px;
+	width: 450px;
+}
+#item-image {
+	position: absolute;
+	top: 50px;
+	left: 0px;
+	padding-bottom: 50px;
+}
+#item-image img {
+	width: 555px;
+}
+.item-seller {
+	position: relative;
+	left: 575px;
+	bottom: 25px;
+	text-decoration: none;
+	color: green;
+}
+#comments {
+	position: relative;
+	left: 575px;
+}
+#login {
+	position: absolute;
+	color: white;
+	font-size: 0.75em;
+	right: 25px;
+	top: -6em;
+}
+#useritems {
+	position: absolute;
+	right: 4em;
+	top: 0px;
+}
+td.help {
+	font-size: 0.75em;
+	color: #222;
+}
+#notifications {
+	width: 500px;
+}
+.image-cell {
+	padding-left: 20px;
+}
+#flag {
+	position: relative;
+	left: 875px;
+	bottom: 23px;
+}
+.num_flags {
+	position: relative;
+	bottom: 15px;
+}
+#flag-info {
+	position: relative;
+	left: 875px;
+	bottom: 20px;
+	color: red;
+	font-size: small;
+}

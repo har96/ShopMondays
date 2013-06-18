@@ -1,0 +1,29 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+
+<div class="welcome" align="center">
+	Welcome to Mondays!
+</div>
+<div id="login">
+	<form method="post" action="/login">
+		<label>Username</label><input style="height: 10px; font-size: 10px;" type="text" name="username"/>
+		<label>Password</label><input style="height: 10px; font-size: 10px;" type="password" name="password"/>
+		<button type="submit">Login</button>
+	</form>
+</div>
+<br><br>
+
+<h2>Featured Items:</h2>
+<table>
+{% for item in items %}
+<tr>
+	<td><a href="/item/{{item.key.id()}}"><img height="200" src="/img/{{item.key.id()}}"/></a></td>
+	<td style="padding-left: 25px;"><h3>{{item.title}}</h3></td>
+	<td style="padding-left: 25px;"><h3>${{item.current_price|dollars}}</h3></td>
+</tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}

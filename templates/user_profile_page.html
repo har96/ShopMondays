@@ -1,0 +1,130 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load("visualization", "1", {packages:["corechart"]});
+	google.setOnLoadCallback(drawRatingCharts);
+	function drawRatingCharts() {
+
+		// get chart data
+		var selldata = google.visualization.arrayToDataTable([
+		  ['Type', 'Ratings per Type'],
+		  ['Positive', {{ratings["positive"]}}],
+		  ['Neutral', {{ratings["neutral"]}}],
+		  ['Negative', {{ratings["negative"]}}]
+		  ]);
+		var buydata = google.visualization.arrayToDataTable([
+		  ['Type', 'Ratings per Type'],
+		  ['Positive', {{ratings["Bpositive"]}}],
+		  ['Neutral', {{ratings["Bneutral"]}}],
+		  ['Negative', {{ratings["Bnegative"]}}]
+		  ]);
+
+		// Draw Charts
+		if (document.getElementById("sellerchart")) {
+			new google.visualization.PieChart(document.getElementById("sellerchart")).
+				draw(selldata, {title:"Seller Ratings", colors:["green", "gray", "red"],
+						width: 200, height: 200, legend:{position:"none"},
+					       backgroundColor: "transparent"});
+		}
+		if (document.getElementById("buyerchart")) {
+			new google.visualization.PieChart(document.getElementById("buyerchart")).
+				draw(selldata, {title:"Buyer Ratings", colors:["green", "gray", "red"],
+						width: 200, height: 200, legend:{position:"none"},
+					       backgroundColor:"transparent"});
+		}
+	}
+</script>
+{% endblock %}
+
+
+
+{% block content %}
+
+<h2 align="center">{{pageuser.name}}<br><span style="font-size: 0.75em;">{{render_stars(ratings["user"])}} 
+		({{ratings["amount"]}})</span></h2>
+
+<br>
+<b>{{pageuser.first_name}} {{pageuser.last_name}}</b>
+<br>
+
+<br>
+Items listed:
+<ul>
+{% for item in listed %}
+<li><a href="/item/{{item.key.id()}}" style="text-decoration: none; color: green;">{{item.title}}</a></li>
+	{% if loop.index is divisibleby(5) %}<br>{% endif %}
+{% endfor %}
+</ul>
+<div class="rightratings" >
+	Items purchased:
+	<ul>
+	{% for item in bought %}
+		{% if item %}
+			<li><a href="/item/{{item.key.id()}}">{{item.title}}</a></li>
+		{% endif %}
+	{% endfor %}
+	</ul>
+</div>
+
+Seller Reputation: (ratings of 1-5 stars)
+{% if ratings["positive"] + ratings["negative"] + ratings["neutral"] == 0 %}
+<br><b>This user has not been rated as a seller</b><br>
+{% else %}
+<ul>
+	<li id="sellerchart"></li>
+	<li>Accurate Description: {{render_stars(ratings["honesty"])}}</li>
+	<li>Shipping Speed: {{render_stars(ratings["shipping"])}}</li>
+	<li>Communication: {{render_stars(ratings["communication"])}}</li>
+</ul>
+{% endif %}
+<br>
+<div class="rightratings">
+	Buyer Reputation: (ratings of 1-5 stars)
+	{% if ratings["Bpositive"] + ratings["Bnegative"] + ratings["Bneutral"] == 0 %}
+	<br><b>This user has not been rated as a buyer</b>
+	{% else %}
+	<ul>
+		<li id="buyerchart"></li>
+		<li>Payment Speed: {{render_stars(ratings["Bpayment"])}}</li>
+		<li>Communication: {{render_stars(ratings["Bcommunication"])}}</li>
+	</ul>
+	{% endif %}
+</div>
+
+{% if user.name == pageuser.name %}
+
+<b>Email:</b> {{user.email}}
+<br>
+<br>
+<b>Address:</b>
+<br>
+{{user.address()}}
+<br>
+<a href="/edit_user/{{user.key.id()}}">Edit Profile</a> or <a href="/resetpw/{{user.key.id()}}">Reset your Password</a>
+
+<h3 align="center">History</h3>
+<br>
+<br>
+<b>Money Spent:</b> {{history["money spent"]}}
+<br>
+<b>Money Earned: </b>{{history["money earned"]}}
+<br>
+<b>Balance:</b> {{ balance(history) }}
+<br>
+<b>Number of items sold:</b> {{history["number of items sold"]}}
+<br>
+<b>Number of items listed that didn't get sold:</b> {{history["number of items not sold"]}}
+<br>
+<b>Number of messages sent:</b> {{history["number of messages sent"]}}
+<br>
+<b>Number of messages received:</b> {{history["number of messages received"]}}
+
+
+{% endif %}
+<br>
+<a href="/message?receiver={{pageuser.name}}">Send this user a message</a>
+
+{% endblock %}
+

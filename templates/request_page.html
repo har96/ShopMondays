@@ -1,0 +1,23 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+Please check to make sure the item you want isn't already on the <a href="/requests">request page</a>.
+
+<form method="post">
+	<table>
+		<tr><td>Item Requested</td><td><input type="text" name="item"/></td><td class="error">{{error}}</td></tr>
+		<tr>
+			<td>Category</td>
+			<td>
+				<select name="category">
+					{% for c in categories %}
+					<option>{{c}}</option>
+					{% endfor %}
+				</select>
+			</td>
+		</tr>
+	</table>
+	<button type="submit">Send</button>
+</form>
+{% endblock %}

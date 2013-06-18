@@ -1,0 +1,10 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+<h3>Are you sure you want to buy <span style="color: blue">{{item.title}}</span> for ${{item.instant_price|dollars}}?
+	{% if item.paypal_email %}(The seller only accepts PayPal){% endif %}</h3>
+<form action="/instantbuy/{{item.key.id()}}" method="post">
+	<button type="Submit">Yes!</button>
+</form>
+<div class="error"><a href="/item/{{item.key.id()}}">Cancel</a></div>
+{% endblock %}

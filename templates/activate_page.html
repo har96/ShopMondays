@@ -1,0 +1,13 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<form method="post">
+	<input type="hidden" name="c" value="{{c}}" />
+	Please enter your password to activate your account:
+	<input type="password" name="password" />
+	<button type="submit">Activate!</button>
+</form>
+<div class="error">{{error}}</div>
+
+{% endblock %}

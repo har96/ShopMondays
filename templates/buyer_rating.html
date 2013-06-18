@@ -1,0 +1,77 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<meta name="description" content="Submit Feedback to Buyer">
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".star").live("click", function() {
+			var cls = $(this).attr("id");
+			var sp = $("span."+cls);
+			var inp = $("input."+cls);
+			var val = parseInt(inp.val());
+			if ($(this).attr("src") == "/static/images/StarWhole.png") {
+				if (val > 0) {
+					inp.val((val - 1).toString());
+				}
+			} else {
+				if (val < 5) {
+					inp.val((val + 1).toString());
+				}
+			}
+			var html = '';
+			var star = ' <img src="/static/images/StarWhole.png" class="star" id="'+cls+'" />';
+			var empty = ' <img src="/static/images/StarEmpty.png" class="star" id="'+cls+'" />';
+			var val = parseInt(inp.val());
+			for (var i = 0; i < val; i++) {
+				html = html + star;
+			}
+			for (i = 0; i < (5-val); i++) {
+				html = html + empty;
+			}
+			sp.html(html);
+		});
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Rate Your Selling Experience With {{user_link(item.current_buyer)}}</h1><br>
+<form action="/buyerrating/{{item.key.id()}}" method="post">
+	<table>
+		<tr>
+			<td>Payment Speed</td>
+			<td id="payment"><span class="payment">{% for i in range(5) %}
+					<img src="/static/images/StarEmpty.png" id="payment" class="star"/>
+				{% endfor %}
+				</span>
+			</td>
+			<td>
+				<input type="hidden" value="0" name="payment" class="payment" />
+			</td>
+		</tr>
+		<tr>
+			<td>Communication</td>
+			<td id="communication"><span class="communication">{% for i in range(5) %}
+					<img src="/static/images/StarEmpty.png" id="communication" class="star"/>
+				{% endfor %}
+				</span>
+			</td>
+			<td>
+				<input type="hidden" value="0" name="communication" class="communication" />
+			</td>
+
+		</tr>
+		<tr>
+			<td>Overall</td>
+			<td><select name="overall">
+				<option value="-1">-1 - Negative</option>
+				<option value="0" selected="selected">0 - Neutral</option>
+				<option value="1">1 - Positive</option>
+			</select></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Submit Feedback</button></td>
+		</tr>
+	</table>
+</form>
+{% endblock %}

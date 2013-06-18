@@ -1,0 +1,123 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<head>
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script> <!-- get jquery -->
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".receivers-tab").mouseenter(function() {
+				var id = $(this).attr('id');
+				$("#"+id+" .receivers").slideDown("fast");
+				$("#"+id+" .r-fill").remove();
+			});
+			$(".receivers-tab").mouseleave(function() {
+				var id = $(this).attr('id');
+				$("#"+id+" .receivers").slideUp("fast");
+				var s = '<span class="r-fill" id="' + id + '">Multiple</span>';
+				$(this).append(s);
+			});
+			$("#content-input").focusin(function() {
+				$("#markup-help").fadeIn("slow");
+			});
+			$("#content-input").focusout(function() {
+				$("#markup-help").fadeOut("slow");
+			});
+
+			$(".deleteButton").click(function() {
+				var id = $(this).attr('id');
+				$("tr."+id).slideUp("fast");
+				$.ajax({type: "post",
+					url: "/message",
+					data: {"delete_mes": id}});
+			});
+		});
+
+		function reply(receiver) {
+			$("#receiver-field").val(receiver);
+		}
+	</script>
+</head>
+{% endblock %}
+
+{% block content %}
+
+<form action="/message" method="post">
+	Sender: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;{% if user.name == "Mondays" %}Send to all users: <input type="checkbox" name="all"/> {% endif %}
+<br>
+<br>
+<br>
+<br>
+	<label>To
+		<input id="receiver-field" type="text" name="receiver" value="{{receiver}}"/>
+	</label><span style="margin-left: 20px; font-size: 15px;">To send to multiple people separate names with spaces</span>
+	<br>
+	<div id="content-markup-wrapper">
+		<label>Content<br>
+			<textarea id="content-input" name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
+		<div id="markup-help">Use these special tags to add <b>bold</b>, <em>italics</em>, images, or hyperlinks:
+			<ul>
+				<li>#b#<b>bold</b>#b#</li>
+				<li>#i#<em>italics</em>#i#</li>
+				<li>#l(http://www.shopmondays.com)#<a href="/" target="_blank">hyperlink</a>#l#</li>
+			</ul>
+		</div>
+	</div>
+	<button type="submit">Send</button>
+</form>	
+<br>
+<div style="color: green;">{{success}}</div>
+<div class="error">{{error}}</div>
+<br>
+<a name="messages">
+<div id="messages">
+	<div id="inbox">
+		Message Box:
+		<span style="position: absolute; right: 10px;">Received messages are highlighted.<br>Sent messages are not</span>
+		<br><a href="/message"><button type="button">Refresh</button></a>
+		<table>
+			<th><pre>From/To   </pre></th> <th><pre>Message    </pre></th>
+			<th><pre>Date Sent    </pre></th>
+			{% if usermessages|length > 1 %}
+			<tr><td><button onClick="delete_allmsgs()">Delete All</button></td></tr>
+			{% endif %}
+			{% for message in usermessages %}
+				<tr class="{{message.key.id()}}" {% if message.sender != user.name %}id="message" {% endif %}>
+					<td {% if not message.receiver|length == 1 %}
+						{% if message.sender == user.name %}class="receivers-tab" id="{{message.key.id()}}"{% endif %}{% endif %}>
+						{% if user.name == message.sender %}<span id="to">To:</span>
+							{% if message.receiver|length == 1 %}
+								{{user_link(message.receiver[0])}}
+							{% else %}
+								<span class="r-fill" id="{{message.key.id()}}">Multiple</span>
+								<div class="receivers" id="{{message.key.id()}}">
+									<ul>
+										{% for name in message.receiver %}<li>{{user_link(name)}}</li>{% endfor %}
+									</ul>
+								</div>
+							{% endif %}
+						{% else %}{{user_link(message.sender)}}:
+						{% endif %}
+					</td>
+						<td><pre>{{message.content}}</pre></td>
+					<td>{{message.sent_str}}</td>
+					<td><button class="deleteButton" id="{{message.key.id()}}">Delete</button></td>
+					{% if user.name != message.sender %}
+					<td><button type="button" onclick="reply('{{message.sender}}')">Reply</button></td>
+					{% endif %}
+				</tr>
+				<tr class="{{message.key.id()}}">
+					<td><hr></td>
+					<td><hr></td>
+					<td><hr></td>
+					<td><hr></td>
+					<td><hr></td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% if usermessages|length > 1 %}
+		<button onClick="delete_allmsgs()">Delete All</button>
+		{% endif %}
+	</div>
+</div>
+
+{% endblock %}

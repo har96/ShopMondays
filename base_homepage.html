@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="/static/main.css"/>
+		<meta name="author" content="Harrison Hunter">
+		<meta name="description" content="Sell stuff for free on Mondays!  Check out the shop and see if anything is for sale!">
+
+		<script type="text/javascript">
+			
+			// This function was copied and pasted from http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
+			// many thanks to the author
+			function post_to_url(path, params, method) {
+				method = method || "post"; // Set method to post by default, if not specified.
+
+			   	var form = document.createElement("form");
+			    	form.setAttribute("method", method);
+			    	form.setAttribute("action", path);
+
+				for(var key in params) {
+       					if(params.hasOwnProperty(key)) {
+				       	     var hiddenField = document.createElement("input");
+       					     hiddenField.setAttribute("type", "hidden");
+       					     hiddenField.setAttribute("name", key);
+       					     hiddenField.setAttribute("value", params[key]);
+	
+       					     form.appendChild(hiddenField);
+       					  }
+   				 }
+
+				 document.body.appendChild(form);
+			     	 form.submit();
+			}
+			function delete_item(bids, id) {
+				var msg = "Are you sure you want to delete this item? ";
+				if (bids > 0) {
+					msg = msg + "There are bids on the item.";
+				}
+				var del = confirm(msg);
+				if (!del) {
+					return;
+				}
+				post_to_url("/edit/"+string(id), {"delete":"delete"}, "post");
+			}
+			function delete_allmsgs() {
+				var del = confirm("Are you sure you want to delete all of your messages? This cannot be undone");
+				if (del == false) {
+					return;
+				}
+				else {
+					post_to_url("/message", {"delete_mes":"all"}, "post");
+				}
+			}
+
+		</script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script> <!-- get jquery -->
+
+		<title>Mondays! Where everyday is Cyber-Monday!</title>
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+		<img src="/static/images/top_banner.jpg" id="banner" alt="banner" width=1300 height=280px/>
+		{% if user.name == "Visitor" %}
+		<ul class="navigation">
+			<li><a href="/" class="header-link">Home</a></li>
+			<li><a href="/shop" class="header-link">Shop</a></li>
+			<li><a href="/login" class="header-link">Login</a></li>
+			<li><a href="/about" class="header-link">About</a></li>
+		</ul>
+		{% else %}
+		<span id="welcome" align="right">Welcome {{user.name}}!</span>
+		<ul class="navigation">
+			<li><a href="/home" class="header-link">Home</a></li>
+			<li><a href="/shop" class="header-link">Shop</a></li>
+			<li><a href="/message" class="header-link">Message</a></li>
+			<li><a href="/newitem" class="header-link">Sell</a></li>
+			<li><a href="/requests" class="header-link">Request</a></li>
+			<li><a href="/users" class="header-link">Users</a></li>
+			<li><a href="/logout" class="header-link">Logout</a></li>
+		</ul>
+		{% endif %}
+		</div>
+		<div id="body">
+			{% block content %}
+			{% endblock %}
+		</div>
+		<img src="/static/images/left_bar.jpg" id="left-bar" alt="left bar" height=100%/>
+		<img src="/static/images/right_bar.jpg" id="right-bar" alt="right bar" height=100%/>
+	</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+
+<br>
+<form method="post">
+	<table>
+		<tr>
+			<td><div class="input-title">Username</div></td>
+			<td><input type="text" name="username" value={{username}}></td>
+		</tr>
+		<tr>
+			<td><div class="input-title">Password</div></td>
+			<td><input type="password" name="password"/></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Login</button></td>
+		</tr>
+	</table>
+	<div class="error">{{error}}</div>
+</form>
+<br>
+<div style="color: blue; font-size: 15px;">
+	<a href="/register">New User?</a>
+</div>
+
+{% endblock %}

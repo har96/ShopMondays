@@ -1,0 +1,10 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<ul class="notifications">
+	{% for n in notifications %}
+	<li {% if not n.read %}style="color: red;"{% endif %}>{{n.content}}&nbsp;&nbsp;{{n.sent|mdtime}}</li>
+	{% endfor %}
+</ul>
+{% endblock %}

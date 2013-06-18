@@ -1,0 +1,73 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<div class="error">{{error}}</div>
+
+<form method="post" enctype="multipart/form-data">
+	<table>
+		{% if not item.num_bids %}
+		<tr>
+			<td>Title</td>
+			<td><input type="text" name="title" value="{{title}}"/></td>
+			<td><div class="error">{{t_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Description</td>
+			<td><textarea name="description" wrap="hard" cols=50 rows=25>{{description}}</textarea></td>
+			<td><div class="error">{{d_error}}</div></td>
+		</tr>
+		{% if item.list_option != "instant" %}
+		<tr>
+			<td>Start Price</td>
+			<td>$<input type="text" name="price" value="{{price|dollars}}"/></td>
+			<td><div class="error">{{p_error}}</div></td>
+		</tr>
+		{% endif %}
+		{% if item.list_option != "auction" %}
+		<tr>
+			<td>Instant Buy Price</td>
+			<td>$<input type="text" name="instantprice" value="{{instantprice|dollars}}"/></td>
+			<td><div class="error">{{i_error}}</div></td>
+		</tr>
+		{% endif %}
+		<tr>
+			<td>Shipping Price</td>
+			<td>$<input type="text" name="shipprice" value="{{shipprice}}"/></td>
+			<td><div class="error">{{s_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Local Pickup Option</td>
+			<td>
+				<select name="localpickup">
+					<option value="off" {% if ship == 0 %}selected="selected"{% endif %}>Only allow shipping</option>
+					<option value="on" {% if ship == 1 %}selected="selected"{% endif %}>Allow local pickup as well as shipping</option>
+					<option value="pickup" {% if ship == 2 %}selected="selected"{% endif %}>Only allow local pickup</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Condition</td>
+			<td>
+				<select name="condition" value="{{condition}}">
+					<option {% if cond == 0 %}selected="selected"{% endif %}>New; Unopen unused</option>
+					<option {% if cond == 1 %}selected="selected"{% endif %}>Used; still in perfect condition</option>
+					<option {% if cond == 2 %}selected="selected"{% endif %}>Used; has some wear</option>
+					<option {% if cond == 3 %}selected="selected"{% endif %}>Old; still good as new</option>
+					<option {% if cond == 4 %}selected="selected"{% endif %}>For parts or not working</option>
+				</select>
+			</td>
+		</tr>
+		{% endif %}
+		<tr>
+			<td>Change Image</td>
+			<td><input type="file" name="image"/></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Update</button></td>
+			<td><button name="delete" onclick="delete_item({{item.num_bids}}, {{item.key.id}})" value="delete">Delete Item</button></td>
+		</tr>
+	</table>
+</form>
+
+{% endblock %}
