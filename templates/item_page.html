@@ -58,7 +58,7 @@
 <h1 id="item-header">{{item.title}} - ${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
 <span class="item-seller">{{user_link(item.seller)}}</span>
 {% if not user.name in item.flaggers and not user.name == item.seller %}
-<img src="/static/images/Flag.png" id="flag"/><span id="flag-info" class="help">mark as spam</span>
+<img src="/static/images/Flag.png" id="flag" height="35px"/><span id="flag-info" class="help">mark as spam</span>
 {% endif %}
 
 <div id="item-description">
@@ -103,7 +103,7 @@
 			<td><form method="post" action="/{{item.key.id()}}/editcomment/{{comment.key.id()}}">
 					<button type="button" id="edit_show">Edit</button>
 					<div id="edit" style="display: none;">
-						<textarea rows="4" cols="40" name="content"></textarea>
+						<textarea rows="4" cols="40" name="content">{{comment.content}}</textarea>
 						<button type="submit">Apply</button>
 					</div>
 			</form></td>

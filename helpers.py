@@ -584,3 +584,7 @@ def remove_duplicate_items(ls):
 			titles.append(item.title)
 			new_ls.append(item)
 	return new_ls
+def mondaysAssert(expression, msg, funct, filename, linenumber, handler=None):
+	if not expression:
+		raise Exception("%s:%d:%s MondaysAssertionError: %s" % (filename, linenumber, funct, msg))
+

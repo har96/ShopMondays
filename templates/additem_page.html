@@ -18,6 +18,9 @@
 				start.slideDown("slow");
 			}
 		});
+		$("#paypal_input").keypress(function () {
+			$("#confirm_paypal").slideDown("slow");
+		});
 	});
 </script>	
 {% endblock %}
@@ -75,7 +78,7 @@
 		</tr>
 		<tr>
 			<td>Payment Method</td>
-			<td><input type="email" name="paypal" value="{{paypal}}"/></td>
+			<td><input id="paypal_input" type="email" name="paypal" value="{{paypal}}"/></td>
 			<td class="help">Do you want payment to be made with PayPal?<br>
 				If so, please put your PayPal email<br>
 				address in the box<br>
@@ -83,6 +86,11 @@
 					you are acknowledging that ShopMondays is not responsible<br>
 					for lost payments</span>
 			</td>
+		</tr>
+		<tr id="confirm_paypal" {% if not paypal %}style="display: none;"{% endif %}>
+			<td>Confirm PayPal email</td>
+			<td><input id="confirm_paypal_input" type="email" name="verify_paypal" value="{{verify_paypal}}"/></td>
+			<td class="help">Please confirm your PayPal email by renentering it</td>
 		</tr>
 		<tr><td><h2>Shipping Details</h2></td><td><hr></td></tr>
 		<tr>

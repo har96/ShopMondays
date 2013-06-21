@@ -10,7 +10,6 @@ from models import *
 
 import random
 import string
-import logging
 
 CONDITIONS = ["New; Unopen unused", "Used; still in perfect condition", "Used; has some wear", "Old; still good as new"]
 SHIP_OPTS = ["on", "off", "pickup"]
@@ -32,7 +31,6 @@ class AppCase( unittest.TestCase ):
 				("/shop", Archive),
 				("/request", RequestMsg),
 				("/img/([0-9]+)", ItemImage),
-				("/img_msg", MsgImage),
 				("/logout", Logout),
 				("/activate", Activate),
 				("/activate/([0-9]+)", ActivateUser),
@@ -134,15 +132,16 @@ class TestLogin( AppCase ):
 		url = item_page.request.url + ".json" # get json format of item page
 		return "4"
 	def login(self, username):
-		response = self.testapp.post("/login", {"username":username, "password": "pass"})
+		response = self.testapp.post("/login", {"username":username, "password": "passing"})
 		# return cookie
+		logging.info(response.body)
 		return response.headers.get("Set-Cookie", False)
 	def register(self, username):
 		params = {}
 		params["username"] = username
-		params["password"] = params["verify"] = "pass"
+		params["password"] = params["verify"] = "passing"
 		params["address1"] = params["city"] = params["name1"] = params["name2"] = "tester"
-		params["state"] = "MS"
+		params["state"] = "ms"
 		params["zip"] = "39086"
 		params["email"] = "foo@bar.com"
 		self.response = self.testapp.post("/register", params)
@@ -189,7 +188,6 @@ class TestLogin( AppCase ):
 		self.register("testreceiver")
 		cookie = self.login("testsender")
 		self.assertTrue(cookie)
-		logging.info("past login")
 
 		params = {}
 		params["receiver"] = "testuser testreceiver"
@@ -207,7 +205,6 @@ class TestLogin( AppCase ):
 		self.response = self.testapp.post("/message", params, headers={'Cookie':cookie})
 		self.assertFalse(didSend(""), msg="Did not refuse message without content")
 		params["body"] = ""
-		logging.info("past sending")
 
 		# test deleting
 		 #single message
@@ -220,7 +217,6 @@ class TestLogin( AppCase ):
 		  #test
 		self.response = self.testapp.post("/message",{"delete_msg":"4"})
 		self.assertFalse(didDelete("recognize"), msg="Invalid ID")
-		logging.info("past deleting")
 
 
 
@@ -300,7 +296,6 @@ class TestLogin( AppCase ):
 			self.assertEqual(self.response.status, "200 OK", msg="handler accepted %s as local_pickup arg" % byte_string)
 			params["localpickup"] = SHIP_OPTS[1]
 			params["condition"] = CONDITIONS[2]
-			logging.info("hello")
 
 	def testEditUser(self):
 		self.register("testuser")

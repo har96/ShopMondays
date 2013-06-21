@@ -5,7 +5,7 @@ from handlers import *
 
 app = webapp.WSGIApplication([("/", HomePage),
 				("/about", AboutPage),
-				("/login", LoginPage),
+				("/login(?:.json)?", LoginPage),
 				("/register", Register),
 				("/home(?:.json)?", UserHome),
 				("/message(?:.json)?", CreateMessage),

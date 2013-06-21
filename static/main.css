@@ -207,9 +207,9 @@ td.buyer-row {
 	width: 555px;
 }
 .item-seller {
-	position: relative;
-	left: 575px;
-	bottom: 25px;
+	position: absolute;
+	left: 600px;
+	top: 75px;
 	text-decoration: none;
 	color: green;
 }
@@ -241,7 +241,7 @@ td.help {
 }
 #flag {
 	position: relative;
-	left: 875px;
+	left: 925px;
 	bottom: 23px;
 }
 .num_flags {
@@ -250,7 +250,7 @@ td.help {
 }
 #flag-info {
 	position: relative;
-	left: 875px;
+	left: 925px;
 	bottom: 20px;
 	color: red;
 	font-size: small;

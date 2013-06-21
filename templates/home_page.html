@@ -20,7 +20,7 @@
 <tr>
 	<td><a href="/item/{{item.key.id()}}"><img height="200" src="/img/{{item.key.id()}}"/></a></td>
 	<td style="padding-left: 25px;"><h3>{{item.title}}</h3></td>
-	<td style="padding-left: 25px;"><h3>${{item.current_price|dollars}}</h3></td>
+	<td style="padding-left: 25px;"><h3>${{item.get_price()|dollars}}</h3></td>
 </tr>
 {% endfor %}
 </table>

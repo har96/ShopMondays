@@ -331,6 +331,7 @@ class Message( ndb.Model ):
 		# add msg to receivers history
 		for receiver in receivers:
 			user = User.get_by_name(receiver)
+			mondaysAssert(user, "Invalid user in receivers", "send_mond_msg()", "models.py", 334)
 			hist = user.get_history()
 			if hist:
 				hist["number of messages received"] += 1

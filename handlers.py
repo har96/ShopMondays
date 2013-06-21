@@ -191,7 +191,8 @@ class Register( Handler ):
 		email = self.request.get("email")
 		first_name = self.request.get("name1")
 		last_name = self.request.get("name2")
-		state = self.request.get("state").upper()
+		state = self.request.get("state")
+		state.upper()
 		city = self.request.get("city")
 		zip = self.request.get("zip")
 		address1 = self.request.get("address1")
@@ -447,6 +448,7 @@ class AddItem( Handler ):
 		local_pickup = self.request.get("localpickup")
 		condition = self.request.get("condition")
 		paypal = self.request.get("paypal")
+		confirm_paypal = self.request.get("verify_paypal")
 		list_option = self.request.get("list_option")
 		instantprice = self.request.get("instantbuy_price")
 
@@ -486,6 +488,7 @@ class AddItem( Handler ):
 		if not v_error_msg and int(days_listed) > 10: v_error_msg = "An item can't be listed for more that 10 days"
 		if not v_error_msg and int(shipdays) > 14: v_error_msg = "You must ship sooner than 15 days"
 		if paypal and not verify_paypal_email(paypal, seller): v_error_msg = "Could not find a paypal account with this email"
+		if paypal and not confirm_paypal == paypal: v_error_msg = "PayPal emails do not match"
 		if len(description) > DESCRIPTION_LIMIT: v_error_msg = "You cannot have more than %d characters in description." % DESCRIPTION_LIMIT
 		if len(title) > TITLE_LIMIT: v_error_msg = "You cannot have more than %d characters in title" % TITLE_LIMIT
 		if list_option != "instant" and not start_price: error_msg = "Must have start price"
@@ -524,12 +527,16 @@ class AddItem( Handler ):
 		else:
 			v_error_msg = "Must have an image"
 		if v_error_msg or error_msg or c_error_msg:
-
+			try:
+				cond = CONDITIONS.index(condition)
+			except:
+				cond = ""
 			self.write(user=seller, error=error_msg, value_error=v_error_msg, title=cgi.escape(title), \
 					price=cgi.escape(str(start_price)), desc=cgi.escape(description), \
 					days_listed=cgi.escape(days_listed), shipdays=cgi.escape(str(shipdays)), local_pickup=cgi.escape(local_pickup),\
-					shipprice=cgi.escape(str(shipprice)), condition=CONDITIONS.index(condition), list_option=list_option,\
-					instantbuy_price=instantprice, cap_err=c_error_msg, image_id=self.request.get("relist_image"))
+					shipprice=cgi.escape(str(shipprice)), condition=cond, list_option=list_option,\
+					instantbuy_price=instantprice, cap_err=c_error_msg, image_id=self.request.get("relist_image"), paypal=paypal,
+					verify_paypal=confirm_paypal)
 			return
 
 		days_listed = int(days_listed)

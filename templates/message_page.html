@@ -98,7 +98,7 @@
 						{% else %}{{user_link(message.sender)}}:
 						{% endif %}
 					</td>
-						<td><pre>{{message.content}}</pre></td>
+						<td><pre style="width: 740px; word-wrap: break-word;">{{message.content}}</pre></td>
 					<td>{{message.sent_str}}</td>
 					<td><button class="deleteButton" id="{{message.key.id()}}">Delete</button></td>
 					{% if user.name != message.sender %}

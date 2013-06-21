@@ -64,7 +64,7 @@ import unittest
 import time
 import logging
 import cgi
-import django.utils.simplejson
+import json
 
 from google.appengine.ext import webapp
 from google.appengine.api import apiproxy_stub_map  
@@ -148,7 +148,7 @@ class JsonTestResult(unittest.TestResult):
             'failures': self._list(self.failures),
             }
 
-        stream.write(django.utils.simplejson.dumps(result).replace('},', '},\n'))
+        stream.write(json.dumps(result).replace('},', '},\n'))
 
     def _list(self, list):
         dict = []
@@ -272,7 +272,7 @@ def _test_suite_to_json(suite):
                 method_list = mod_dict[class_name]
                 method_list.append(method_name)
                 
-    return django.utils.simplejson.dumps(test_dict)
+    return json.dumps(test_dict)
 
 
 def _run_test_suite(runner, suite):
@@ -290,7 +290,7 @@ def _run_test_suite(runner, suite):
        temp_stub = datastore_file_stub.DatastoreFileStub('GAEUnitDataStore', None, None, trusted=True)  
        apiproxy_stub_map.apiproxy.RegisterStub('datastore', temp_stub)
        # Allow the other services to be used as-is for tests.
-       for name in ['user', 'urlfetch', 'mail', 'memcache', 'images']: 
+       for name in ['user', 'urlfetch', 'mail', 'memcache', 'images', 'logservice']: 
            apiproxy_stub_map.apiproxy.RegisterStub(name, original_apiproxy.GetStub(name))
        runner.run(suite)
     finally:
