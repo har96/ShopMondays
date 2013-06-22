@@ -216,17 +216,18 @@ class Register( Handler ):
 		if username.lower() in RESERVED_USERNAMES: u_error = "Sorry, this username is reserved."
 		if password.lower() in RESERVED_PASSWORDS: p_error = "Sorry, the password you chose is not secure."
 		if password == username: p_error = "Your password may not be the same as your username"
-		
+
+		username = cgi.escape(username)
+		email = cgi.escape(email)
+		first_name = cgi.escape(first_name)
+		last_name = cgi.escape(last_name)
+		state = cgi.escape(state)
+		city = cgi.escape(city)
+		zip = cgi.escape(zip)
+		address1 = cgi.escape(address1)
+		address2 = cgi.escape(address2)
+
 		if u_error or p_error or v_error or e_error or fn_error or ln_error or c_error or z_error or a_error:
-			username = cgi.escape(username)
-			email = cgi.escape(email)
-			first_name = cgi.escape(first_name)
-			last_name = cgi.escape(last_name)
-			state = cgi.escape(state)
-			city = cgi.escape(city)
-			zip = cgi.escape(zip)
-			address1 = cgi.escape(address1)
-			address2 = cgi.escape(address2)
 			self.write(e_error=e_error, fn_error=fn_error, ln_error=ln_error, c_error=c_error, \
 					z_error=z_error, u_error=u_error, p_error=p_error, v_error=v_error, a_error=a_error, \
 					username=username, name1=first_name, name2=last_name, email=email, state=state, \
@@ -323,12 +324,13 @@ class CreateMessage( Handler ):
 		content = self.request.get("body")
 		receiver = self.request.get("receiver")
 		all = self.request.get("all")
+
 				
 		# ensure that the user entered content
 		if not content:
 			if self.format() == "html":
-				self.write(user=user, error="Must have a content", body=cgi.escape(content), 
-					 receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+				self.write(user=user, error="Must have a content", body=content, 
+					 receiver=receiver, usermessages=list(Message.get_user_messages(user.name)))
 			else:
 				self.write_json({"error":1})
 			return
@@ -340,6 +342,11 @@ class CreateMessage( Handler ):
 			else:
 				self.write_json({"error":1, "error_msg":"You must specify a receiver."})
 			return
+
+		receiver = cgi.escape(receiver)
+		if not user.name == "Mondays":
+			content = cgi.escape(content)
+
 		if len(receiver) > 1000 and user.name != "Mondays":
 			if self.format() == "html":
 				self.write(user=user, error="Too many characters in receiver field.", body=cgi.escape(content),
@@ -535,17 +542,18 @@ class AddItem( Handler ):
 					price=cgi.escape(str(start_price)), desc=cgi.escape(description), \
 					days_listed=cgi.escape(days_listed), shipdays=cgi.escape(str(shipdays)), local_pickup=cgi.escape(local_pickup),\
 					shipprice=cgi.escape(str(shipprice)), condition=cond, list_option=list_option,\
-					instantbuy_price=instantprice, cap_err=c_error_msg, image_id=self.request.get("relist_image"), paypal=paypal,
-					verify_paypal=confirm_paypal)
+					instantbuy_price=cgi.escape(str(instantprice)), cap_err=c_error_msg, image_id=self.request.get("relist_image"),\
+					paypal=cgi.escape(paypal), verify_paypal=cgi.escape(confirm_paypal))
 			return
 
 		days_listed = int(days_listed)
 		shipdays = int(shipdays) if shipdays else ""
-		item = Item.get_new(seller.name, title, days_listed, shipdays, condition, current_price=start_price,
-				description=description, shipprice=shipprice, local_pickup=local_pickup, list_option=list_option, instant_price=instantprice)
+		item = Item.get_new(seller.name, cgi.escape(title), days_listed, shipdays, condition, current_price=start_price,
+				description=cgi.escape(description), shipprice=shipprice, local_pickup=local_pickup, list_option=list_option,\
+				instant_price=instantprice)
 
 		item.image = img
-		item.paypal_email = paypal
+		item.paypal_email = cgi.escape(paypal)
 		item.put()
 		seller.notify("You listed %s" % item.title)
 		self.redirect("/item/%s" % item.key.id())
@@ -716,8 +724,8 @@ class EditItem( Handler ):
 					instantprice=instantprice, i_error=i_error, condition=CONDITIONS.index(condition)) 
 			return
 		if item.num_bids == 0:
-			item.title = title
-			item.description = description
+			item.title = cgi.escape(title)
+			item.description = cgi.escape(description)
 			item.current_price = price
 			item.instant_price = instantprice
 			if localpickup != "pickup":
@@ -761,6 +769,7 @@ class RequestMsg( Handler ):
 		if not item:
 			self.write(user=sender, categories=CATEGORIES, error="Must specify an item")
 			return
+		item = cgi.escape(item)
 		if not category in CATEGORIES:
 			self.flash("Please do not post with bot");
 			return
@@ -808,9 +817,9 @@ class Activate(Handler):
 		if not user.last_name:
 			input_dict["last_name"]= self.request.get('name2') 
 		if not user.state:
-			input_dict["state"] = self.request.get('state')
+			input_dict["state"] = cgi.escape(self.request.get('state'))
 		if not user.city:
-			input_dict["city"] = self.request.get('city')
+			input_dict["city"] = cgi.escape(self.request.get('city'))
 		if not user.zip:
 			input_dict["zip"] = int(self.request.get('zip'))
 #		if not user.address:
@@ -1042,13 +1051,13 @@ class EditUserProfile(Handler):
 			return
 		else:
 			# edit and store user
-			u.first_name = first_name
-			u.last_name = last_name
-			u.state = state
-			u.city = city
+			u.first_name = cgi.escape(first_name)
+			u.last_name = cgi.escape(last_name)
+			u.state = cgi.escape(state)
+			u.city = cgi.escape(city)
 			u.zip = int(zip)
-			u.address1 = address1
-			u.address2 = address2
+			u.address1 = cgi.escape(address1)
+			u.address2 = cgi.escape(address2)
 			u.put()
 
 			logging.info("user: %s just edited his or her profile" % u.name)
@@ -1587,7 +1596,7 @@ class EditComment( Handler ):
 		if len(content) > 1000:
 			self.flash("Comments cannot have more than 1000 chars")
 			return
-		comment.content = content
+		comment.content = markup_text(cgi.escape(content))
 		comment.put()
 		self.redirect("/item/%s" % item_id)
 
