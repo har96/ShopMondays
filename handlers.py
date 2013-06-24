@@ -744,7 +744,7 @@ class Archive( Handler ):
 	def get(self):
 		user = self.get_user()
 		if not user:
-			self.write(user=Struct(name="Visitor"), items=Item.get_active())
+			self.write(user=Struct(name="Visitor"), items=Item.get_active(), show_limit=DISPLAY_FLAG)
 			return
 		if self.format() == "html":
 			self.write(user=user, items=Item.get_active(), show_limit=DISPLAY_FLAG)
