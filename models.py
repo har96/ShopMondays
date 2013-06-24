@@ -430,6 +430,10 @@ class Item( ndb.Model):
 		else:
 			return self.current_price
 
+	def number_of_comments(self):
+		""" Returns the number of comments attached to this item """
+		return len(Message.get_user_messages(str(self.key.id())).fetch(projection=["sender"]))
+
 	@classmethod
 	def get_new(cls, seller, title, days_listed, shipdays, condition, image=None, current_price=0.01, description="", local_pickup="off", shipprice=0.00,\
 			list_option=-1, instant_price=0):
