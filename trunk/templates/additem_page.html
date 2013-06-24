@@ -1,0 +1,149 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		var opt = $("#listoption")
+		var instant = $("#instantprice")
+		var start = $("#startprice")
+		opt.change(function() {
+			if (opt.val() == "both") {
+				instant.slideDown("slow");
+				start.slideDown("slow");
+			} else if (opt.val() == "instant") {
+				start.slideUp("slow");
+				instant.slideDown("slow");
+			} else {
+				instant.slideUp("slow");
+				start.slideDown("slow");
+			}
+		});
+		$("#paypal_input").keypress(function () {
+			$("#confirm_paypal").slideDown("slow");
+		});
+	});
+</script>	
+{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+	var RecaptchaOptions = {
+		theme : "white"
+	};
+</script>
+<form action="/newitem?relist_image={{image_id}}" method="post" enctype="multipart/form-data">
+	<table>
+		<tr>
+			<td>Item Title</td><td><input type="text" name="title" value="{{title}}"/></td>
+		</tr>
+		<tr>
+			<td>Description</td><td><textarea cols=50 rows=25 name="description" wrap="hard">{{desc}}</textarea></td>
+		</tr>
+		<tr>
+			<td>Condition</td>
+			<td>
+				<select name="condition">
+					<option {% if condition == 0 %} selected="selected" {% endif %}>New; Unopen unused</option>
+					<option {% if condition == 1 %} selected="selected" {% endif %}>Used; still in perfect condition</option>
+					<option {% if condition == 2 %} selected="selected" {% endif %}>Used; has some wear</option>
+					<option {% if condition == 3 %} selected="selected" {% endif %}>Old; still good as new</option>
+					<option {% if condition == 4 %} selected="selected" {% endif %}>For parts or not working</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td><br>Item Image</td><td><br><input type="file" name="img"/></td>
+		</tr>
+		<tr><td><h2>Listing Options and Price</h2></td><td><hr></td></tr>
+		<tr>
+			<td>Listing Options</td>
+			<td>
+				<select name="list_option" id="listoption">
+					<option {% if list_option == "auction" %}selected="selected" {% endif %} value="auction">List auction-style</option>
+					<option {% if list_option > "both" %}selected="selected" {% endif %} value="both">Allow Instant Buy as well as auction</option>
+					<option {% if list_option == "instant" %} selected="selected" {% endif %} value="instant">Only allow Instant Buy</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="instantprice" {% if not list_option or list_option == "auction" %}style="display: none;"{% endif %}>
+			<td>Instant Buy Price</td>
+			<td><label>$<input type="text" name="instantbuy_price" value="{{instantbuy_price}}"/></label></td>
+		</tr>
+		<tr id="startprice" {% if list_option == "instant" %}style="display: none;"{% endif %}>
+			<td>Start Price</td>
+			<td><label>$<input type="text" name="startprice" value="{{price}}"/></label></td>
+		</tr>
+		<tr>
+			<td>Days Listed</td><td><input type="number" name="days_listed" value="{{days_listed}}" min="1" max="10" /></td>
+		</tr>
+		<tr>
+			<td>Payment Method</td>
+			<td><input id="paypal_input" type="email" name="paypal" value="{{paypal}}"/></td>
+			<td class="help">Do you want payment to be made with PayPal?<br>
+				If so, please put your PayPal email<br>
+				address in the box<br>
+				<span style="color: red; font-size: 1.1em;">Note: By leaving the box blank<br>
+					you are acknowledging that ShopMondays is not responsible<br>
+					for lost payments</span>
+			</td>
+		</tr>
+		<tr id="confirm_paypal" {% if not paypal %}style="display: none;"{% endif %}>
+			<td>Confirm PayPal email</td>
+			<td><input id="confirm_paypal_input" type="email" name="verify_paypal" value="{{verify_paypal}}"/></td>
+			<td class="help">Please confirm your PayPal email by renentering it</td>
+		</tr>
+		<tr><td><h2>Shipping Details</h2></td><td><hr></td></tr>
+		<tr>
+			<td>Shipping Price (optional)</td>
+			<td><label>$</label><input type="text" name="shipprice" value="{{shipprice}}"/></td>
+		</tr>
+		<tr>
+			<td>Shipping Options</td>
+			<td>
+				<select name="localpickup">
+					<option {% if local_pickup == "off" %} selected="selected" {% endif %} value="off">Only allow shipping</option>
+					<option {% if local_pickup == "on" %} selected="selected" {% endif %} value="on">Allow local pickup as well as shipping</option>
+					<option {% if local_pickup == "pickup" %} selected="selected" {% endif %} value="pickup">Only allow local pickup</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Shipping time</td>
+			<td><input type="number" name="shipdays" value="{{shipdays}}" min="1" max="14" /></td>
+			<td class="help">Number of business days till shipment or <br>
+				if you selected "only allow local pickup"<br>
+				the amount of time you will keep<br>
+			       	the item on hold till the buyer picks it up.
+			</td>
+
+		</tr>
+		<tr>
+			<td><hr></td>
+		</tr>
+		<tr>
+			<td>
+				Captcha: <span class="error">{{cap_err}}</span>
+			</td>
+			<td>
+				<script type="text/javascript" src="http://www.google.com/recaptcha/api/challenge?k=6Ld1y-ASAAAAAD75NyezaY8TAevVzNpy7j89So1c">
+				</script>
+				<noscript>
+					<iframe src="http://www.google.com/recaptcha/api/noscript?k=6Ld1y-ASAAAAAD75NyezaY8TAevVzNpy7j89So1c" height="300" width="500" frameborder="0"></iframe><br>
+					<textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+				        <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
+				</noscript>
+			</td>
+			<td class="help">
+				Please enter the code to <br>
+				verify that you are valid user and not a bot
+			</td>
+		</tr>
+		<tr>
+			<td><button type="submit" style="height: 30px; width: 60px; font-size: 1em;">List</button></td>
+		</tr>
+	</table>
+	<div class="error">{{error}}</div>
+	<div class="error">{{value_error}}</div>
+</form>
+
+{% endblock %}

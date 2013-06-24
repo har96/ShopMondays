@@ -1,0 +1,26 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<table>
+	<th>Title&nbsp;&nbsp;</th><th>Price&nbsp;&nbsp;</th>
+	<th>Bids&nbsp;&nbsp;</th><th>Buyer&nbsp;&nbsp;</th><th>Seller</th>
+{% for i in items %}
+	<tr>
+		<td><a href="/item/{{i.key.id()}}" class="item-rowtitle">{{i.title}}</a></td>
+		<td style="padding-right: 15px;">${{i.get_price()|dollars}}</td>
+		<td>{% if i.num_bids %}{{i.num_bids}}{% else %}0{% endif %}</td>
+		<td class="buyer-row">{% if i.current_buyer %}{{user_link(i.current_buyer)}}{% else %}None{% endif %}</td>
+		<td>{{user_link(i.seller)}}</td>
+		<td class="image-cell" ><a href="/item/{{i.key.id()}}"><img height="100px" src="/img/{{i.key.id()}}" style="max-width: 600px;"></a></td>
+		<td>{% if i.list_option == "instant" %}Instant Buy{% elif i.list_option == "both" %}Instant Buy<br>Auction{% else %}Auction{% endif %}</td>
+		<td>
+			{% if i.flags > show_limit %}
+			<img src="/static/images/Flag.png" /> <span class="num_flags">({{i.flags}})</span>
+			{% endif %}
+		</td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

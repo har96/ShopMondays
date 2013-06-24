@@ -1,0 +1,25 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<h1>Please enter your information below to reset your password</h1><br>
+
+<form method="post">
+	<label>Zip</label>
+	<input type="text" name="zip" value="{{zip}}"/>
+	<br>
+	<label>Password</label>
+	<input type="password" name="password"/>
+	<div class="error">{{info_error}}</div>
+	<label>New Password</label>
+	<input type="password" name="password_new"/>
+	<div class="error">{{pw_error}}</div>
+	<br>
+	<label>Verify New Password</label>
+	<input type="password" name="verify"/>
+	<div class="error">{{v_error}}</div>
+	<br>
+	<button type="submit">Reset</button>
+</form>
+
+{% endblock %}

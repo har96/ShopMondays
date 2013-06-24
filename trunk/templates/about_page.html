@@ -1,0 +1,29 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<p>
+Mondays is an application designed to permit users to sell stuff to <br>
+each other.  After you log in, you can send messages to other users, sell<br>
+items to them, send out requests to let sellers know what your looking for, <br>
+and buy cool items from other users.  Everything except for purchasing items<br>
+is FREE!  Have fun!
+</p>
+
+
+<p>
+Mondays is a webapp created by Harrison Hunter using Python and Google App Engine.<br>
+I created this site using what I learned from a <a href="http://www.udacity.com">Udacity</a> course on 
+<a href="http://www.udacity.com/overview/Course/cs253/CourseRev/apr2012">Web Application Programming</a>.<br>
+I've really enjoyed creating this site so I hope you enjoy using it.
+</p>
+
+<b>Sponsor list:</b>
+Many thanks to the below people who contributed to getting Mondays off the ground!
+<br>
+<ul>
+	{% for name in sponsers %}
+		<li>{{name}}</li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

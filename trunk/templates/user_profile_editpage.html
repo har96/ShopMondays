@@ -1,0 +1,52 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+<h2 align="center">{{user.name}}</h2>
+<br>
+<form method="post">
+	<table>
+		<tr>
+			<td>First Name</td>
+			<td><input type="text" name="name1" value="{{first_name}}"/></td>
+			<td><div class="error">{{fn_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Last Name</td>
+			<td><input type="text" name="name2" value="{{last_name}}"/></td>
+			<td><div class="error">{{ln_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Address</td>
+			<td><input type="text" name="address1" value="{{address1}}"/></td>
+			<td><div class="error">{{a_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Address line 2</td>
+			<td><input type="text" name="address2" value="{{address2}}"/></td>
+		</tr>
+		<tr>
+			<td>City</td>
+			<td><input type="text" name="city" value="{{city}}"/></td>
+			<td><div class="error">{{c_error}}</div></td>
+		</tr>
+		<tr>
+			<td>State</td>
+			<td><select name="state">
+				{% for state in state_list %}
+				<option {% if state == user.state %}selected="selected"{% endif %}>{{state}}</option>
+				{% endfor %}
+			</select></td>
+			<td><div class="error">{{s_error}}</div></td>
+		</tr>
+		<tr>
+			<td>Zip</td>
+			<td><input type="text" name="zip" value="{{zip}}"/></td>
+			<td><div class="error">{{z_error}}</div></td>
+		</tr>
+		<tr>
+			<td><button type="submit">Update</button></td>
+		</tr>
+	</table>
+</form>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base_homepage.html" %}
+
+{% block content %}
+
+<table class="users">
+<tr>
+{% for u in users %}
+<td><span class="user">{{user_link(u.name)}}</span></td>
+{% if loop.index is divisibleby(3) %}</tr><tr>{% endif %}
+{% endfor %}
+</table>
+
+{% endblock %}

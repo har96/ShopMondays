@@ -1,0 +1,4 @@
+cron:
+- description: check for item expiration
+  url: /expire
+  schedule: every 1 minutes
