@@ -58,7 +58,8 @@
 		{% block head %}{% endblock %}
 	</head>
 	<body>
-		<img src="/static/images/top_banner.jpg" id="banner" alt="banner" width=1300 height=280px/>
+		<img src="/static/images/top_banner.png" id="banner" alt="banner" />
+		<img src="/static/images/logo.png" id="logo" alt="$hopMondays" />
 		{% if user.name == "Visitor" %}
 		<ul class="navigation">
 			<li><a href="/" class="header-link">Home</a></li>
@@ -79,11 +80,12 @@
 		</ul>
 		{% endif %}
 		</div>
+		<br>
 		<div id="body">
 			{% block content %}
 			{% endblock %}
 		</div>
-		<img src="/static/images/left_bar.jpg" id="left-bar" alt="left bar" height=100%/>
-		<img src="/static/images/right_bar.jpg" id="right-bar" alt="right bar" height=100%/>
+		<img src="/static/images/left_bar.png" id="left-bar" alt="left bar" height=100%/>
+		<img src="/static/images/right_bar.png" id="right-bar" alt="right bar" height=100%/>
 	</body>
 </html>

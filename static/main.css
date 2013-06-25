@@ -1,8 +1,5 @@
 html {
-	background-image: url('/static/images/background_gradient.jpg');
-	background-height: 100%;
-	background-repeat: no-repeat;
-	background-attachment: fixed;
+	background-color: #E3E8FE;
 }
 
 body {
@@ -35,7 +32,7 @@ a {
 .header-link {
 	margin-right: 20px;
 	text-decoration: none;
-	color: #AAAABB;
+	color: #206;
 	font-family: good_times;
 	font-size: 20px;
 }
@@ -98,12 +95,15 @@ ul.navigation
 {
 	list-style: none;
 	white-space: nowrap;
-	margin-top: 225px;
+	position: absolute;
+	top: 5px;
+	left: 350px;
 }
 
 ul.navigation li
 {
 	display:inline;
+	padding-left: 30px;
 }
 
 ul.users
@@ -138,6 +138,13 @@ img#banner {
 	left: 0px;
 	top: 0px;
 	z-index: -1;
+	width: 100%;
+	height: 65px;
+}
+img#logo {
+	position: absolute;
+	left 40px;
+	top: 5px;
 }
 #watchers {
 	width: 100px;
@@ -219,10 +226,10 @@ td.buyer-row {
 }
 #login {
 	position: absolute;
-	color: white;
 	font-size: 0.75em;
-	right: 25px;
-	top: -6em;
+	right: 75px;
+	top: 30px;
+	z-index: 500;
 }
 #useritems {
 	position: absolute;

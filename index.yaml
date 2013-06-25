@@ -47,6 +47,13 @@ indexes:
   - name: sent
     direction: desc
 
+- kind: Message
+  properties:
+  - name: references
+  - name: sent
+    direction: desc
+  - name: sender
+
 - kind: Notification
   properties:
   - name: receiver
