@@ -68,7 +68,6 @@
 			<li><a href="/about" class="header-link">About</a></li>
 		</ul>
 		{% else %}
-		<span id="welcome" align="right">Welcome {{user.name}}!</span>
 		<ul class="navigation">
 			<li><a href="/home" class="header-link">Home</a></li>
 			<li><a href="/shop" class="header-link">Shop</a></li>
@@ -80,6 +79,7 @@
 		</ul>
 		{% endif %}
 		</div>
+		<span id="welcome">Welcome <a style="color: inherit;" href="/user/{{user.name}}">{{user.name}}!</a></span>
 		<br>
 		<div id="body">
 			{% block content %}

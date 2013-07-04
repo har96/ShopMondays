@@ -90,7 +90,7 @@
 		{% for comment in comments %}
 		<tr>
 			<td style="padding-right: 15px;">{{user_link(comment.sender)}}</td>
-			<td style="padding-right: 15px; word-wrap: break-word; width: 280px;">{{comment.content}}</td>
+			<td class="comment-content">{{comment.content}}</td>
 			<td>{{comment.sent_str}}</td>
 		</tr>
 		{% if user.name == "Mondays" or user.name == comment.sender %}

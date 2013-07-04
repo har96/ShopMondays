@@ -34,7 +34,7 @@ a {
 	text-decoration: none;
 	color: #206;
 	font-family: good_times;
-	font-size: 20px;
+	font-size: 15px;
 }
 
 
@@ -57,8 +57,7 @@ a {
 
 .welcome-user {
 	font-size: 20px;
-	color: #AAAACC;
-	float: right;
+	color: #CCC;
 }
 span.user {
 	font-size: 25px;
@@ -80,11 +79,11 @@ span.user {
 }
 
 #welcome {
-	color: #AAAA88;
+	color: #AAA;
 	font-size: 20px;
 	position: absolute;
-	right: 15px;
-	top: 15px;
+	top: 75px;
+	left: 75px;
 }
 
 #bid-box {
@@ -103,7 +102,7 @@ ul.navigation
 ul.navigation li
 {
 	display:inline;
-	padding-left: 30px;
+	padding-left: 25px;
 }
 
 ul.users
@@ -262,3 +261,14 @@ td.help {
 	color: red;
 	font-size: small;
 }
+td.comment-content {
+	padding-right: 15px;
+	width: 280px;
+	display: inline-block;
+	word-wrap: break-word;      /* IE */
+	white-space: pre-wrap;      /* CSS3 */   
+	white-space: -moz-pre-wrap; /* Firefox */    
+	white-space: -pre-wrap;     /* Opera <7 */   
+        white-space: -o-pre-wrap;   /* Opera 7 */    
+}
+
