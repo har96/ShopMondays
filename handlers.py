@@ -90,6 +90,11 @@ class Handler( webapp.RequestHandler ):
 			return "json"
 		return "html"
 
+	def inactive(self):
+		self.response.out.write("""<div style="color: blue">You account is not currently active,
+				please activate your account by verifying your email <a href="/activate">here</a></div>""")
+
+
 class HomePage( Handler ):
 	def write(self, **format_args):
 		self.render("templates/home_page.html", **format_args)
@@ -264,8 +269,7 @@ class UserHome( Handler ):
 			self.flash("You are not logged in")
 			return
 		if not user.active:
-			self.response.out.write("""<div style="color: blue">You account is not currently active,
-				please activate your account by verifying your email <a href="/activate">here</a></div>""")
+			self.inactive()
 			return
 		else:
 			useritems = [item for item in Item.get_by_seller(user.name) if not item.payed and not item.expired]
@@ -291,6 +295,9 @@ class CreateMessage( Handler ):
 		if not user:
 			self.flash("You are not logged in")
 			return
+		if not user.active:
+			self.inactive()
+			return
 
 		if self.format() == "html":
 			receiver = self.request.get("receiver")
@@ -301,6 +308,9 @@ class CreateMessage( Handler ):
 		user = self.get_user()
 		if not user:
 			self.flash("You are not logged in")
+			return
+		if not user.active:
+			self.inactive()
 			return
 
 		del_id = self.request.get("delete_mes")
@@ -439,12 +449,18 @@ class AddItem( Handler ):
 		if not user:
 			self.flash("You are not logged in")
 			return
+		if not user.active:
+			self.inactive()
+			return
 		self.write(user=user, list_option="auction")
 
 	def post(self):
 		seller = self.get_user()
 		if not seller:
 			self.flash("You are not logged in")
+			return
+		if not seller.active:
+			self.inactive()
 			return
 		title = self.request.get("title")
 		start_price = self.request.get("startprice")
@@ -588,7 +604,11 @@ class ItemView( Handler ):
 	def post(self, id):
 		buyer = self.get_user()
 		if not buyer:
-			self.response.out.write("you are not logged in")
+			self.flash("You are not logged in")
+			return
+		if not buyer.active:
+			self.inactive()
+			return
 
 		i = Item.get_by_id(int(id))
 		shipdate = i.shipdate.strftime("%b  %d")
@@ -764,6 +784,10 @@ class RequestMsg( Handler ):
 		sender = self.get_user()
 		if not sender:
 			self.flash("You are not logged in.")
+			return
+		if not sender.active:
+			self.inactive()
+			return
 		item = self.request.get("item")
 		category = self.request.get("category")
 		if not item:
@@ -1554,6 +1578,9 @@ class ItemComment( Handler ):
 		sender = self.get_user()
 		if not sender:
 			self.flash("You are not logged in")
+			return
+		if not sender.active:
+			self.inactive()
 			return
 		item = Item.get_by_id(int(id))
 		if not item:
