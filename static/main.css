@@ -219,6 +219,11 @@ td.buyer-row {
 	text-decoration: none;
 	color: green;
 }
+.item-buyer {
+	position: relative;
+	top: 1.25em;
+	left: 150px;
+}
 #comments {
 	position: relative;
 	left: 575px;

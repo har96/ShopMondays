@@ -64,6 +64,17 @@
 <div id="item-description">
 	<pre id="description">{{item.description}}</pre>
 	<br>
+	<span class="item-buyer">
+		{% if item.current_buyer %}
+			{% if item.expired %}
+				Buyer: {{user_link(item.current_buyer)}}
+			{% else %}
+				{% if item.list_option != "instant" %}
+				Last Bid: {{user_link(item.current_buyer)}}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+	</span>
 	<div id="watchers"><b>{{num_watchers}} Watcher(s)</b>
 		<ul id="watch_list" style="display: none;">
 			{% for name in item.watch_list %}
