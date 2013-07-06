@@ -1093,13 +1093,15 @@ class AllUsers( Handler ):
 		self.render("templates/user_all_page.html", **format_args)
 	def get(self):
 		user = self.get_user()
+		users = list(User.query())
+		users.sort(key=lambda u: u.name.upper())
 		if self.format() == "html":
 			if not user:
-				self.write(user=VISITOR, users=User.query())
+				self.write(user=VISITOR, users=users)
 			else:
-				self.write(user=user, users=User.query())
+				self.write(user=user, users=users)
 		elif self.format() == "json":
-			self.write_json([usr.json(permission=False) for usr in User.query()])
+			self.write_json([usr.json(permission=False) for usr in users])
 
 		
 class Logout( Handler ):

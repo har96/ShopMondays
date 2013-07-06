@@ -2,12 +2,10 @@
 
 {% block content %}
 
-<table class="users">
-<tr>
 {% for u in users %}
-<td><span class="user">{{user_link(u.name)}}</span></td>
-{% if loop.index is divisibleby(3) %}</tr><tr>{% endif %}
+<div class="user">
+	<a href="/user/{{u.name}}">{{u.name.upper()}}</a>
+</div>
 {% endfor %}
-</table>
 
 {% endblock %}
