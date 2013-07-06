@@ -1,5 +1,5 @@
 html {
-	background-color: #E3E8FE;
+	background-image: url("/static/images/background.png");
 }
 
 body {
@@ -149,10 +149,8 @@ img#logo {
 	width: 100px;
 }
 #inbox {
-	position: relative; 
-	top: 0px;
 	border: 3px solid black;
-	overflow: scroll;
+	overflow: auto;
 
 	/* want to do gradient? goto:  http://coolhomepages.com/How-to-make-easy-gradient-shadow-CSS-DIV-boxes/blog-48.html */
 }
@@ -167,17 +165,16 @@ tr#message {
 	display: none;
 }
 #markup-help {
-	background: #C0C5CF;
-	display: none;
+	background: rgba(150, 150, 160, 0.15);
 	width: 380px;
-	float: right;
-}
-#content-input {
+	display: none;
 	float: left;
 }
 #content-markup-wrapper {
-	width: 730px;
-	height: 250px;
+	height: 300px;
+}
+#content-wrapper {
+	float: left;
 }
 .centeredImage {
 	display: block;
