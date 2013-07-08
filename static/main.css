@@ -8,6 +8,9 @@ body {
 
 div#body {
 	position: relative;
+	margin-top: 75px;
+	width: 940px;
+	left: 70px;
 }
 
 input[type=text] {
@@ -32,7 +35,7 @@ a {
 .header-link {
 	margin-right: 20px;
 	text-decoration: none;
-	color: #206;
+	color: white;
 	font-family: blair;
 	font-size: 14px;
 }
@@ -56,6 +59,7 @@ a {
 }
 
 .welcome-user {
+	font-family: blair;
 	font-size: 20px;
 	color: #CCC;
 }
@@ -70,13 +74,6 @@ div.user {
 	color: green;
 	position: absolute;
 	left: 90px;
-}
-
-#body {
-	margin-left: 100px;
-	margin-top: 50px;
-	padding: 20px;
-	margin-left: 70px;
 }
 
 #welcome {
@@ -220,8 +217,8 @@ td.buyer-row {
 }
 .item-seller {
 	position: absolute;
-	left: 600px;
-	top: 75px;
+	left: 576px;
+	top: 50px;
 	text-decoration: none;
 	color: green;
 }
@@ -238,12 +235,14 @@ td.buyer-row {
 	position: absolute;
 	font-size: 0.75em;
 	right: 75px;
-	top: 30px;
+	top: 0px;
 	z-index: 500;
 }
 #useritems {
+	position: absolute;
 	top: 0px;
-	float: right;
+	right: 0px;
+	list-style: none;
 }
 td.help {
 	font-size: 0.75em;
@@ -281,4 +280,37 @@ td.comment-content {
 	white-space: -pre-wrap;     /* Opera <7 */   
         white-space: -o-pre-wrap;   /* Opera 7 */    
 }
+div#shop-wrapper {
+	position: relative;
+	left: -115px;
+	background-image: url("/static/images/shop-back.png");
+	background-size: 1100px 100%;
+	background-repeat: no-repeat;
+	padding-left: 155px;
+	width: 1100px;
+}
+img#shop-topper {
+	position: relative;
+	left: -155px;
+	top: -61px;
+	width: 1100px;
+}
+img#shop-bottom {
+	position: relative;
+	left: -155px;
+	bottom: -65px;
+	width: 1100px;
+}
+div.watch-item {
+	position: relative;
+	background-image: url("/static/images/item-cell.png");
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 
+	padding: 55px;
+}
+td.item-title-cell {
+	width: 200px;
+}
