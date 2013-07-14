@@ -21,6 +21,7 @@ VISITOR = Struct(name="Visitor", watch_list=[])
 DESCRIPTION_LIMIT = 2000
 TITLE_LIMIT = 50
 MESSAGE_CHARLIMIT = 5000
+MAX_PRICE = 10000
 CONDITIONS = ["New; Unopen unused", "Used; still in perfect condition", "Used; has some wear", "Old; still good as new", "For parts or not working"]
 SHIP_OPTS = ["off", "on", "pickup"]
 CATEGORIES = ["Sports/Outdoor", "Houshold Items", "Vehicle/Motor", "Electronics", "Other"]
@@ -538,6 +539,10 @@ class AddItem( Handler ):
 			v_error_msg = "Too many chars in days listed field"
 		if len(shipdays) > 30:
 			v_error_msg = "Too many chars in shipping days field"
+
+		if ( list_option == "auction" and start_price > MAX_PRICE ) or (list_option == "instant" and instantprice > MAX_PRICE) or (list_option == "both" and \
+				(instantprice > MAX_PRICE or startprice > MAX_PRICE)):
+			v_error_msg = "Price must not be more than $%d" % MAX_PRICE
 	
 		if self.request.get("img"): img = create_image(self.request.get("img"), 400, 400)
 		# if it is an item that is being relisted and the user did not upload an image,
@@ -633,11 +638,22 @@ class ItemView( Handler ):
 					watchable=not i.key.integer_id() in buyer.watch_list, num_watchers=len(i.watch_list))
 
 			return
+		if price > MAX_PRICE:
+			if (i.get_price() + i.bid_margin) > MAX_PRICE:
+				error = "Sorry, the minimum bid price on this item is greater than max of $%d"
+			else: 
+				error = "You may not bid over $%d"
+			self.write(user=buyer, item=i, comments=comments, shipdate=shipdate,
+					expdate=expdate,
+					error=error % MAX_PRICE,
+					expire=i.expired, watchable=not i.key.integer_id() in i.watch_list,
+					num_watchers=len(i.watch_list))
+			return
 		if not price >= (i.get_price() + i.bid_margin):
 			self.write(user=buyer, item=i, comments=comments, shipdate=shipdate,
 					expdate=expdate,
 					error="Bid must be at least $%0.2f over price" % i.bid_margin,
-					expire=i.expired, watchable=not i.key.integer_id() in watch_list,
+					expire=i.expired, watchable=not i.key.integer_id() in i.watch_list,
 					num_watchers=len(i.watch_list))
 
 			return
