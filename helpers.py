@@ -16,6 +16,7 @@ from functools import update_wrapper
 import logging
 import urllib
 import json
+import math
 import paypal_settings as paypal
 
 from gaesessions import get_current_session
@@ -491,7 +492,7 @@ def user_link( username ):
 
 def average( ratings ):
 	try:
-		return sum(ratings)/len(ratings)
+		return float(sum(ratings))/len(ratings)
 	except: #Division by zero
 		return 0
 
@@ -562,8 +563,8 @@ def validate_captcha(challenge, response, addr):
 	return captcha.submit(challenge, response, CAPTCHA_KEY, addr)
 def render_stars(stars):
 	""" return html for "stars" out of 5 stars"""
-	assert stars <= 5, "Too many stars"
-	assert stars >= 0, "Cannot have negative stars"
+	mondaysAssert(stars <= 5, "Too many stars", __name__, __file__)
+	mondaysAssert(stars >= 0, "Cannot have negative stars", __name__, __file__)
 
 	html = ""
 	star = '<img src="/static/images/StarWhole.png" alt="*" />'
@@ -584,7 +585,9 @@ def remove_duplicate_items(ls):
 			titles.append(item.title)
 			new_ls.append(item)
 	return new_ls
-def mondaysAssert(expression, msg, funct, filename, linenumber, handler=None):
+def mondaysAssert(expression, msg, funct, filename, handler=None):
 	if not expression:
 		raise Exception("%s:%d:%s MondaysAssertionError: %s" % (filename, linenumber, funct, msg))
 
+def delete_user(user):
+	pass

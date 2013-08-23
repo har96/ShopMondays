@@ -59,10 +59,10 @@
 			<button type="submit">Send</button>
 		</div>
 		<br>
-		<div id="markup-help">Use these special tags to add <b>bold</b>, <em>italics</em>, images, or hyperlinks:
+		<div id="markup-help">Use these special tags to add <b>bold</b>, <i>italics</i>, images, or hyperlinks:
 			<ul>
 				<li>#b#<b>bold</b>#b#</li>
-				<li>#i#<em>italics</em>#i#</li>
+				<li>#i#<i>italics</i>#i#</li>
 				<li>#l(http://www.shopmondays.com)#<a href="/" target="_blank">hyperlink</a>#l#</li>
 			</ul>
 		</div>
@@ -72,11 +72,11 @@
 <div style="color: green;">{{success}}</div>
 <div class="error">{{error}}</div>
 <br>
-<a name="messages">
-<div id="messages">
+<a name="messages"></a>
+<div class="balloon">
 	<div id="inbox">
 		Message Box:
-		<span style="position: absolute; right: 10px;">Received messages are highlighted.<br>Sent messages are not</span>
+		<span class="pull-right">Received messages are highlighted.<br>Sent messages are not</span>
 		<br><a href="/message"><button type="button">Refresh</button></a>
 		<table>
 			<th><pre>From/To   </pre></th> <th><pre>Message    </pre></th>
@@ -85,7 +85,7 @@
 			<tr><td><button onClick="delete_allmsgs()">Delete All</button></td></tr>
 			{% endif %}
 			{% for message in usermessages %}
-				<tr class="{{message.key.id()}}" {% if message.sender != user.name %}id="message" {% endif %}>
+				<tr class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %}">
 					<td {% if not message.receiver|length == 1 %}
 						{% if message.sender == user.name %}class="receivers-tab" id="{{message.key.id()}}"{% endif %}{% endif %}>
 						{% if user.name == message.sender %}<span id="to">To:</span>
@@ -108,13 +108,6 @@
 					{% if user.name != message.sender %}
 					<td><button type="button" onclick="reply('{{message.sender}}')">Reply</button></td>
 					{% endif %}
-				</tr>
-				<tr class="{{message.key.id()}}">
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
 				</tr>
 			{% endfor %}
 		</table>

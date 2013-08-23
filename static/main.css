@@ -1,316 +1,87 @@
 html {
-	background-image: url("/static/images/background.png");
+	background-color: #bababa;
+	height: 100%;
 }
-
 body {
-	margin-top: 40px;
-}
-
-div#body {
-	position: relative;
-	margin-top: 75px;
-	width: 940px;
-	left: 70px;
-}
-
-input[type=text] {
-	padding: 5px;
-	font-size: 15px;
-}
-input[type=password] {
-	padding: 5px;
-	font-size: 15px;
+	height: 100%;
 }
 a {
+	color: blue;
 	text-decoration: none;
-	font: comic-sans;
 }
-.logo {
-	color: green;
-	font-size: 80px;
-	font: comic-sans;
-	margin-left: 100px;
-}
-
-.header-link {
-	margin-right: 20px;
-	text-decoration: none;
-	color: white;
-	font-family: blair;
-	font-size: 14px;
+#body {
+	width: 1000px;
+	height: 100%;
+	background-image: url("/static/images/background.png");
+	margin-top: 90px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: 25px;
+	padding-left: 15px;
+	padding-right: 15px;
+	/* graphics */
+	box-shadow: 0px 0px 30px;
 }
 
-
-.error {
-	color: red;
-	font-size: 20px;
-}
-.warning {
-	color: red;
+/* simple positions */
+.pull-right {
+	float: right;
 }
 
-.input-title {
-	font-size: 22px;
+/* display */
+ul.nobullet {
+	list-style: none;
 }
 
-.welcome {
-	font-size: 30px;
-	color: gray;
+/* graphics */
+.balloon {
+	margin-top: 20px;
+	/* border */
+	border-radius: 15px;
+	/* graphics */
+	background-color: white;
+	box-shadow: 0px 0px 30px;
+	padding: 15px;
+	z-index: 1;
+}
+.balloon-dynamic:hover {
+	transform: scale(1.25,1.25);
+	-webkit-transform: scale(1.25, 1.25);
+	-ms-transform: scale(1.25, 1.25);
+	box-shadow: 0px 0px 40px;
+	z-index: 10;
 }
 
-.welcome-user {
-	font-family: blair;
-	font-size: 20px;
-	color: #CCC;
-}
-div.user {
-	font-size: 15px;
-	font-family: blair;
-	margin-right: 20px;
-	float: left;
-}
-.slogan {
-	font-size: 20px;
-	color: green;
+/* specific classes */
+ul.navigation {
 	position: absolute;
-	left: 90px;
-}
-
-#welcome {
-	color: #AAA;
-	font-size: 20px;
-	position: absolute;
-	top: 75px;
-	left: 75px;
-}
-
-#bid-box {
-	color: green;
-}
-
-ul.navigation
-{
+	top: 0px;
+	left: 0px;
 	list-style: none;
 	white-space: nowrap;
-	position: absolute;
-	top: 5px;
-	left: 350px;
-	margin-left: 10px;
 }
-
-ul.navigation li
-{
-	display:inline;
-	padding-left: 5px;
-}
-
-ul.users
-{
-	list-style: none;
-}
-
-ul.users li
-{
+ul.navigation > li {
 	display: inline;
+	margin-left: 40px;
+	font-size: large;
 }
-
-@font-face {
-	font-family: good_times;
-	src: url("good_times_font.ttf")
-}
-@font-face {
-	font-family: blair;
-	src: url("343.ttf");
-}
-
-img#left-bar {
-	position: fixed;
-	left: 0px;
-	bottom: 0px;
-	z-index: -2;
-	width: 65px;
-}
-img#right-bar {
-	position: fixed;
-	right: 0px;
-	bottom: 0px;
-	z-index: -2;
-	width: 65px;
+ul.navigation > li > a {
+	color: white;
 }
 img#banner {
 	position: absolute;
-	left: 0px;
 	top: 0px;
-	z-index: -1;
+	left: 0px;
 	width: 100%;
-	height: 65px;
-	min-width: 1050px;
+	height: 90px;
 }
-img#logo {
-	position: absolute;
-	left 40px;
-	top: 5px;
+.welcome {
+	color: gray;
+	font-size: 1.5em;
 }
-#watchers {
-	width: 100px;
+.received-message {
+	outline: 2px solid black;
 }
-#inbox {
-	border: 3px solid black;
-	overflow: auto;
-
-	/* want to do gradient? goto:  http://coolhomepages.com/How-to-make-easy-gradient-shadow-CSS-DIV-boxes/blog-48.html */
-}
-
-#messages {
-	position: relative;
-}
-tr#message {
-	background-color: #B0D0EF;
-}
-.receivers {
-	display: none;
-}
-#markup-help {
-	background: rgba(150, 150, 160, 0.15);
-	width: 380px;
-	display: none;
-	float: left;
-}
-#content-markup-wrapper {
-	height: 300px;
-}
-#content-wrapper {
-	float: left;
-}
-.centeredImage {
-	display: block;
-	text-align: center;
-	margin: 0 auto;
-}
-
-a.item-rowtitle {
-	text-decoration: none;
-	font-size: 1.33em;
-	color: blue;
-	padding-right: 10px;
-}
-td.buyer-row {
-	padding-right: 15px;
-}
-#item-header {
-	position: relative;
-	left: 575px;
-}
-#item-description {
-	position: relative;
-	left: 575px;
-	width: 450px;
-}
-#item-image {
-	position: absolute;
-	top: 50px;
-	left: 0px;
-	padding-bottom: 50px;
-}
-#item-image img {
-	width: 555px;
-}
-.item-seller {
-	position: absolute;
-	left: 576px;
-	top: 50px;
-	text-decoration: none;
-	color: green;
-}
-.item-buyer {
-	position: relative;
-	top: 1.25em;
-	left: 150px;
-}
-#comments {
-	position: relative;
-	left: 575px;
-}
-#login {
-	position: absolute;
-	font-size: 0.75em;
-	right: 75px;
-	top: 0px;
-	z-index: 500;
-}
-#useritems {
-	position: absolute;
-	top: 0px;
-	right: 0px;
-	list-style: none;
-}
-td.help {
-	font-size: 0.75em;
-	color: #222;
-}
-#notifications {
-	width: 500px;
-}
-.image-cell {
-	padding-left: 20px;
-}
-#flag {
-	position: relative;
-	left: 925px;
-	bottom: 23px;
-}
-.num_flags {
-	position: relative;
-	bottom: 15px;
-}
-#flag-info {
-	position: relative;
-	left: 925px;
-	bottom: 20px;
-	color: red;
-	font-size: small;
-}
-td.comment-content {
-	padding-right: 15px;
-	width: 280px;
-	display: inline-block;
-	word-wrap: break-word;      /* IE */
-	white-space: pre-wrap;      /* CSS3 */   
-	white-space: -moz-pre-wrap; /* Firefox */    
-	white-space: -pre-wrap;     /* Opera <7 */   
-        white-space: -o-pre-wrap;   /* Opera 7 */    
-}
-div#shop-wrapper {
-	position: relative;
-	left: -115px;
-	background-image: url("/static/images/shop-back.png");
-	background-size: 1100px 100%;
-	background-repeat: no-repeat;
-	padding-left: 155px;
-	width: 1100px;
-}
-img#shop-topper {
-	position: relative;
-	left: -155px;
-	top: -61px;
-	width: 1100px;
-}
-img#shop-bottom {
-	position: relative;
-	left: -155px;
-	bottom: -65px;
-	width: 1100px;
-}
-div.watch-item {
-	position: relative;
-	background-image: url("/static/images/item-cell.png");
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-
-	padding: 55px;
-}
-td.item-title-cell {
-	width: 200px;
+.sent-message {
+	outline: 2px dashed black;
 }
