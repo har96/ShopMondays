@@ -16,6 +16,7 @@ from functools import update_wrapper
 import logging
 import urllib
 import json
+import math
 import paypal_settings as paypal
 
 from gaesessions import get_current_session
@@ -490,10 +491,16 @@ def user_link( username ):
 	return '<a href="/user/%s">%s</a>' % (username, username)
 
 def average( ratings ):
-	try:
-		return sum(ratings)/len(ratings)
-	except: #Division by zero
-		return 0
+        try:
+                ave =  float(sum(ratings))/len(ratings)
+        except: #Division by zero
+                return 0
+
+        # round the float to in int
+        fraction = ave - int(ave)
+        if fraction >= .5:
+                ave = math.ceil(ave)
+        return int(ave)
 
 def get_rating_data(user, SellerRating, BuyerRating):
 	""" Returns a dictionary of data regarding ratings of user "user" """
