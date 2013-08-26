@@ -59,7 +59,7 @@
 	<h1 id="item-header">
 		<span itemprop="name">{{item.title}}</span>
 		-
-		<span itemprop="offer" itemscope itemtype="http://schema.org/Offer">
+		<span itemprop="Offers" itemscope itemtype="http://schema.org/Offer">
 			<span itemprop="price">${{item.get_price()|dollars}}</span>
 		</span>
 		 - {% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
