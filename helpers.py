@@ -492,7 +492,7 @@ def user_link( username ):
 
 def average( ratings ):
 	try:
-		return float(sum(ratings))/len(ratings)
+		return sum(ratings)/len(ratings)
 	except: #Division by zero
 		return 0
 
@@ -557,6 +557,8 @@ def get_rating_data(user, SellerRating, BuyerRating):
 
 	ratings["user"] = average(payment + B_com + shipping + honesty + com)
 	ratings["amount"] = len(B_overall) + len(overall)
+	ratings["buy_amount"] = len(B_overall)
+	ratings["sell_amount"] = len(overall)
 	
 	return ratings
 def validate_captcha(challenge, response, addr):

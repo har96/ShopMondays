@@ -2,8 +2,10 @@
 
 {% block content %}
 
+<br>
+<br>
 {% for u in users %}
-<div class="user">
+<div class="user-box">
 	<a href="/user/{{u.name}}">{{u.name.upper()}}</a>
 </div>
 {% endfor %}

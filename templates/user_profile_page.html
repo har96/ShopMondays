@@ -48,17 +48,19 @@
 <br>
 <b>{{pageuser.first_name}} {{pageuser.last_name}}</b>
 <br>
-
+<a href="/message?receiver={{pageuser.name}}">Send this user a message</a>
 <br>
-Items listed:
-<ul>
-{% for item in listed %}
-<li><a href="/item/{{item.key.id()}}" style="text-decoration: none; color: green;">{{item.title}}</a></li>
-	{% if loop.index is divisibleby(5) %}<br>{% endif %}
-{% endfor %}
-</ul>
-<div class="rightratings" >
-	Items purchased:
+<div class="pull-left balloon profile-box">
+	<h2>Items listed:</h2>
+	<ul>
+	{% for item in listed %}
+	<li><a href="/item/{{item.key.id()}}" style="text-decoration: none; color: green;">{{item.title}}</a></li>
+		{% if loop.index is divisibleby(5) %}<br>{% endif %}
+	{% endfor %}
+	</ul>
+</div>
+<div class="pull-left balloon profile-box">
+	<h2>Items purchased:</h2>
 	<ul>
 	{% for item in bought %}
 		{% if item %}
@@ -67,64 +69,62 @@ Items listed:
 	{% endfor %}
 	</ul>
 </div>
-
-Seller Reputation: (ratings of 1-5 stars)
-{% if ratings["positive"] + ratings["negative"] + ratings["neutral"] == 0 %}
-<br><b>This user has not been rated as a seller</b><br>
-{% else %}
-<ul>
-	<li id="sellerchart"></li>
-	<li>Accurate Description: {{render_stars(ratings["honesty"])}}</li>
-	<li>Shipping Speed: {{render_stars(ratings["shipping"])}}</li>
-	<li>Communication: {{render_stars(ratings["communication"])}}</li>
-</ul>
-{% endif %}
-<br>
-<div class="rightratings">
-	Buyer Reputation: (ratings of 1-5 stars)
+<h3 style="clear: both;">Ratings:</h3>
+<div class="pull-left balloon profile-box">
+	<h2>Seller Reputation:</h2>
+	{% if ratings["positive"] + ratings["negative"] + ratings["neutral"] == 0 %}
+	<br><span class="error">This user has not been rated as a seller</span><br>
+	{% else %}
+	<ul>
+		<li id="sellerchart"></li>
+		<li>Accurate Description: {{render_stars(ratings["honesty"])}}</li>
+		<li>Shipping Speed: {{render_stars(ratings["shipping"])}}</li>
+		<li>Communication: {{render_stars(ratings["communication"])}}</li>
+	</ul>
+	<h5>(out of {{ratings["sell_amount"]}} ratings)</h5>
+	{% endif %}
+</div>
+<div class="balloon pull-left profile-box">
+	<h2>Buyer Reputation:</h2>
 	{% if ratings["Bpositive"] + ratings["Bnegative"] + ratings["Bneutral"] == 0 %}
-	<br><b>This user has not been rated as a buyer</b>
+	<br><span class="error">This user has not been rated as a buyer</span>
 	{% else %}
 	<ul>
 		<li id="buyerchart"></li>
 		<li>Payment Speed: {{render_stars(ratings["Bpayment"])}}</li>
 		<li>Communication: {{render_stars(ratings["Bcommunication"])}}</li>
 	</ul>
+	<h5>(out of {{ratings["buy_amount"]}} ratings)</h5>
 	{% endif %}
 </div>
-
 {% if user.name == pageuser.name %}
+<div style="clear: left;">
+	<h3>Profile Information</h3>
+	<h4>(not visible to other users)</h4>
+	<b>Email:</b> {{user.email}}<br>
+	<br>
+	<b>Address:</b>
+	<br>
+	{{user.address()}}
+	<br>
+	<a href="/edit_user/{{user.key.id()}}">Edit Profile</a> or <a href="/resetpw/{{user.key.id()}}">Reset your Password</a>
 
-<b>Email:</b> {{user.email}}
-<br>
-<br>
-<b>Address:</b>
-<br>
-{{user.address()}}
-<br>
-<a href="/edit_user/{{user.key.id()}}">Edit Profile</a> or <a href="/resetpw/{{user.key.id()}}">Reset your Password</a>
-
-<h3 align="center">History</h3>
-<br>
-<br>
-<b>Money Spent:</b> {{history["money spent"]}}
-<br>
-<b>Money Earned: </b>{{history["money earned"]}}
-<br>
-<b>Balance:</b> {{ balance(history) }}
-<br>
-<b>Number of items sold:</b> {{history["number of items sold"]}}
-<br>
-<b>Number of items listed that didn't get sold:</b> {{history["number of items not sold"]}}
-<br>
-<b>Number of messages sent:</b> {{history["number of messages sent"]}}
-<br>
-<b>Number of messages received:</b> {{history["number of messages received"]}}
-
-
+	<h3>History:</h3>
+	<b>Money Spent:</b> {{history["money spent"]}}
+	<br>
+	<b>Money Earned: </b>{{history["money earned"]}}
+	<br>
+	<b>Balance:</b> {{ balance(history) }}
+	<br>
+	<b>Number of items sold:</b> {{history["number of items sold"]}}
+	<br>
+	<b>Number of items listed that didn't get sold:</b> {{history["number of items not sold"]}}
+	<br>
+	<b>Number of messages sent:</b> {{history["number of messages sent"]}}
+	<br>
+	<b>Number of messages received:</b> {{history["number of messages received"]}}
+</div>
 {% endif %}
-<br>
-<a href="/message?receiver={{pageuser.name}}">Send this user a message</a>
 
 {% endblock %}
 

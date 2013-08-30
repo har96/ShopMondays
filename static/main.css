@@ -22,7 +22,8 @@ a {
 	padding-bottom: 25px;
 	/* graphics */
 	box-shadow: 0px 0px 30px;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-x: visible;
 }
 
 /* simple positions */
@@ -32,8 +33,13 @@ a {
 .pull-left {
 	float: left;
 }
-
 /* display */
+.user-box {
+	float: left;
+	margin-right: 30px;
+	font-family: monospace;
+	font-size: large;
+}
 ul.nobullet {
 	list-style: none;
 }
@@ -78,9 +84,11 @@ ul.navigation > li {
 	display: inline;
 	margin-left: 40px;
 	font-size: large;
+	font-family: monospace;
 }
 ul.navigation > li > a {
 	color: white;
+	margin-bottom: 30px;
 }
 img#banner {
 	position: absolute;
@@ -103,6 +111,12 @@ img#banner {
 }
 .receivers {
 	display: none;
+}
+.profile-box {
+	margin-right: 50px;
+	margin-bottom: 50px;
+	width: 300px;
+	min-height: 4em;
 }
 /* IDs */
 #markup-help {
