@@ -661,7 +661,8 @@ class ItemView( Handler ):
 		buyer.notify("You just bid $%0.2f on %s" % (price, get_item_link(i)))
 		User.get_by_name(i.seller).notify("%s just bid $%0.2f on %s" % (buyer.name, price, get_item_link(i)))
 		for u in i.watch_list:
-			User.get_by_name(u).notify("%s just bid $%0.2f on %s. Bid now!" % (buyer.name, price, get_item_link(i)))
+			if not u == buyer.name:
+				User.get_by_name(u).notify("%s just bid $%0.2f on %s. Bid now!" % (buyer.name, price, get_item_link(i)))
 		buyer.watch(i)
 		self.redirect("/item/%s" % i.key.id())
 
