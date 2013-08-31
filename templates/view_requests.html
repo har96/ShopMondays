@@ -29,7 +29,7 @@
 			{% endfor %}</select>
 		<span id="request-order">Order by: 
 			<select name="order" onchange="this.form.submit()">
-				<option>Recent</option>
+				<option>Date Requested</option>
 				<option {% if order == "Popularity" %}selected="selected"{% endif %}>Popularity</option>
 			</select>
 		</span>

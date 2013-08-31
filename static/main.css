@@ -118,11 +118,14 @@ img#banner {
 	width: 300px;
 	min-height: 4em;
 }
+.message-content {
+	white-space: pre-wrap;
+}
 /* IDs */
 #markup-help {
 	display: none;
 	width: 380px;
 }
-.message-content {
-	white-space: pre-wrap;
+#flag {
+	cursor: pointer;
 }
