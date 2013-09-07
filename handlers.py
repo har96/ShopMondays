@@ -217,11 +217,22 @@ class Register( Handler ):
 		ln_error = "Last name required" if not last_name else "Too many characters in last name" if len(last_name) > 200 else ""
 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
 		z_error = "Invalid zip code" if not zip.isdigit() and len(zip) != 5 else ""
-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)"
 		if username.lower() in RESERVED_USERNAMES: u_error = "Sorry, this username is reserved."
 		if password.lower() in RESERVED_PASSWORDS: p_error = "Sorry, the password you chose is not secure."
 		if password == username: p_error = "Your password may not be the same as your username"
+
+		# verify address
+		corrected_address = verifyAddress(address1, address2, city, state, zip)
+		if not a_error and not corrected_address:
+			a_error = "Address, city, state combination does not exist"
+		else:
+			address1 = corrected_address["street"]
+			address2 = corrected_address["street2"]
+			city = corrected_address["city"]
+			state = corrected_address["state"]
+			zip = corrected_address["zip"]
 
 		username = cgi.escape(username)
 		email = cgi.escape(email)
@@ -1070,9 +1081,20 @@ class EditUserProfile(Handler):
 		s_error = "State does not exist in USA" if not state in STATE_LIST else ""
 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
 		z_error = "Invalid zip code" if not zip.isdigit() or len(zip) != 5 else ""
-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)" 
-		
+
+		# verify address
+		corrected_address = verifyAddress(address1, address2, city, state, zip)
+		if not a_error and not corrected_address:
+			a_error = "Address, city, state combination does not exist"
+		else:
+			address1 = corrected_address["street"]
+			address2 = corrected_address["street2"]
+			city = corrected_address["city"]
+			state = corrected_address["state"]
+			zip = corrected_address["zip"]
+	
 		if fn_error or ln_error or s_error or c_error or z_error or a_error:
 			first_name = cgi.escape(first_name)
 			last_name = cgi.escape(last_name)
