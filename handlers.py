@@ -552,7 +552,7 @@ class AddItem( Handler ):
 			v_error_msg = "Too many chars in shipping days field"
 
 		if ( list_option == "auction" and start_price > MAX_PRICE ) or (list_option == "instant" and instantprice > MAX_PRICE) or (list_option == "both" and \
-				(instantprice > MAX_PRICE or startprice > MAX_PRICE)):
+				(instantprice > MAX_PRICE or start_price > MAX_PRICE)):
 			v_error_msg = "Price must not be more than $%d" % MAX_PRICE
 	
 		if self.request.get("img"): img = create_image(self.request.get("img"), 400, 400)

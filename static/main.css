@@ -83,12 +83,16 @@ ul.navigation {
 ul.navigation > li {
 	display: inline;
 	margin-left: 40px;
-	font-size: large;
-	font-family: monospace;
+	font-size: 0.9em;
+	font-family: blair;
 }
 ul.navigation > li > a {
 	color: white;
 	margin-bottom: 30px;
+}
+.logo-item ~ li {
+	position: relative;
+	bottom: 20px;
 }
 img#banner {
 	position: absolute;
@@ -99,7 +103,8 @@ img#banner {
 }
 .welcome {
 	color: gray;
-	font-size: 1.5em;
+	font-size: 1.2em;
+	font-family: blair;
 }
 .received-message {
 	background-color: #efefef;
@@ -128,4 +133,9 @@ img#banner {
 }
 #flag {
 	cursor: pointer;
+}
+/* fonts */
+@font-face {
+	font-family: blair;
+	src: url("343.ttf");
 }
