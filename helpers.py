@@ -491,10 +491,16 @@ def user_link( username ):
 	return '<a href="/user/%s">%s</a>' % (username, username)
 
 def average( ratings ):
-	try:
-		return sum(ratings)/len(ratings)
-	except: #Division by zero
-		return 0
+        try:
+                ave =  float(sum(ratings))/len(ratings)
+        except: #Division by zero
+                return 0
+
+        # round the float to in int
+        fraction = ave - int(ave)
+        if fraction >= .5:
+                ave = math.ceil(ave)
+        return int(ave)
 
 def get_rating_data(user, SellerRating, BuyerRating):
 	""" Returns a dictionary of data regarding ratings of user "user" """
@@ -593,3 +599,22 @@ def mondaysAssert(expression, msg, funct, filename, handler=None):
 
 def delete_user(user):
 	pass
+
+def verifyAddress(street, street2, city, state, zip):
+	""" Use SmartyStreet's address verification
+	to verify an address """
+	url = "https://api.smartystreets.com/street-address?auth-id=ef54b0f3-6274-4cc9-a635-be50087abdd6&auth-token=YIfm9YCh4AwKp0iICkOU8fjEcsGyiVte60NM%2B%2B7RFH0xehwiO5SVpsJjk4tHUuei2B3nIBis2uGc6Zx0uwxuDw%3D%3D&street={street}&street2={street2}&city={city}&state={state}&zipcode={zip}&candidates=1".format(**{"street": urllib.quote_plus(street), "street2":urllib.quote_plus(street2), "city":urllib.quote_plus(city), "state":state, "zip":zip})
+	response = urlfetch.fetch(url, method=urlfetch.GET)
+	response_json = json.loads(response.content)
+	if not response_json:
+		return False
+	else:
+		response_json = response_json[0]
+		address = {
+				"street":response_json["delivery_line_1"],
+				"street2":response_json.get("delivery_line_2", ""),
+				"city":response_json["components"]["city_name"],
+				"state":response_json["components"]["state_abbreviation"],
+				"zip":response_json["components"]["zipcode"]
+			}
+		return address
