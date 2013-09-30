@@ -1,0 +1,198 @@
+{% extends "base_homepage.html" %}
+
+{% block head %}
+<script type="text/javascript">
+	function show_bid()
+	{
+		if ("{{item.seller}}" == "{{user.name}}") {
+			document.getElementById("bid-box").innerHTML = "You cannot bid on items you sell";
+			return;
+		}
+		var button = "<button type=\"button\" onClick=\"buy()\">Bid!</button>";
+		var input = "<label>Bid price </label><input name=\"price\"/>";
+		document.getElementById("bid-box").innerHTML = input + "<br>" + button + " Minimum Price: $" + "{{(item.current_price + item.bid_margin)|dollars}}";
+	}
+	function buy()
+	{
+		var cont = true;
+		if ("{{item.paypal_email}}") {
+			cont = confirm("This item requires PayPal. Continue?");
+		}
+		if (cont) {
+			document.getElementById("bid_form").submit();
+		}
+	}
+	
+	
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+{% if item.watch_list|length > 0 %}
+		$("#watchers").mouseenter(function() {
+			$("#watch_list").slideDown("fast");
+		});
+		$("#watchers").mouseleave(function() {
+			$("#watch_list").slideUp("fast");
+		});
+{% endif %}
+		// edit comments
+		$("#edit_show").click(function() {
+			$("#edit").slideDown("slow");
+			$("#edit_show").remove();
+		});
+		$("#flag").click(function() {
+			var fl = confirm("Are you sure you want to flag this item as spam?");
+			if (fl) {
+				post_to_url("/flag/{{item.key.id()}}", {}, "post");
+			}
+		});
+	});	
+</script>
+<title>{{item.title}} - on Mondays!</title>
+<meta name="description" content="{{item.description}}">
+{% endblock %}
+		
+
+{% block content %}
+
+<<<<<<< HEAD
+ <div id="item-description" class="pull-right">
+	<h1 id="item-header">{{item.title}} - ${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
+	<span class="item-seller">{{user_link(item.seller)}}</span>
+	{% if not user.name in item.flaggers and not user.name == item.seller %}
+	<img src="/static/images/Flag.png" id="flag" class="pull-right" height="35px"/><h6 class="pull-right">mark as spam</h6>
+	{% endif %}
+
+	<pre id="description">{{item.description}}</pre>
+	<br>
+	<span class="item-buyer">
+		{% if item.current_buyer %}
+			{% if item.expired %}
+				Buyer: {{user_link(item.current_buyer)}}
+			{% else %}
+				{% if item.list_option != "instant" %}
+				Last Bid: {{user_link(item.current_buyer)}}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+	</span>
+	<div id="watchers"><b>{{num_watchers}} Watcher(s)</b>
+		<ul id="watch_list" style="display: none;">
+			{% for name in item.watch_list %}
+			<li>{{user_link(name)}}</li>
+			{% endfor %}
+		</ul>
+	</div><br>
+	Condition: <b>{{item.condition}}</b><br>
+	Bidding ends: {{expdate}}<br>
+	<br>
+	{{other_info}}
+	<div class="error">{{error}}</div>
+</div>
+<div id="item-image">
+	<img src="/img/{{item.key.id()}}" class="centeredImage" alt="{{item.title}}"></img>
+</div>
+<br>
+<div id="comments">
+	<h3>Comments</h3>
+	{% if not comments|length %}
+	No Comments.
+	{% endif %}
+	<table style="table-layout: fixed;">
+		{% for comment in comments %}
+		<tr>
+			<td style="padding-right: 15px;">{{user_link(comment.sender)}}</td>
+			<td class="comment-content">{{comment.content}}</td>
+			<td>{{comment.sent_str}}</td>
+		</tr>
+		{% if user.name == "Mondays" or user.name == comment.sender %}
+		<tr>	
+			<td><form method="post" action="/delcomment">
+					<input type="hidden" name="item_id" value="{{item.key.id()}}" />
+					<input type="hidden" name="comment_id" value="{{comment.key.id()}}" />
+					<button type="submit">Delete</button>
+			</form></td>
+			<td><form method="post" action="/{{item.key.id()}}/editcomment/{{comment.key.id()}}">
+					<button type="button" id="edit_show">Edit</button>
+					<div id="edit" style="display: none;">
+						<textarea rows="4" cols="40" name="content">{{comment.content}}</textarea>
+						<button type="submit">Apply</button>
+					</div>
+			</form></td>
+		</tr>
+=======
+<div itemscope itemtype="http://schema.org/Product">
+	<h1 id="item-header">
+		<span itemprop="name">{{item.title}}</span>
+		-
+		<span itemprop="Offers" itemscope itemtype="http://schema.org/Offer">
+			<span itemprop="price">${{item.get_price()|dollars}}</span>
+		</span>
+		 - {% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
+	<span class="item-seller">{{user_link(item.seller)}}</span>
+	{% if not user.name in item.flaggers and not user.name == item.seller %}
+	<img src="/static/images/Flag.png" id="flag" height="35px"/><span id="flag-info" class="help">mark as spam</span>
+	{% endif %}
+
+	<div id="item-description">
+		<pre itemprop="description" id="description">{{item.description}}</pre>
+		<br>
+		<div id="watchers"><b>{{num_watchers}} Watcher(s)</b>
+			<ul id="watch_list" style="display: none;">
+				{% for name in item.watch_list %}
+				<li>{{user_link(name)}}</li>
+				{% endfor %}
+			</ul>
+		</div><br>
+		Condition: <b><span itemprop="itemCondition">{{item.condition}}</span></b><br>
+		Bidding ends: {{expdate}}<br>
+		<br>
+		{{other_info}}
+		<div class="error">{{error}}</div>
+	</div>
+	<div id="item-image">
+		<img src="/img/{{item.key.id()}}" class="centeredImage" alt="{{item.title}}"></img>
+	</div>
+	<br>
+	<div id="comments">
+		<h3>Comments</h3>
+		{% if not comments|length %}
+		No Comments.
+		{% endif %}
+		<table style="table-layout: fixed;">
+			{% for comment in comments %}
+			<tr>
+				<td style="padding-right: 15px;">{{user_link(comment.sender)}}</td>
+				<td style="padding-right: 15px; word-wrap: break-word; width: 280px;">{{comment.content}}</td>
+				<td>{{comment.sent_str}}</td>
+			</tr>
+			{% if user.name == "Mondays" or user.name == comment.sender %}
+			<tr>	
+				<td><form method="post" action="/delcomment">
+						<input type="hidden" name="item_id" value="{{item.key.id()}}" />
+						<input type="hidden" name="comment_id" value="{{comment.key.id()}}" />
+						<button type="submit">Delete</button>
+				</form></td>
+				<td><form method="post" action="/{{item.key.id()}}/editcomment/{{comment.key.id()}}">
+						<button type="button" id="edit_show">Edit</button>
+						<div id="edit" style="display: none;">
+							<textarea rows="4" cols="40" name="content">{{comment.content}}</textarea>
+							<button type="submit">Apply</button>
+						</div>
+				</form></td>
+			</tr>
+			{% endif %}
+			{% endfor %}
+		</table>
+		{% if not item.expired %}
+		<h3>Add a Comment</h3>
+		<form action="/commentitem/{{item.key.id()}}" method="post">
+			<textarea rows=5 cols=50 name="content"></textarea><br>
+			<button type="submit">Submit</button>
+		</form>
+>>>>>>> release-3.4.1
+		{% endif %}
+	</div>
+</div>
+
+{% endblock %}

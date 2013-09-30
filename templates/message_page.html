@@ -72,7 +72,7 @@
 		Message Box:
 		<span class="pull-right">Received messages are highlighted.<br>Sent messages are not</span>
 		<br><a href="/message"><button type="button">Refresh</button></a>
-		<table>
+		<table class="message-table">
 			<th><pre>From/To   </pre></th> <th><pre>Message    </pre></th>
 			<th><pre>Date Sent    </pre></th>
 			{% if usermessages|length > 1 %}
@@ -96,7 +96,7 @@
 						{% else %}{{user_link(message.sender)}}:
 						{% endif %}
 					</td>
-						<td><pre class="message-content">{{message.content}}</pre></td>
+					<td class="content-cell"><pre class="message-content">{{message.content}}</pre></td>
 					<td>{{message.sent_str}}</td>
 					<td><button class="deleteButton" id="{{message.key.id()}}">Delete</button></td>
 					{% if user.name != message.sender %}
