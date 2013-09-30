@@ -596,10 +596,11 @@ def remove_duplicate_items(ls):
 def mondaysAssert(expression, msg, funct, filename, handler=None):
 	if not expression:
 		raise Exception("%s:%d:%s MondaysAssertionError: %s" % (filename, linenumber, funct, msg))
+<<<<<<< HEAD
 
 def delete_user(user):
 	pass
-
+=======
 def verifyAddress(street, street2, city, state, zip):
 	""" Use SmartyStreet's address verification
 	to verify an address """
@@ -618,3 +619,4 @@ def verifyAddress(street, street2, city, state, zip):
 				"zip":response_json["components"]["zipcode"]
 			}
 		return address
+>>>>>>> release-3.4.1

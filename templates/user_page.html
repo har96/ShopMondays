@@ -1,6 +1,39 @@
 {% extends "base_homepage.html" %}
 
 {% block content %}
+<ul style="margin-right: 30px;" class="pull-right nobullet">
+{% if useritems|length > 0 %}
+	<li>Your Items:</li>
+	{% for item in useritems %}
+	<li class="balloon balloon-dynamic">
+		<a href="/item/{{item.key.id()}}">{{item.title}}</a><br>
+		${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} bids{% else %}Instant Buy{% endif %}
+		{% if item.current_buyer %}<br>Buyer: {{user_link(item.current_buyer)}}{% endif %}
+		<div class="cell-image"><a href="/item/{{item.key.id()}}"><img src="/img/{{item.key.id()}}" width="100px" /></a></div>
+	</li>
+	{% endfor %}
+{% else %}
+	<li><b>You do not have any items for sell.</b></li>
+{% endif %}
+	<li><hr></li>
+{% if watch_list|length > 0 %}
+	<li>Items you are watching:</li>
+	{% for item in watch_list %}
+	<li>
+		<div class="balloon balloon-dynamic"><a href="/item/{{item.key.id()}}">{{item.title}}</a><br>
+			${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} bids{% else %}Instant Buy{% endif %}
+			{% if item.expired %} - <span style="color: red;">EXPIRED</span>{% endif %}
+			{% if item.list_option == "both" %}<br>${{item.instant_price|dollars}} Instant Buy{% endif %}
+			<br>Seller: {{user_link(item.seller)}}
+			<div class="cell-image"><a href="/item/{{item.key.id()}}"><img src="/img/{{item.key.id()}}" width="100px" /></a></div>
+		</div>
+	</li>
+	{% endfor %}
+{% else %}
+	<li><b>You are not watching any items.</b></li>
+{% endif %}
+</ul>
+
 <ul id="notifications">
 	{% for n in notifs %}
 	<li {% if not n.read %}style="color: red"{% endif %}>
@@ -10,37 +43,5 @@
 	<li><a href="/notifications">See All Notifications</a></li>
 </ul>
 <span>View<a href="/user/{{user.name}}"> Your Profile</a></span>
-<br>
 
-<table id="useritems">
-{% if useritems|length > 0 %}
-	<tr><td>Your Items:</td></tr>
-	{% for item in useritems %}
-	<tr>
-		<td><a href="/item/{{item.key.id()}}">{{item.title}}</a><br>
-			${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} bids{% else %}Instant Buy{% endif %}
-			{% if item.current_buyer %}<br>Buyer: {{user_link(item.current_buyer)}}{% endif %}</td>
-		<td><a href="/item/{{item.key.id()}}"><img src="/img/{{item.key.id()}}" width="100px" /></a></td>
-	</tr>
-	{% endfor %}
-{% else %}
-	<tr><td><b>You do not have any items for sell.</b></td></tr>
-{% endif %}
-	<tr><td><hr></td></tr>
-{% if watch_list|length > 0 %}
-	<tr><td>Items you are watching:</td></tr>
-	{% for item in watch_list %}
-	<tr>
-		<td><a href="/item/{{item.key.id()}}">{{item.title}}</a><br>
-			${{item.get_price()|dollars}} - {% if item.list_option != "instant" %}{{item.num_bids}} bids{% else %}Instant Buy{% endif %}
-			{% if item.expired %} - <span style="color: red;">EXPIRED</span>{% endif %}
-			{% if item.list_option == "both" %}<br>${{item.instant_price|dollars}} Instant Buy{% endif %}
-			<br>Seller: {{user_link(item.seller)}}</td>
-		<td><a href="/item/{{item.key.id()}}"><img src="/img/{{item.key.id()}}" width="100px" /></a></td>
-	</tr>
-	{% endfor %}
-{% else %}
-	<tr><td><b>You are not watching any items.</b></td></tr>
-{% endif %}
-</table>
 {% endblock %}

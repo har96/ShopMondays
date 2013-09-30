@@ -40,50 +40,48 @@
 {% endblock %}
 
 {% block content %}
-
+<br>
+<br>
 <form action="/message" method="post">
-	Sender: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;{% if user.name == "Mondays" %}Send to all users: <input type="checkbox" name="all"/> {% endif %}
-<br>
-<br>
-<br>
-<br>
+	From: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;{% if user.name == "Mondays" %}Send to all users: <input type="checkbox" name="all"/> {% endif %}
 	<label>To
 		<input id="receiver-field" type="text" name="receiver" value="{{receiver}}"/>
 	</label><span style="margin-left: 20px; font-size: 15px;">To send to multiple people separate names with spaces</span>
 	<br>
-	<div id="content-markup-wrapper">
-		<label>Content<br>
-			<textarea id="content-input" name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
-		<div id="markup-help">Use these special tags to add <b>bold</b>, <em>italics</em>, images, or hyperlinks:
+	<div class="message-field-wrapper">
+		<div class="pull-left">
+			<label>Content<br>
+				<textarea id="content-input" name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
+			<br>
+			<button type="submit">Send</button>
+		</div>
+		<div class="balloon pull-left" id="markup-help">Use these special tags to add <b>bold</b>, <i>italics</i>, images, or hyperlinks:
 			<ul>
 				<li>#b#<b>bold</b>#b#</li>
-				<li>#i#<em>italics</em>#i#</li>
+				<li>#i#<i>italics</i>#i#</li>
 				<li>#l(http://www.shopmondays.com)#<a href="/" target="_blank">hyperlink</a>#l#</li>
 			</ul>
 		</div>
 	</div>
-	<button type="submit">Send</button>
 </form>	
-<br>
-<div style="color: green;">{{success}}</div>
+<div class="success">{{success}}</div>
 <div class="error">{{error}}</div>
-<br>
-<a name="messages">
-<div id="messages">
+<a name="messages"></a>
+<div class="balloon">
 	<div id="inbox">
 		Message Box:
-		<span style="position: absolute; right: 10px;">Received messages are highlighted.<br>Sent messages are not</span>
+		<span class="pull-right">Received messages are highlighted.<br>Sent messages are not</span>
 		<br><a href="/message"><button type="button">Refresh</button></a>
-		<table>
+		<table class="message-table">
 			<th><pre>From/To   </pre></th> <th><pre>Message    </pre></th>
 			<th><pre>Date Sent    </pre></th>
 			{% if usermessages|length > 1 %}
 			<tr><td><button onClick="delete_allmsgs()">Delete All</button></td></tr>
 			{% endif %}
 			{% for message in usermessages %}
-				<tr class="{{message.key.id()}}" {% if message.sender != user.name %}id="message" {% endif %}>
-					<td {% if not message.receiver|length == 1 %}
-						{% if message.sender == user.name %}class="receivers-tab" id="{{message.key.id()}}"{% endif %}{% endif %}>
+				<tr class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %}">
+					<td {% if not message.receiver|length == 1 and message.sender == user.name %}
+						class="receivers-tab" id="{{message.key.id()}}"{% endif %}>
 						{% if user.name == message.sender %}<span id="to">To:</span>
 							{% if message.receiver|length == 1 %}
 								{{user_link(message.receiver[0])}}
@@ -98,19 +96,12 @@
 						{% else %}{{user_link(message.sender)}}:
 						{% endif %}
 					</td>
-						<td><pre style="width: 740px; word-wrap: break-word;">{{message.content}}</pre></td>
+					<td class="content-cell"><pre class="message-content">{{message.content}}</pre></td>
 					<td>{{message.sent_str}}</td>
 					<td><button class="deleteButton" id="{{message.key.id()}}">Delete</button></td>
 					{% if user.name != message.sender %}
 					<td><button type="button" onclick="reply('{{message.sender}}')">Reply</button></td>
 					{% endif %}
-				</tr>
-				<tr class="{{message.key.id()}}">
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
-					<td><hr></td>
 				</tr>
 			{% endfor %}
 		</table>

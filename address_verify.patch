@@ -1,0 +1,91 @@
+diff --git a/handlers.py b/handlers.py
+index d33dce4..67a0cab 100644
+--- a/handlers.py
++++ b/handlers.py
+@@ -217,12 +217,23 @@ class Register( Handler ):
+ 		ln_error = "Last name required" if not last_name else "Too many characters in last name" if len(last_name) > 200 else ""
+ 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
+ 		z_error = "Invalid zip code" if not zip.isdigit() and len(zip) != 5 else ""
+-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
++		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+ 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)"
+ 		if username.lower() in RESERVED_USERNAMES: u_error = "Sorry, this username is reserved."
+ 		if password.lower() in RESERVED_PASSWORDS: p_error = "Sorry, the password you chose is not secure."
+ 		if password == username: p_error = "Your password may not be the same as your username"
+ 
++		# verify address
++		corrected_address = verifyAddress(address1, address2, city, state, zip)
++		if not a_error and not corrected_address:
++			a_error = "Address, city, state combination does not exist"
++		else:
++			address1 = corrected_address["street"]
++			address2 = corrected_address["street2"]
++			city = corrected_address["city"]
++			state = corrected_address["state"]
++			zip = corrected_address["zip"]
++
+ 		username = cgi.escape(username)
+ 		email = cgi.escape(email)
+ 		first_name = cgi.escape(first_name)
+@@ -1070,9 +1081,20 @@ class EditUserProfile(Handler):
+ 		s_error = "State does not exist in USA" if not state in STATE_LIST else ""
+ 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
+ 		z_error = "Invalid zip code" if not zip.isdigit() or len(zip) != 5 else ""
+-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
++		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+ 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)" 
+-		
++
++		# verify address
++		corrected_address = verifyAddress(address1, address2, city, state, zip)
++		if not a_error and not corrected_address:
++			a_error = "Address, city, state combination does not exist"
++		else:
++			address1 = corrected_address["street"]
++			address2 = corrected_address["street2"]
++			city = corrected_address["city"]
++			state = corrected_address["state"]
++			zip = corrected_address["zip"]
++	
+ 		if fn_error or ln_error or s_error or c_error or z_error or a_error:
+ 			first_name = cgi.escape(first_name)
+ 			last_name = cgi.escape(last_name)
+diff --git a/helpers.py b/helpers.py
+index bcdcb6c..c277c88 100644
+--- a/helpers.py
++++ b/helpers.py
+@@ -594,4 +594,21 @@ def remove_duplicate_items(ls):
+ def mondaysAssert(expression, msg, funct, filename, linenumber, handler=None):
+ 	if not expression:
+ 		raise Exception("%s:%d:%s MondaysAssertionError: %s" % (filename, linenumber, funct, msg))
+-
++def verifyAddress(street, street2, city, state, zip):
++	""" Use SmartyStreet's address verification
++	to verify an address """
++	url = "https://api.smartystreets.com/street-address?auth-id=ef54b0f3-6274-4cc9-a635-be50087abdd6&auth-token=YIfm9YCh4AwKp0iICkOU8fjEcsGyiVte60NM%2B%2B7RFH0xehwiO5SVpsJjk4tHUuei2B3nIBis2uGc6Zx0uwxuDw%3D%3D&street={street}&street2={street2}&city={city}&state={state}&zipcode={zip}&candidates=1".format(**{"street": urllib.quote_plus(street), "street2":urllib.quote_plus(street2), "city":urllib.quote_plus(city), "state":state, "zip":zip})
++	response = urlfetch.fetch(url, method=urlfetch.GET)
++	response_json = json.loads(response.content)
++	if not response_json:
++		return False
++	else:
++		response_json = response_json[0]
++		address = {
++				"street":response_json["delivery_line_1"],
++				"street2":response_json.get("delivery_line_2", ""),
++				"city":response_json["components"]["city_name"],
++				"state":response_json["components"]["state_abbreviation"],
++				"zip":response_json["components"]["zipcode"]
++			}
++		return address
+diff --git a/templates/register_page.html b/templates/register_page.html
+index 92c39c9..0d51fe9 100644
+--- a/templates/register_page.html
++++ b/templates/register_page.html
+@@ -47,6 +47,7 @@
+ 		<tr>
+ 			<td>Address line 1</td>
+ 			<td><input type="text" name="address1" value="{{address1}}"/></td>
++			<td><div class="error">{{a_error}}</div></td>
+ 		</tr>
+ 		<tr>
+ 			<td>Address line 2 (if applicable)</td>

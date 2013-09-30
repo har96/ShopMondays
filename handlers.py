@@ -21,6 +21,7 @@ VISITOR = Struct(name="Visitor", watch_list=[])
 DESCRIPTION_LIMIT = 2000
 TITLE_LIMIT = 50
 MESSAGE_CHARLIMIT = 5000
+MAX_PRICE = 10000
 CONDITIONS = ["New; Unopen unused", "Used; still in perfect condition", "Used; has some wear", "Old; still good as new", "For parts or not working"]
 SHIP_OPTS = ["off", "on", "pickup"]
 CATEGORIES = ["Sports/Outdoor", "Houshold Items", "Vehicle/Motor", "Electronics", "Other"]
@@ -89,6 +90,11 @@ class Handler( webapp.RequestHandler ):
 		if self.request.url.endswith(".json"):
 			return "json"
 		return "html"
+
+	def inactive(self):
+		self.response.out.write("""<div style="color: blue">You account is not currently active,
+				please activate your account by verifying your email <a href="/activate">here</a></div>""")
+
 
 class HomePage( Handler ):
 	def write(self, **format_args):
@@ -211,11 +217,22 @@ class Register( Handler ):
 		ln_error = "Last name required" if not last_name else "Too many characters in last name" if len(last_name) > 200 else ""
 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
 		z_error = "Invalid zip code" if not zip.isdigit() and len(zip) != 5 else ""
-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)"
 		if username.lower() in RESERVED_USERNAMES: u_error = "Sorry, this username is reserved."
 		if password.lower() in RESERVED_PASSWORDS: p_error = "Sorry, the password you chose is not secure."
 		if password == username: p_error = "Your password may not be the same as your username"
+
+		# verify address
+		corrected_address = verifyAddress(address1, address2, city, state, zip)
+		if not a_error and not corrected_address:
+			a_error = "Address, city, state combination does not exist"
+		else:
+			address1 = corrected_address["street"]
+			address2 = corrected_address["street2"]
+			city = corrected_address["city"]
+			state = corrected_address["state"]
+			zip = corrected_address["zip"]
 
 		username = cgi.escape(username)
 		email = cgi.escape(email)
@@ -264,8 +281,7 @@ class UserHome( Handler ):
 			self.flash("You are not logged in")
 			return
 		if not user.active:
-			self.response.out.write("""<div style="color: blue">You account is not currently active,
-				please activate your account by verifying your email <a href="/activate">here</a></div>""")
+			self.inactive()
 			return
 		else:
 			useritems = [item for item in Item.get_by_seller(user.name) if not item.payed and not item.expired]
@@ -291,6 +307,9 @@ class CreateMessage( Handler ):
 		if not user:
 			self.flash("You are not logged in")
 			return
+		if not user.active:
+			self.inactive()
+			return
 
 		if self.format() == "html":
 			receiver = self.request.get("receiver")
@@ -301,6 +320,9 @@ class CreateMessage( Handler ):
 		user = self.get_user()
 		if not user:
 			self.flash("You are not logged in")
+			return
+		if not user.active:
+			self.inactive()
 			return
 
 		del_id = self.request.get("delete_mes")
@@ -439,12 +461,18 @@ class AddItem( Handler ):
 		if not user:
 			self.flash("You are not logged in")
 			return
+		if not user.active:
+			self.inactive()
+			return
 		self.write(user=user, list_option="auction")
 
 	def post(self):
 		seller = self.get_user()
 		if not seller:
 			self.flash("You are not logged in")
+			return
+		if not seller.active:
+			self.inactive()
 			return
 		title = self.request.get("title")
 		start_price = self.request.get("startprice")
@@ -522,6 +550,10 @@ class AddItem( Handler ):
 			v_error_msg = "Too many chars in days listed field"
 		if len(shipdays) > 30:
 			v_error_msg = "Too many chars in shipping days field"
+
+		if ( list_option == "auction" and start_price > MAX_PRICE ) or (list_option == "instant" and instantprice > MAX_PRICE) or (list_option == "both" and \
+				(instantprice > MAX_PRICE or start_price > MAX_PRICE)):
+			v_error_msg = "Price must not be more than $%d" % MAX_PRICE
 	
 		if self.request.get("img"): img = create_image(self.request.get("img"), 400, 400)
 		# if it is an item that is being relisted and the user did not upload an image,
@@ -588,7 +620,11 @@ class ItemView( Handler ):
 	def post(self, id):
 		buyer = self.get_user()
 		if not buyer:
-			self.response.out.write("you are not logged in")
+			self.flash("You are not logged in")
+			return
+		if not buyer.active:
+			self.inactive()
+			return
 
 		i = Item.get_by_id(int(id))
 		shipdate = i.shipdate.strftime("%b  %d")
@@ -613,11 +649,22 @@ class ItemView( Handler ):
 					watchable=not i.key.integer_id() in buyer.watch_list, num_watchers=len(i.watch_list))
 
 			return
+		if price > MAX_PRICE:
+			if (i.get_price() + i.bid_margin) > MAX_PRICE:
+				error = "Sorry, the minimum bid price on this item is greater than max of $%d"
+			else: 
+				error = "You may not bid over $%d"
+			self.write(user=buyer, item=i, comments=comments, shipdate=shipdate,
+					expdate=expdate,
+					error=error % MAX_PRICE,
+					expire=i.expired, watchable=not i.key.integer_id() in i.watch_list,
+					num_watchers=len(i.watch_list))
+			return
 		if not price >= (i.get_price() + i.bid_margin):
 			self.write(user=buyer, item=i, comments=comments, shipdate=shipdate,
 					expdate=expdate,
 					error="Bid must be at least $%0.2f over price" % i.bid_margin,
-					expire=i.expired, watchable=not i.key.integer_id() in watch_list,
+					expire=i.expired, watchable=not i.key.integer_id() in i.watch_list,
 					num_watchers=len(i.watch_list))
 
 			return
@@ -625,7 +672,8 @@ class ItemView( Handler ):
 		buyer.notify("You just bid $%0.2f on %s" % (price, get_item_link(i)))
 		User.get_by_name(i.seller).notify("%s just bid $%0.2f on %s" % (buyer.name, price, get_item_link(i)))
 		for u in i.watch_list:
-			User.get_by_name(u).notify("%s just bid $%0.2f on %s. Bid now!" % (buyer.name, price, get_item_link(i)))
+			if not u == buyer.name:
+				User.get_by_name(u).notify("%s just bid $%0.2f on %s. Bid now!" % (buyer.name, price, get_item_link(i)))
 		buyer.watch(i)
 		self.redirect("/item/%s" % i.key.id())
 
@@ -764,6 +812,10 @@ class RequestMsg( Handler ):
 		sender = self.get_user()
 		if not sender:
 			self.flash("You are not logged in.")
+			return
+		if not sender.active:
+			self.inactive()
+			return
 		item = self.request.get("item")
 		category = self.request.get("category")
 		if not item:
@@ -1029,9 +1081,20 @@ class EditUserProfile(Handler):
 		s_error = "State does not exist in USA" if not state in STATE_LIST else ""
 		c_error = "Must specify city" if not city else "Too many characters in city field" if len(city) > 200 else ""
 		z_error = "Invalid zip code" if not zip.isdigit() or len(zip) != 5 else ""
-		a_error = "Invalid Address (line 1)" if not address1 else "Too many characters in address (line 1)" if len(address1) > 1000 else ""
+		a_error = "Too many characters in address (line 1)" if len(address1) > 1000 else ""
 		if len(address2) > 1000: a_error = "Too many characters in address (line 2)" 
-		
+
+		# verify address
+		corrected_address = verifyAddress(address1, address2, city, state, zip)
+		if not a_error and not corrected_address:
+			a_error = "Address, city, state combination does not exist"
+		else:
+			address1 = corrected_address["street"]
+			address2 = corrected_address["street2"]
+			city = corrected_address["city"]
+			state = corrected_address["state"]
+			zip = corrected_address["zip"]
+	
 		if fn_error or ln_error or s_error or c_error or z_error or a_error:
 			first_name = cgi.escape(first_name)
 			last_name = cgi.escape(last_name)
@@ -1069,13 +1132,15 @@ class AllUsers( Handler ):
 		self.render("templates/user_all_page.html", **format_args)
 	def get(self):
 		user = self.get_user()
+		users = list(User.query())
+		users.sort(key=lambda u: u.name.upper())
 		if self.format() == "html":
 			if not user:
-				self.write(user=VISITOR, users=User.query())
+				self.write(user=VISITOR, users=users)
 			else:
-				self.write(user=user, users=User.query())
+				self.write(user=user, users=users)
 		elif self.format() == "json":
-			self.write_json([usr.json(permission=False) for usr in User.query()])
+			self.write_json([usr.json(permission=False) for usr in users])
 
 		
 class Logout( Handler ):
@@ -1554,6 +1619,9 @@ class ItemComment( Handler ):
 		sender = self.get_user()
 		if not sender:
 			self.flash("You are not logged in")
+			return
+		if not sender.active:
+			self.inactive()
 			return
 		item = Item.get_by_id(int(id))
 		if not item:
