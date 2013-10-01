@@ -145,6 +145,10 @@ img#banner {
 }
 #item-header {
 	width: 400px;
+	word-break: break-all;
+
+	/* for webkit */
+	word-break: break-word;
 }
 /* fonts */
 @font-face {
