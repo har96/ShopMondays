@@ -58,11 +58,11 @@
 <div itemscope itemtype="http://schema.org/Product" class="pull-right">
 	<h1 id="item-header">
 		<span itemprop="name">{{item.title}}</span>
-		-
+		- <wbr>
 		<span itemprop="Offers" itemscope itemtype="http://schema.org/Offer">
 			<span itemprop="price">${{item.get_price()|dollars}}</span>
 		</span>
-		 - {% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
+		 - <wbr>{% if item.list_option != "instant" %}{{item.num_bids}} Bids{% else %} InstantBuy{% endif %}</h1>
 	<span class="item-seller">{{user_link(item.seller)}}</span>
 	{% if not user.name in item.flaggers and not user.name == item.seller %}
 	<img src="/static/images/Flag.png" id="flag" class="pull-right" height="35px"/><h6 class="pull-right">mark as spam</h6>

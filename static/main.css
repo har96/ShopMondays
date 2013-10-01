@@ -143,6 +143,9 @@ img#banner {
 #flag {
 	cursor: pointer;
 }
+#item-header {
+	width: 400px;
+}
 /* fonts */
 @font-face {
 	font-family: blair;
