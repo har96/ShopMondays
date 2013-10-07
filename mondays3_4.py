@@ -38,4 +38,5 @@ app = webapp.WSGIApplication([("/", HomePage),
 				("/([0-9]+)/editcomment/([0-9]+)", EditComment),
 				("/requests", ViewRequests),
 				("/likerequest/([0-9]+)", Like),
-				("/flag/([0-9]+)", Flag)], debug=True)
+				("/flag/([0-9]+)", Flag),
+				("/setpassword/([0-9]+)", SetPassword)], debug=True)

@@ -1834,3 +1834,65 @@ class Flag( Handler ):
 			if item.current_buyer:
 				User.get_by_name(item.current_buyer).notify("%s was deleted by user moderation" % item.title)
 		self.redirect("/item/%s" % id)
+
+class ForgotPassword( Handler ):
+	def write(self, **format_args):
+		self.render("forgot_password.html", **format_args)
+	def get(self, id):
+		self.write()
+	def post(self, id):
+		user = User.get_by_id(int(id))
+		if not user:
+			self.flash("This user does not exist")
+			return
+		session = get_current_session()
+		if session[user.key.id()+"resettries"] > 9:
+			self.write(error="You ran out of tries, try again in 48 hours or contact <a href=\"mailto:harrison@shopmondays.com\">ShopMondays</a>")
+			return
+		if user.name != self.request.get("username") or user.zip != self.request.get("zip") or user.email != self.request.get("email"):
+			self.write(error="Incorrect info: %d more tries" % (10 - session[user.key.id()+"resettries"]))
+			session[user.key.id()+"resettries"] += 1
+		else:
+			key = hash_str(str(datetime.now()) + user.key.id())
+			content = "Please visit this page to reset your password: http://www.shopmondays.com/setpassword/%s\n \
+					Note: if you did not request a new password please send us a message to let us know!" % key
+			html_content = 'Please visit click here to reset your password: <a href="http://www.shopmondays.com/setpassword/%s">Reset</a>\n \
+					<span style="font-size: small;">Note: if you did not request a new password please <a href="mailto:harrison@shopmondays.com">Let us know</a> \
+					so we can address the issue'
+			mail.send_mail(sender="shopmondays.com Support <harrison@shopmondays.com>",
+				to="%s %s <%s>" % (user.first_name, user.last_name, user.email),
+				subject="Reset your passsword for ShopMondays",
+				body=content,
+				html=html_content)
+			self.write(success="You have been sent an email with instructions.")
+class SetPassword( Handler ):
+	def write(self, **format_args):
+		self.render("templates/set_password.html", **format_args)
+	def get(self, id):
+		user = User.get_by_id(int(id))
+		if not user:
+			self.flash("User does not exist")
+			return
+		key = self.request.get("key")
+		if key != hash_str(user.password + "ShopMondays codehunter secret salt"):
+			self.flash("Invalid key, please contact <a href=\"mailto:harrison@shopmondays.com\">ShopMondays</a> for more info")
+		else:
+			self.write(key=key)
+	def post(self, id):
+		user = User.get_by_id(int(id))
+		if not user:
+			self.flash("User does not exist")
+			return
+		key = self.request.get("key")
+		if key != hash_str(user.password + "ShopMondays codehunter secret salt"):
+			self.flash("Invalid key, please contact <a href=\"mailto:harrison@shopmondays.com\">ShopMondays</a> for more info")
+		else:
+			password = self.request.get("password")
+			verify = self.request.get("verify")
+			if password == verify:
+				reset_pw(user, password)
+				user.notify("You successfully reset your password")
+				self.redirect("/login")
+			else:
+				self.write(error="Passwords do not match")
+
