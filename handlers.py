@@ -159,10 +159,9 @@ class LoginPage( Handler ):
 
 		if not username or not password:
 			self.write(error="Must have a username and a password", username=cgi.escape(username), user=VISITOR)
-
 		u = User.get_by_name(username)
 		if u is None or u is False:
-			if self.format == "json":
+			if self.format() == "json":
 				self.write_json({'valid':False})
 			else:
 				self.write(error="Invalid username and password combination", username=cgi.escape(username),user=VISITOR)
@@ -174,7 +173,7 @@ class LoginPage( Handler ):
 			self.response.headers.add_header("Set-Cookie", "user_id=" + str("%s|%s; Path=/" % (u.key.integer_id(), u.password)))
 			self.redirect("/home")
 		else:
-			if self.format == "json":
+			if self.format() == "json":
 				self.write_json({'valid':False})
 				return
 			self.write(error="Invalid username and password combination", username=cgi.escape(username))
