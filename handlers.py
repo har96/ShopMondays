@@ -1894,6 +1894,7 @@ class SetPassword( Handler ):
 				self.redirect("/login")
 			else:
 				self.write(error="Passwords do not match")
-def AppSupport( Handler ):
+class AppSupport( Handler ):
 	def get(self):
+		logging.info("Hello World!")
 		self.render("templates/app_support.html")
