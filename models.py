@@ -31,6 +31,8 @@ class User( ndb.Model ):
 	address1 = ndb.StringProperty()
 	address2 = ndb.StringProperty()
 
+	last_login = ndb.DateTimeProperty(auto_now_add=True)
+
 	items_purchased = ndb.IntegerProperty(repeated=True) # ids of all the items the user has purchased
 	watch_list = ndb.IntegerProperty(repeated=True) # ids of all the items the user is currently watching
 

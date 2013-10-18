@@ -168,6 +168,8 @@ class LoginPage( Handler ):
 			return
 
 		if users_match(u, hash_user_info(username, password, u.pepper, u.salt)[0]):
+			u.last_login = gen_date2()
+			u.put()
 			session = get_current_session()
 			session["user"+u.name] = u.key.id()
 			self.response.headers.add_header("Set-Cookie", "user_id=" + str("%s|%s; Path=/" % (u.key.integer_id(), u.password)))
