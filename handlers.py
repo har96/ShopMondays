@@ -158,7 +158,11 @@ class LoginPage( Handler ):
 		password = self.request.get("password")
 
 		if not username or not password:
-			self.write(error="Must have a username and a password", username=cgi.escape(username), user=VISITOR)
+			if self.format() == "json":
+				self.write_json({'valid':False})
+			else:
+				self.write(error="Must have a username and a password", username=cgi.escape(username), user=VISITOR)
+				return
 		u = User.get_by_name(username)
 		if u is None or u is False:
 			if self.format() == "json":
