@@ -1,5 +1,6 @@
 from google.appengine.ext import webapp
 register = webapp.template.create_template_register()
+from models import User
 
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
 		'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -33,7 +34,13 @@ def mdtime( date ):
 def user_link( username ):
 	""" Returns a string containing a link to the
 	user's profile page """
-	return '<a href="www.shopmondays.com/user/%s">%s</a>' % (username, username)
+        cls = ""
+        delta = (datetime.now() - user.last_seen).total_seconds()
+        if delta < 300: # 5 minutes
+            cls = 'class=recent'
+        if delta < 60:  # 1 minute
+            cls = 'class=veryrecent'
+	tag = '<a %s href="www.shopmondays.com/user/%s">%s</a>' % (cls, username, username)
 	
 
 register.simple_tag(balance)

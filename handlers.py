@@ -16,6 +16,7 @@ import paypal_settings as settings
 import paypal_adaptivepayment as paypal
 import time
 import json
+from tags import *
 
 VISITOR = Struct(name="Visitor", watch_list=[])
 DESCRIPTION_LIMIT = 2000
@@ -78,8 +79,8 @@ class Handler( webapp.RequestHandler ):
 #		if not session.has_key("users on") or type(session["users on"]) == type([]):
 #			session["users on"] = {}
 #		session["users on"][user.name] = time.time()
-		u.last_seen = gen_date2()
-		u.put()
+		user.last_seen = datetime.now()
+		user.put()
 
 		return user
 

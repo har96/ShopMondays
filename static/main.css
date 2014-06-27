@@ -9,6 +9,14 @@ a {
 	color: blue;
 	text-decoration: none;
 }
+.recent {
+    color: green;
+}
+.veryrecent {
+    color: green;
+    border: 2px solid green;
+    border-radius: 2px;
+}
 #body {
 	width: 1000px;
 	height: 100%;
