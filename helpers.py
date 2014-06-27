@@ -487,9 +487,6 @@ def mdtime( date ):
 #		return '<a style="color: green;" href="/user/%s">%s</a>' % (username, username)
 #	return '<a href="/user/%s">%s</a>' % (username, username)
 	
-def user_link( username ):
-	return '<a href="/user/%s">%s</a>' % (username, username)
-
 def average( ratings ):
         try:
                 ave =  float(sum(ratings))/len(ratings)
