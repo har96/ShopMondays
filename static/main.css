@@ -57,10 +57,8 @@ ul.nobullet {
 .balloon {
 	margin-top: 20px;
 	/* border */
-	border-radius: 15px;
+	border-left: 2px solid #adadad;
 	/* graphics */
-	background-color: white;
-	box-shadow: 0px 0px 30px;
 	padding: 15px;
 	z-index: 1;
 }
@@ -107,10 +105,17 @@ img#banner {
 	font-family: blair;
 }
 .received-message {
-	background-color: #efefef;
+	border-left: 2px solid #adadad;
+	padding-left: 15px;
 }
+
+.message_time {
+	text-align: center;
+}
+
 .sent-message {
 }
+
 .message-field-wrapper {
 	height: 300px;
 }
@@ -123,18 +128,38 @@ img#banner {
 	width: 300px;
 	min-height: 4em;
 }
+
+#inbox {
+	font-family: Tahoma, sans-serif;
+	color: #515151;
+}
+
 .message-content {
 	white-space: pre-wrap;
 	word-break: break-all;
+	padding: 0 10px 0 10px;
+	font-family: Tahoma, sans-serif;
+	color: #515151;
 
 	/* for webkit */
 	word-break: break-word;
 }
 .content-cell ~ td {
 	width: 60px;
+	font-family: Tahoma, sans-serif;
+}
+
+.message-info {
+	font-family: Tahoma, sans-serif;
+	color: #515151;
+}
+
 }
 .message-table {
+	font-family: sans-serif;
+	text-align: center;
 }
+
 /* IDs */
 #markup-help {
 	display: none;

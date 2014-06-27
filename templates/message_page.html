@@ -6,12 +6,12 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$(".receivers-tab").mouseenter(function() {
-				var id = $(this).attr('id');
+				var id = $(this).aspaniv('id');
 				$("#"+id+" .receivers").slideDown("fast");
 				$("#"+id+" .r-fill").remove();
 			});
 			$(".receivers-tab").mouseleave(function() {
-				var id = $(this).attr('id');
+				var id = $(this).aspaniv('id');
 				$("#"+id+" .receivers").slideUp("fast");
 				var s = '<span class="r-fill" id="' + id + '">Multiple</span>';
 				$(this).append(s);
@@ -24,8 +24,8 @@
 			});
 
 			$(".deleteButton").click(function() {
-				var id = $(this).attr('id');
-				$("tr."+id).slideUp("fast");
+				var id = $(this).aspaniv('id');
+				$("div."+id).slideUp("fast");
 				$.ajax({type: "post",
 					url: "/message",
 					data: {"delete_mes": id}});
@@ -70,17 +70,15 @@
 <div class="balloon">
 	<div id="inbox">
 		Message Box:
-		<span class="pull-right">Received messages are highlighted.<br>Sent messages are not</span>
 		<br><a href="/message"><button type="button">Refresh</button></a>
-		<table class="message-table">
-			<th><pre>From/To   </pre></th> <th><pre>Message    </pre></th>
-			<th><pre>Date Sent    </pre></th>
+		<div class="message-table">
 			{% if usermessages|length > 1 %}
-			<tr><td><button onClick="delete_allmsgs()">Delete All</button></td></tr>
+			<div><span><button onClick="delete_allmsgs()">Delete All</button></span></div>
 			{% endif %}
 			{% for message in usermessages %}
-				<tr class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %}">
-					<td {% if not message.receiver|length == 1 and message.sender == user.name %}
+				<div class="message_time">{{message.sent_str}}</div>
+				<div class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %}">
+					<span {% if not message.receiver|length == 1 and message.sender == user.name %}
 						class="receivers-tab" id="{{message.key.id()}}"{% endif %}>
 						{% if user.name == message.sender %}<span id="to">To:</span>
 							{% if message.receiver|length == 1 %}
@@ -95,14 +93,13 @@
 							{% endif %}
 						{% else %}{{user_link(message.sender)}}:
 						{% endif %}
-					</td>
-					<td class="content-cell"><pre class="message-content">{{message.content}}</pre></td>
-					<td>{{message.sent_str}}</td>
-					<td><button class="deleteButton" id="{{message.key.id()}}">Delete</button></td>
+					</span>
+					<span class="content-cell"><pre class="message-content">{{message.content}}</pre></span>
+					<span><button class="deleteButton" id="{{message.key.id()}}">Delete</button></span>
 					{% if user.name != message.sender %}
-					<td><button type="button" onclick="reply('{{message.sender}}')">Reply</button></td>
+					<span><button type="button" onclick="reply('{{message.sender}}')">Reply</button></span>
 					{% endif %}
-				</tr>
+				</div>
 			{% endfor %}
 		</table>
 		{% if usermessages|length > 1 %}
