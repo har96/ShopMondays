@@ -1,3 +1,5 @@
+import sys
+sys.path.append("lib/packages")
 from gaesessions import SessionMiddleware
 from google.appengine.ext.appstats import recording
 
