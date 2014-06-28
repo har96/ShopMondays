@@ -1,7 +1,8 @@
 # note: this module only works for python 2.5, unless
 # provided with a later version of bcrypt
+from configure_path import libraries
 import sys
-sys.path.append("lib/packages")
+sys.path.extend(libraries)
 
 # time
 from pytz.gae import pytz
@@ -11,10 +12,11 @@ import time
 # crypt
 import hashlib
 import random
-import py_bcrypt.bcrypt as bcrypt
+import bcrypt
 #formatting
 import string
 import re
+from markdown import markdown
 # other
 from functools import update_wrapper
 import logging
@@ -24,7 +26,7 @@ import math
 
 # exernal
 import paypal_settings as paypal
-from recaptcha.client import captcha
+from client import captcha
 
 # google
 from gaesessions import get_current_session
@@ -621,3 +623,11 @@ def verifyAddress(street, street2, city, state, zip):
 				"zip":response_json["components"]["zipcode"]
 			}
 		return address
+
+def format_msg(content):
+    """
+    Run the content through markdown
+    and then through sanitizer
+    """
+    html = markdown(content, safe_mode=True)
+    return html
