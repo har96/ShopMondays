@@ -1,5 +1,6 @@
 html {
-	background-color: #bababa;
+	/*background-color: #bababa;*/
+	background-color: #c3c4cc;
 	height: 100%;
 }
 body {
@@ -16,12 +17,14 @@ a {
     color: green;
     border: 2px solid green;
     border-radius: 2px;
+    padding: 0 5px 0 5px;
 }
 #body {
 	width: 1000px;
 	height: 100%;
-	background-image: url("/static/images/background.png");
-	margin-top: 90px;
+	/*background-image: url("/static/images/background.png");*/
+	background-color: #f4f7ff;
+	margin-top: 73px;
 	margin-left: auto;
 	margin-right: auto;
 	padding-top: 25px;
@@ -29,7 +32,7 @@ a {
 	padding-right: 15px;
 	padding-bottom: 25px;
 	/* graphics */
-	box-shadow: 0px 0px 30px;
+	/*box-shadow: 0px 0px 30px;*/
 	overflow-y: auto;
 	overflow-x: visible;
 }
@@ -78,6 +81,13 @@ ul.nobullet {
 	z-index: 10;
 }
 
+.navigation {
+	background-color: #83be78;
+	width: 100%;
+	margin: 0;
+
+}
+
 /* specific classes */
 ul.navigation {
 	position: absolute;
@@ -89,24 +99,23 @@ ul.navigation {
 ul.navigation > li {
 	display: inline;
 	margin-left: 40px;
-	font-size: 0.9em;
-	font-family: blair;
+	font-size: 1.1em;
 }
 ul.navigation > li > a {
-	color: white;
-	margin-bottom: 30px;
+	font-family: Tahoma, sans-serif;
+	font-weight: bold;
+	color: #f4f7ff;
 }
+
+#header {
+	background-color: #83be78;
+}
+
 .logo-item ~ li {
 	position: relative;
 	bottom: 20px;
 }
-img#banner {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 90px;
-}
+
 .welcome {
 	color: gray;
 	font-size: 1.2em;
