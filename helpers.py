@@ -17,6 +17,7 @@ import bcrypt
 import string
 import re
 from markdown import markdown
+import bleach
 # other
 from functools import update_wrapper
 import logging
@@ -629,5 +630,5 @@ def format_msg(content):
     Run the content through markdown
     and then through sanitizer
     """
-    html = markdown(content, safe_mode=True)
+    html = markdown(content, safe_mode="replace")
     return html
