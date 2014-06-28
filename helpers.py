@@ -17,7 +17,6 @@ import bcrypt
 import string
 import re
 from markdown import markdown
-import bleach
 # other
 from functools import update_wrapper
 import logging
