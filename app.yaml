@@ -1,5 +1,5 @@
 application: mimondays
-version: 1-4-1
+version: 1-5
 runtime: python27
 api_version: 1
 threadsafe: True
@@ -15,19 +15,19 @@ handlers:
   static_dir: static
 
 - url: /favicon.ico
-  static_files: favicon.ico
-  upload: favicon.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon.ico
 
 - url: /apple-touch-icon\.png
-  static_files: apple-touch-icon.png
-  upload: apple-touch-icon.png
+  static_files: static/images/apple-touch-icon.png
+  upload: static/images/apple-touch-icon.png
 
 - url: /test.*
   login: admin
   script: gaeunit.application
 
 - url: /.*
-  script: mondays3_4.app
+  script: mondays3_5.app
 
 error_handlers:
   - file: default_error.html

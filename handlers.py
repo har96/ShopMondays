@@ -1,3 +1,5 @@
+import sys
+sys.path.append("lib/packages")
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
