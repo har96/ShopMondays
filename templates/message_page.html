@@ -42,7 +42,7 @@
 {% block content %}
 <br>
 <br>
-<form action="/message" method="post">
+<form action="{{upload_url}}" method="post" enctype="multipart/form-data">
 	From: {{user.name}}&nbsp;&nbsp;&nbsp;&nbsp;{% if user.name == "Mondays" %}Send to all users: <input type="checkbox" name="all"/> {% endif %}
 	<label>To
 		<input id="receiver-field" type="text" name="receiver" value="{{receiver}}"/>
@@ -53,6 +53,7 @@
 			<label>Content<br>
 				<textarea id="content-input" name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
 			<br>
+                        <input type="file" name="image" />
 			<button type="submit">Send</button>
 		</div>
 		<div class="balloon pull-left" id="markup-help">Mondays uses Markdown for message formatting:

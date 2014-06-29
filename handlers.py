@@ -3,8 +3,8 @@ sys.path.append("lib/packages")
 
 # Google
 from google.appengine.api import memcache
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
+from google.appengine.ext import webapp, blobstore
+from google.appengine.ext.webapp import template, blobstore_handlers
 import jinja2
 from google.appengine.api import mail
 from google.appengine.api import images
@@ -313,7 +313,7 @@ class UserHome( Handler ):
 					"user":user.json()})
 
 
-class CreateMessage( Handler ):
+class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 	def write(self, **format_args):
 		self.render("templates/message_page.html", **format_args)
 	def get(self):
@@ -326,8 +326,10 @@ class CreateMessage( Handler ):
 			return
 
 		if self.format() == "html":
+                        upload_url = blobstore.create_upload_url("/message")
 			receiver = self.request.get("receiver")
-			self.write(user=user, receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+			self.write(user=user, receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)),\
+                                upload_url=upload_url)
 		elif self.format() == "json":
 			self.write_json([msg.json() for msg in Message.get_user_messages(user.name)])
 	def post(self):
@@ -431,7 +433,9 @@ class CreateMessage( Handler ):
 			else:
 				self.write_json({"error":3})
 			return
-
+                image = self.get_uploads("image")
+                if image: 
+                    image = image[0]
 		# send message
 		id = user.key.integer_id()
 		if all == "on":
@@ -440,7 +444,7 @@ class CreateMessage( Handler ):
 			try:
 				sender = User.get_by_id(id).name
 				if sender == "Mondays":
-					Message.send_mond_msg(all_names, content)
+					Message.send_mond_msg(all_names, content, image or None)
 				else:
 					self.write(user=sender, error="Please don't post to this uri with a bot")
 					return
@@ -456,9 +460,9 @@ class CreateMessage( Handler ):
 		else:
 			sender = User.get_by_id(id).name
 			if sender == "Mondays":
-				Message.send_mond_msg(receivers, content)
+				Message.send_mond_msg(receivers, content, image or None)
 			else: 
-				Message.send_msg(sender, receivers, content)
+				Message.send_msg(sender, receivers, content, image or None)
 
 		time.sleep(1)  # Make sure the data base writes the sent message before querying for user messages
 		if self.format() == "html":
@@ -1913,3 +1917,9 @@ class AppSupport( Handler ):
 	def get(self):
 		logging.info("Hello World!")
 		self.render("templates/app_support.html")
+
+class ImageMsg( blobstore_handlers.BlobstoreDownloadHandler ):
+        def get(self, key):
+            key = str(urllib.unquote(key))
+            blob = blobstore.BlobInfo.get(key)
+            self.send_blob(blob)
