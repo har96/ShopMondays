@@ -610,7 +610,9 @@ def verifyAddress(street, street2, city, state, zip):
 	to verify an address """
 	url = "https://api.smartystreets.com/street-address?auth-id=ef54b0f3-6274-4cc9-a635-be50087abdd6&auth-token=YIfm9YCh4AwKp0iICkOU8fjEcsGyiVte60NM%2B%2B7RFH0xehwiO5SVpsJjk4tHUuei2B3nIBis2uGc6Zx0uwxuDw%3D%3D&street={street}&street2={street2}&city={city}&state={state}&zipcode={zip}&candidates=1".format(**{"street": urllib.quote_plus(street), "street2":urllib.quote_plus(street2), "city":urllib.quote_plus(city), "state":state, "zip":zip})
 	response = urlfetch.fetch(url, method=urlfetch.GET)
-	response_json = json.loads(response.content)
+        if response.content:
+    	        response_json = json.loads(response.content)
+        else: response_json = None
 	if not response_json:
 		return False
 	else:

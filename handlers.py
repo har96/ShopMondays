@@ -111,7 +111,7 @@ class HomePage( Handler ):
 	def write(self, **format_args):
 		self.render("templates/home_page.html", **format_args)
 	def get(self):
-		self.write(items=Item.get_active().fetch(2))
+		self.write(items=Item.get_active().fetch(2), user=VISITOR)
 
 class CheckExpiration( Handler ):
 	def get(self):
@@ -197,13 +197,13 @@ class AboutPage( Handler ):
 	def write(self, **format_args):
 		self.render("templates/about_page.html", **format_args)
 	def get(self):
-		self.write(sponsers=get_sponsers())
+		self.write(sponsers=get_sponsers(), user=VISITOR)
 
 class Register( Handler ):
 	def write(self, **format_args):
 		self.render("templates/register_page.html", **format_args)
 	def get(self):
-		self.write(state_list=STATE_LIST, user=Struct(name="Visitor"))
+		self.write(state_list=STATE_LIST, user=VISITOR)
 	def post(self):
 		username = self.request.get("username")
 		password = self.request.get("password")
