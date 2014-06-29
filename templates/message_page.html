@@ -96,7 +96,7 @@
 							{% else %}{{user_link(message.sender)}}:
 							{% endif %}
 						</span>
-                                                <span class="content-cell"><pre class="message-content">{{message.content}}{% if message.image_url %}<br><img class="msg-image" src="{{message.image_url}}" width="200px" />{% endif %}</pre></span>
+                                                <span class="content-cell"><pre class="message-content">{{message.content}}{% if message.image_url %}<br><a href="{{message.image_url}}"><img class="msg-image" src="{{message.image_url}}" width="200px" /></a>{% endif %}</pre></span>
                                                                
 						{% if user.name != message.sender %}
 						<span class="replyButton" onclick="reply('{{message.sender}}')"><img src="/static/images/reply_icon.png" alt="relpy icon"></span>
