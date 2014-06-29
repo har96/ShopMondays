@@ -630,5 +630,5 @@ def format_msg(content):
     and then through sanitizer
     """
     html = markdown(content, safe_mode="replace")
-    re.sub(r"<[/]?p>", "", html)
+    html = re.sub(r"<[/]?p>", "", html)
     return html
