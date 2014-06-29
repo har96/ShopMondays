@@ -40,4 +40,5 @@ app = webapp.WSGIApplication([("/", HomePage),
 				("/likerequest/([0-9]+)", Like),
 				("/flag/([0-9]+)", Flag),
 				("/setpassword/([0-9]+)", SetPassword),
-				("/app_support", AppSupport)], debug=True)
+				("/app_support", AppSupport),
+                                ("/image_msg/(.+)", ImageMsg)], debug=True)

@@ -262,6 +262,7 @@ class Message( ndb.Model ):
 	sent_str = ndb.StringProperty()
 	# list of users that "own" the message.  This includes the sender and receivers.
 	references = ndb.StringProperty(repeated=True)
+        image_url = ndb.StringProperty()
 
 	def json(self):
 		""" returns json representation of Message """
@@ -288,13 +289,15 @@ class Message( ndb.Model ):
 		return cls.query(cls.references == name).order(-cls.sent)
 
 	@classmethod
-	def send_msg(cls, sender, receivers, content):
+	def send_msg(cls, sender, receivers, content, image):
 		content = format_msg(content)
 		td = gen_date2()
 		m = cls(sender=sender, receiver=receivers, content=content, sent=td)
 		receivers.append(sender)
 		m.references = receivers
 		m.sent_str = m.sent.strftime("%b %d  %T")
+                if image:
+                    m.image_url = "/image_msg/%s" % image.key()
 		m.put()
 
 		# add msg to sender history
@@ -328,6 +331,8 @@ class Message( ndb.Model ):
 		m = cls(sender="Mondays", receiver=receivers, content=content, sent=td)
 		m.references = receivers + ["Mondays"]
 		m.sent_str = m.sent.strftime("%b %d  %T")
+                if image:
+                    m.image_url = "/image_msg/%s" % image.key()
 		m.put()
 
 		# add msg to receivers history
