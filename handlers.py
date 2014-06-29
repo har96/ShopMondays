@@ -363,12 +363,13 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 		receiver = self.request.get("receiver")
 		all = self.request.get("all")
 
+                upload_url = blobstore.create_upload_url("/message")
 				
 		# ensure that the user entered content
 		if not content:
 			if self.format() == "html":
 				self.write(user=user, error="Must have a content", body=content, 
-					 receiver=receiver, usermessages=list(Message.get_user_messages(user.name)))
+					 receiver=receiver, usermessages=list(Message.get_user_messages(user.name)), upload_url=upload_url)
 			else:
 				self.write_json({"error":1})
 			return
@@ -376,7 +377,7 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 		if (not receiver and user.name != "Mondays") or (not receiver and all != "on"):
 			if self.format() == "html":
 				self.write(user=user, error="You must have a receiver.", body=cgi.escape(content),
-					usermessages=list(Message.get_user_messages(user.name)))
+					usermessages=list(Message.get_user_messages(user.name)), upload_url=upload_url)
 			else:
 				self.write_json({"error":1, "error_msg":"You must specify a receiver."})
 			return
@@ -388,13 +389,13 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 		if len(receiver) > 1000 and user.name != "Mondays":
 			if self.format() == "html":
 				self.write(user=user, error="Too many characters in receiver field.", body=cgi.escape(content),
-				usermessages=list(Message.get_user_messages(user.name)))
+				usermessages=list(Message.get_user_messages(user.name)), upload_url=upload_url)
 			else:
 				self.write_json({"error":1, "error_msg":"Too many characters in receiver field."})
 		if len(content) > MESSAGE_CHARLIMIT and user.name != "Mondays":
 			if self.format() == "html":
 				self.write(user=user, error="Too many characters in message.  %d max" % MESSAGE_CHARLIMIT, body=cgi.escape(content),
-				usermessages=list(Message.get_user_messages(user.name)))
+				usermessages=list(Message.get_user_messages(user.name)), upload_url=upload_url)
 			else:
 				self.write_json({"error":1, "error_msg":"Too many characters in message.  %d max" % MESSAGE_CHARLIMIT})
 
@@ -402,7 +403,7 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 		if (not receivers and user.name != "Mondays") or (not receivers and all != "on"):
 			if self.format() == "html":
 				self.write(user=user, error="Invalid receivers.  You must enter names", body=cgi.escape(content),
-						usermessages=list(Message.get_user_messages(user.name)))
+						usermessages=list(Message.get_user_messages(user.name)), upload_url=upload_url)
 			else:
 				self.write_json({"error":1})
 			return
@@ -410,14 +411,16 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 			if user.name == name:
 				if self.format() == "html":
 					self.write(user=user, error="You cannot send a message to yourself", body=cgi.escape(content),
-							receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+							receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)),
+                                                        upload_url=upload_url)
 				else:
 					self.write_json({"error":2})
 				return
 			if not name:
 				if self.format() == "html":
 					self.write(user=user, error="Invalid receiver, check the <em>To</em> box for leading or trailing spaces",
-							body=cgi.escape(content), receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+							body=cgi.escape(content), receiver=cgi.escape(receiver), \
+                                                                upload_url=upload_url, usermessages=list(Message.get_user_messages(user.name)))
 				else:
 					self.write_json({"error":1})
 				return
@@ -429,7 +432,8 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 		if not found == len(receivers) and not all == "on":
 			if self.format() == "html":
 				self.write(user=user, error="One of the receivers does not exist", body=cgi.escape(content),
-						receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+						receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)),
+                                                upload_url=upload_url)
 			else:
 				self.write_json({"error":3})
 			return
@@ -452,7 +456,8 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 				
 				if self.format() == "html":
 					self.write(user=user, error="Sorry, message did not send, an error occured.  Please tell Mondays: %s" % e,
-						body=cgi.escape(content), receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)))
+						body=cgi.escape(content), receiver=cgi.escape(receiver), usermessages=list(Message.get_user_messages(user.name)),
+                                                upload_url=upload_url)
 				else:
 					self.write_json({"error":4})
 				logging.error("Message error:" + str(e))
@@ -466,7 +471,6 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 
 		time.sleep(1)  # Make sure the data base writes the sent message before querying for user messages
 		if self.format() == "html":
-                        upload_url = blobstore.create_upload_url("/message")
 			self.write(user=user, usermessages=list(Message.get_user_messages(user.name)), success="Message was sent",
                                     upload_url=upload_url)
 		else:
