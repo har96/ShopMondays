@@ -1,32 +1,40 @@
 # note: this module only works for python 2.5, unless
 # provided with a later version of bcrypt
+from configure_path import libraries
 import sys
-sys.path.append("packages")
+sys.path.extend(libraries)
 
+# time
 from pytz.gae import pytz
 from pytz import timezone
-import time
-import hashlib
 from datetime import datetime
+import time
+# crypt
+import hashlib
 import random
+import bcrypt
+#formatting
 import string
 import re
-import py_bcrypt.bcrypt as bcrypt
+from markdown import markdown
+# other
 from functools import update_wrapper
 import logging
 import urllib
 import json
 import math
-import paypal_settings as paypal
 
+# exernal
+import paypal_settings as paypal
+from client import captcha
+
+# google
 from gaesessions import get_current_session
 
 from google.appengine.api import images
 from google.appengine.api import urlfetch
 from google.appengine.api import memcache
 from google.appengine.ext import db
-
-from recaptcha.client import captcha
 
 PAYPAL = "https://svcs.sandbox.paypal.com/AdaptivePayments/API_operation"
 CAPTCHA_KEY = "6Ld1y-ASAAAAALcEb4SIJhGxS0buBCML3ceiCBfC"
@@ -615,3 +623,11 @@ def verifyAddress(street, street2, city, state, zip):
 				"zip":response_json["components"]["zipcode"]
 			}
 		return address
+
+def format_msg(content):
+    """
+    Run the content through markdown
+    and then through sanitizer
+    """
+    html = markdown(content, safe_mode="replace")
+    return html

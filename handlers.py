@@ -1,3 +1,7 @@
+import sys
+sys.path.append("lib/packages")
+
+# Google
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -7,16 +11,19 @@ from google.appengine.api import images
 from google.appengine.api import urlfetch
 from gaesessions import get_current_session
 from STATE_LIST import STATE_LIST
+# MVC
 from models import *
 from helpers import *
-import logging
 import cgi
+# Other
+import logging
 import os
 import paypal_settings as settings
 import paypal_adaptivepayment as paypal
 import time
 import json
 from tags import *
+from markdown import markdown
 
 VISITOR = Struct(name="Visitor", watch_list=[])
 DESCRIPTION_LIMIT = 2000

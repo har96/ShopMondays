@@ -289,7 +289,7 @@ class Message( ndb.Model ):
 
 	@classmethod
 	def send_msg(cls, sender, receivers, content):
-		content=markup_text(cgi.escape(content, quote=True))
+		content = format_msg(content)
 		td = gen_date2()
 		m = cls(sender=sender, receiver=receivers, content=content, sent=td)
 		receivers.append(sender)
