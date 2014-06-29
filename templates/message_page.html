@@ -24,7 +24,7 @@
 			});
 
 			$(".deleteButton").click(function() {
-				var id = $(this).aspaniv('id');
+				var id = $(this).attr('id');
 				$("div."+id).slideUp("fast");
 				$.ajax({type: "post",
 					url: "/message",
