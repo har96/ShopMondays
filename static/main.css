@@ -158,8 +158,16 @@ ul.navigation > li > a {
 }
 
 .received-message {
-	border-left: 2px solid #adadad;
 	padding-left: 15px;
+	background-color: #c9e4cc;
+}
+
+.received-message .content-cell {
+	color: white;
+}
+
+.msg-image {
+	border-radius: 20px;
 }
 
 .message_time {
@@ -167,6 +175,7 @@ ul.navigation > li > a {
 }
 
 .sent-message {
+	background-color: #f0f0fb;
 }
 
 .message-field-wrapper {
@@ -218,9 +227,9 @@ ul.navigation > li > a {
 	display: inline-block;
 	padding-right: 90px;
         padding-left: 150px;
-
-        background-color: #f0f0fb;
-        border-radius: 10px;
+        margin-top: 40px;
+        /*background-color: #f0f0fb;*/
+        border-radius: 30px;
 }
 
 /* IDs */
