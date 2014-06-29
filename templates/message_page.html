@@ -53,7 +53,7 @@
 			<label>Content<br>
 				<textarea id="content-input" name="body" wrap="hard" cols=50 rows=15>{{body}}</textarea></label>
 			<br>
-                        <input type="file" name="image" />
+                        Add Image: <input type="file" name="image" />
 			<button type="submit">Send</button>
 		</div>
 		<div class="balloon pull-left" id="markup-help">Mondays uses Markdown for message formatting:
@@ -81,7 +81,7 @@
 				<div>
 					<div class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %} message">
 						<span {% if not message.receiver|length == 1 and message.sender == user.name %}
-							class="receivers-tab" id="{{message.key.id()}}"{% endif %}>
+                                                        class="receivers-tab contact-tab" id="{{message.key.id()}}"{% else %}class="contact-tab"{% endif %}>
 							{% if user.name == message.sender %}<span id="to">To:</span>
 								{% if message.receiver|length == 1 %}
 									{{user_link(message.receiver[0])}}
@@ -96,15 +96,19 @@
 							{% else %}{{user_link(message.sender)}}:
 							{% endif %}
 						</span>
-						<span class="content-cell"><pre class="message-content">{{message.content}}</pre></span>
+                                                <span class="content-cell"><pre class="message-content">{{message.content}}
+                                                            <br>{% if message.image_url %}
+                                                                    <img class="msg-image" src="{{message.image_url}}" width="200px" height="200px" /></pre></span>
+                                                                {% endif %}
 						{% if user.name != message.sender %}
 						<span class="replyButton" onclick="reply('{{message.sender}}')"><img src="/static/images/reply_icon.png" alt="relpy icon"></span>
 						{% endif %}
 						<span class="deleteButton" id="{{message.key.id()}}"><img src="/static/images/delete_icon.png" alt="delete icon"></span>
 					</div>
 				</div>
+                                <hr width="300px">
 			{% endfor %}
-		</table>
+		</div>
 		{% if usermessages|length > 1 %}
 		<button onClick="delete_allmsgs()">Delete All</button>
 		{% endif %}

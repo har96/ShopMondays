@@ -33,6 +33,12 @@ p, h1, h2, h3, a, li, span {
 	margin-top: -7px;
 
 }
+.contact-tab {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    margin-top: -7px;
+}
 
 .recent {
     color: green;
@@ -211,6 +217,10 @@ ul.navigation > li > a {
 	position: relative;
 	display: inline-block;
 	padding-right: 90px;
+        padding-left: 150px;
+
+        background-color: #f0f0fb;
+        border-radius: 10px;
 }
 
 /* IDs */
