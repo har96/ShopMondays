@@ -76,29 +76,31 @@
 			<div><span><button onClick="delete_allmsgs()">Delete All</button></span></div>
 			{% endif %}
 			{% for message in usermessages %}
-				<div class="message_time">{{message.sent_str}}</div>
-				<div class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %}">
-					<span {% if not message.receiver|length == 1 and message.sender == user.name %}
-						class="receivers-tab" id="{{message.key.id()}}"{% endif %}>
-						{% if user.name == message.sender %}<span id="to">To:</span>
-							{% if message.receiver|length == 1 %}
-								{{user_link(message.receiver[0])}}
-							{% else %}
-								<span class="r-fill" id="{{message.key.id()}}">Multiple</span>
-								<div class="receivers" id="{{message.key.id()}}">
-									<ul>
-										{% for name in message.receiver %}<li>{{user_link(name)}}</li>{% endfor %}
-									</ul>
-								</div>
+				<!--<div class="message_time">{{message.sent_str}}</div>-->
+				<div>
+					<div class="{{message.key.id()}} {% if message.sender != user.name %}received-message{% else %}sent-message{% endif %} message">
+						<span {% if not message.receiver|length == 1 and message.sender == user.name %}
+							class="receivers-tab" id="{{message.key.id()}}"{% endif %}>
+							{% if user.name == message.sender %}<span id="to">To:</span>
+								{% if message.receiver|length == 1 %}
+									{{user_link(message.receiver[0])}}
+								{% else %}
+									<span class="r-fill" id="{{message.key.id()}}">Multiple</span>
+									<div class="receivers" id="{{message.key.id()}}">
+										<ul>
+											{% for name in message.receiver %}<li>{{user_link(name)}}</li>{% endfor %}
+										</ul>
+									</div>
+								{% endif %}
+							{% else %}{{user_link(message.sender)}}:
 							{% endif %}
-						{% else %}{{user_link(message.sender)}}:
+						</span>
+						<span class="content-cell"><pre class="message-content">{{message.content}}</pre></span>
+						{% if user.name != message.sender %}
+						<span class="replyButton" onclick="reply('{{message.sender}}')"><img src="/static/images/reply_icon.png" alt="relpy icon"></span>
 						{% endif %}
-					</span>
-					<span class="content-cell"><pre class="message-content">{{message.content}}</pre></span>
-					<span><button class="deleteButton" id="{{message.key.id()}}">Delete</button></span>
-					{% if user.name != message.sender %}
-					<span><button type="button" onclick="reply('{{message.sender}}')">Reply</button></span>
-					{% endif %}
+						<span class="deleteButton" id="{{message.key.id()}}"><img src="/static/images/delete_icon.png" alt="delete icon"></span>
+					</div>
 				</div>
 			{% endfor %}
 		</table>

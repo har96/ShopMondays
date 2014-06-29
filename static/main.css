@@ -14,6 +14,26 @@ a {
 p, h1, h2, h3, a, li, span {
 	font-family: Tahoma, sans-serif;
 }
+
+.deleteButton {
+	margin-left: 15px;
+	cursor: pointer;
+	position: absolute;
+	top: 50%;
+	right: 20px;
+	margin-top: -7px;
+}
+
+.replyButton {
+	margin-left: 20px;
+	cursor: pointer;
+	position: absolute;
+	top: 50%;
+	right: 50px;
+	margin-top: -7px;
+
+}
+
 .recent {
     color: green;
 }
@@ -167,7 +187,7 @@ ul.navigation > li > a {
 	padding: 0 10px 0 10px;
 	font-family: Tahoma, sans-serif;
 	color: #515151;
-
+	display: inline-block;
 	/* for webkit */
 	word-break: break-word;
 }
@@ -185,6 +205,12 @@ ul.navigation > li > a {
 .message-table {
 	font-family: sans-serif;
 	text-align: center;
+}
+
+.message {
+	position: relative;
+	display: inline-block;
+	padding-right: 90px;
 }
 
 /* IDs */
