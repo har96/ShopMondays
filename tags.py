@@ -12,8 +12,8 @@ def user_link( username ):
                 cls = 'class=recent'
             if delta < 60:  # 1 minute
                 cls = 'class=veryrecent'
-            return '<a %s href="www.shopmondays.com/user/%s">%s</a>' % (cls, username, username)
+            return '<a %s href="/user/%s">%s</a>' % (cls, username, username)
         elif user:
-            return '<a href="www.shopmondays.com/user/%s">%s</a>' % (username, username)
+            return '<a href="/user/%s">%s</a>' % (username, username)
         else:
             return username
