@@ -466,7 +466,9 @@ class CreateMessage( Handler, blobstore_handlers.BlobstoreUploadHandler ):
 
 		time.sleep(1)  # Make sure the data base writes the sent message before querying for user messages
 		if self.format() == "html":
-			self.write(user=user, usermessages=list(Message.get_user_messages(user.name)), success="Message was sent")
+                        upload_url = blobstore.create_upload_url("/message")
+			self.write(user=user, usermessages=list(Message.get_user_messages(user.name)), success="Message was sent",
+                                    upload_url=upload_url)
 		else:
 			self.write_json({"error":0})
 	
