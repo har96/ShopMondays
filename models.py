@@ -1,4 +1,4 @@
-from google.appengine.ext import ndb
+from google.appengine.ext import ndb, blobstore
 from google.appengine.api import memcache
 from helpers import *
 import json
@@ -262,7 +262,10 @@ class Message( ndb.Model ):
 	sent_str = ndb.StringProperty()
 	# list of users that "own" the message.  This includes the sender and receivers.
 	references = ndb.StringProperty(repeated=True)
+
         image_url = ndb.StringProperty()
+        image_key = ndb.BlobKeyProperty()
+        
 
 	def json(self):
 		""" returns json representation of Message """
@@ -298,6 +301,7 @@ class Message( ndb.Model ):
 		m.sent_str = m.sent.strftime("%b %d  %T")
                 if image:
                     m.image_url = "/image_msg/%s" % image.key()
+                    m.image_key = image.key()
 		m.put()
 
 		# add msg to sender history
@@ -333,6 +337,7 @@ class Message( ndb.Model ):
 		m.sent_str = m.sent.strftime("%b %d  %T")
                 if image:
                     m.image_url = "/image_msg/%s" % image.key()
+                    m.image_key = image.key()
 		m.put()
 
 		# add msg to receivers history
@@ -357,6 +362,9 @@ class Message( ndb.Model ):
 			raise ValueError("%s is not in references.  Cannot delete Message." % name)
 		self.references.remove(name)
 		if not len(self.references):
+                        if self.image_key:
+                            image = blobstore.BlobInfo.get(self.image_key)
+                            image.delete()
 			self.key.delete()
 		else:
 			self.put()
