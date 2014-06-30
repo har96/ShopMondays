@@ -320,7 +320,7 @@ class Message( ndb.Model ):
 				user.put_history(hist)
 	
 	@classmethod
-	def send_mond_msg(cls, receivers, content):
+	def send_mond_msg(cls, receivers, content, image):
 		content = markup_text(content)
 		if not receivers:
 			logging.error("invalid receiver in send_mond_msg. receiver:%s" % receiver)

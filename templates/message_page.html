@@ -6,12 +6,12 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$(".receivers-tab").mouseenter(function() {
-				var id = $(this).aspaniv('id');
+				var id = $(this).attr('id');
 				$("#"+id+" .receivers").slideDown("fast");
 				$("#"+id+" .r-fill").remove();
 			});
 			$(".receivers-tab").mouseleave(function() {
-				var id = $(this).aspaniv('id');
+				var id = $(this).attr('id');
 				$("#"+id+" .receivers").slideUp("fast");
 				var s = '<span class="r-fill" id="' + id + '">Multiple</span>';
 				$(this).append(s);

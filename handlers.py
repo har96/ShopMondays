@@ -191,7 +191,7 @@ class LoginPage( Handler ):
 			if self.format() == "json":
 				self.write_json({'valid':False})
 				return
-			self.write(error="Invalid username and password combination", username=cgi.escape(username))
+			self.write(error="Invalid username and password combination", username=cgi.escape(username), user=VISITOR)
 
 class AboutPage( Handler ):
 	def write(self, **format_args):
